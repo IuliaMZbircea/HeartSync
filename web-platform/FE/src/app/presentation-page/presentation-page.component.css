@@ -9,13 +9,13 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background-color: #1a1f38;
+  background-color: #1c1e37;
   color: #c7cdfa;
 }
 
 .btn-auth{
   background-color: #c7cdfa;
-  color: #1a1f38;
+  color: #1c1e37;
   border: 1px solid #c7cdfa;
   padding: 8px 15px;
   font-size: 14px;
@@ -28,9 +28,9 @@
 }
 
 .btn-meet-us{
-  background-color: #1a1f38;
+  background-color: #1c1e37;
   color: #c7cdfa;
-  border: 1px solid #1a1f38;
+  border: 1px solid #1c1e37;
   padding: 12px 25px;
   font-size: 14px;
   cursor: pointer;
@@ -148,7 +148,7 @@
 }
 
 .animated-arrow {
-  color: #1a1f38;
+  color: #1c1e37;
   font-size: 28px;
   margin-left: -6px;
   animation: slideArrow 1.2s infinite ease-in-out;
