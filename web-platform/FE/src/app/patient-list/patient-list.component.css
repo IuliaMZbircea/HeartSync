@@ -1,0 +1,11 @@
+.table-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+
+  .custom-table{
+    width: 80%;
+  }
+}
