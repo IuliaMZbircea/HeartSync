@@ -1,1 +1,52 @@
-<p>register works!</p>
+
+<section class="h-100 gradient-form" style="background-color: #1a1f38;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-xl-10">
+        <div class="card  text-black" style="border: 0;  border-radius: 0">
+          <div class="row g-0">
+            <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
+              <div class="text-white px-3 py-4 p-md-5 mx-md-4">
+                <h4 class="mb-4" style="text-align: center; color: #9ca1c4">We are more than just a clinic</h4>
+                <p class="small mb-0" style="text-align: center; color: #9ca1c4">We are committed to delivering expert cardiovascular care with compassion and precision. Our team of heart specialists is dedicated to your heart health, offering advanced diagnostics, personalized treatment plans, and continuous support. We understand that every heartbeat matters — that’s why we take the time to listen, guide, and walk with you through every stage of your journey. With us, you’re not just a patient — you’re family, and your heart is in trusted hands</p>
+              </div>
+            </div>
+
+            <div class="col-lg-6 pt-0">
+              <div class="card-body p-md-3 mx-md-4" style="border: 0;  border-radius: 0">
+                <div class="text-center">
+                  <img src="../../../assets/logo.jpg" style="height: 100px; padding-bottom:20px" alt="logo">
+                  <h4 class="mt-1 mb-5 pb-1" style="color: #9ca1c4;">We are The  Heart Sync Team</h4>
+                </div>
+
+                <p style="color: #8a8eb1; padding-right: 20px" class="typing">Please create your account</p>
+                <form #singIn="ngForm" (ngSubmit)="register()">
+                  <div data-mdb-input-init class="form-outline mb-4">
+                    <input type="email" id="form2Example11" class="form-control" placeholder="example@gmail.com"  [(ngModel)]="email" name="email" />
+                    <label class="form-label" for="form2Example11" >Email</label>
+                  </div>
+
+                  <div data-mdb-input-init class="form-outline mb-4 position-relative">
+                    <input [type]="passwordFieldType" id="form2Example22" class="form-control" placeholder="Bsafa@564" [(ngModel)]="password" name="password"/>
+                    <label class="form-label" for="form2Example22">Password</label>
+                    <button type="button" class="eye-icon" (click)="togglePasswordVisibility()">
+                      <mat-icon>{{ passwordFieldType === 'password' ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                  </div>
+
+                  <div class="text-center pt-1 mb-5 pb-1">
+                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3" type="submit" class="register">Create</button>
+                  </div>
+                </form>
+                <div class="d-flex align-items-center justify-content-center pb-4">
+                  <p class="mb-0 me-2" style="color: #9ca1c4;">Already have an account?</p>
+                  <button type="button" data-mdb-button-init data-mdb-ripple-init class="login" routerLink="../Register">Login</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
