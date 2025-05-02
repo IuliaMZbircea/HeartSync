@@ -20,13 +20,21 @@
         <td mat-cell *matCellDef="let element"> {{element.name}} </td>
       </ng-container>
 
+      <ng-container matColumnDef="consultation">
+        <th mat-header-cell mat-sort-header *matHeaderCellDef> Consultations </th>
+        <td mat-cell *matCellDef="let element">
+          <span>{{element.consultatii.length}}</span>
+          <img appHoverScale src="assets/images/eye.png">
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="settings">
-        <th mat-header-cell *matHeaderCellDef>
-        </th>
+        <th mat-header-cell *matHeaderCellDef>Settings</th>
         <td mat-cell *matCellDef="let element">
           <div class="settings">
             <img appHoverScale (click)="openDeleteConfirmationDialog()" src="assets/images/delete.png">
             <img appHoverScale  src="assets/images/edit.png">
+            <img appHoverScale src="assets/images/eye.png">
           </div>
         </td >
       </ng-container>

@@ -12,50 +12,266 @@ export class PatientService {
     {
       id:0,
       name: 'Paicu Maria Magdalena',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:1,
       name: 'Mîndruț Cătălina Mihaela',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:2,
       name: 'Paicu Maria Magdalena',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:3,
       name: 'Nica Andreea Luyza',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:4,
       name: 'Paicu Maria Magdalena',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:5,
       name: 'Mîndruț Cătălina Mihaela',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:6,
       name: 'Paicu Maria Magdalena',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:7,
       name: 'Nica Andreea Luyza',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:8,
       name: 'Paicu Maria Magdalena',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:9,
       name: 'Mîndruț Cătălina Mihaela',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:10,
       name: 'Paicu Maria Magdalena',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     },
     {
       id:11,
       name: 'Nica Andreea Luyza',
+      consultatii:[
+        {
+          id:1,
+          diagnostic:'Raceala'
+        },
+        {
+          id:2,
+          diagnostic:'Raceala'
+        },
+        {
+          id:3,
+          diagnostic:'Raceala'
+        },
+        {
+          id:4,
+          diagnostic:'Raceala'
+        }
+      ]
     }
   ]
 

@@ -21,9 +21,7 @@ import {MatInput} from "@angular/material/input";
     MatPaginatorModule,
     MatDivider,
     MatSortModule,
-    MatLabel,
     MatFormField,
-    MatIcon,
     MatInput
   ],
   templateUrl: './patient-list.component.html',
@@ -32,7 +30,7 @@ import {MatInput} from "@angular/material/input";
 
 export class PatientListComponent implements OnInit, AfterViewInit {
 
-  displayedColumns: string[] = ['id','name', 'settings'];
+  displayedColumns: string[] = ['id','name', 'consultation', 'settings'];
   dataSource = new MatTableDataSource<any>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
