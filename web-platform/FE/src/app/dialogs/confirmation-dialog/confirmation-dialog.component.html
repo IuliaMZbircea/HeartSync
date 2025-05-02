@@ -1,0 +1,15 @@
+<div class="close">
+ <span (click)="close()">❌</span>
+</div>
+<mat-divider></mat-divider>
+
+<div class="bottom">
+  <div class="message">
+    <p>{{message}}</p>
+  </div>
+  <div class="buttons">
+    <button class="confirm-button">Yes</button>
+    <button class="reject-button" (click)="close()">No</button>
+  </div>
+</div>
+

@@ -8,6 +8,7 @@
 
   .custom-table{
     width: 80%;
+    margin-top: 2%;
   }
 }
 
@@ -37,3 +38,26 @@ button:hover{
   color: #1a1f38;
   border-radius: 5px;
 }
+
+.search{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  mat-form-field{
+    width: 35%;
+  }
+}
+
+mat-form-field img[matPrefix] {
+  vertical-align: middle;
+  margin-top: 4px;
+}
+
+.input-search{
+  display: flex
+;
+  flex-direction: row;
+  gap: 38%;
+}
+
