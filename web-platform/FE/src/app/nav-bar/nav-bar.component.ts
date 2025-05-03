@@ -20,7 +20,7 @@ export class NavBarComponent {
   }
 
   navigateToAuth(){
-    this.router.navigate(['/Register']);
+    this.router.navigate(['/Login']);
   }
 
   navigateToHelpSection(){
