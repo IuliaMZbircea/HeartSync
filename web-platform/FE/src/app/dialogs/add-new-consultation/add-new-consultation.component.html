@@ -1,4 +1,123 @@
 <div class="close">
+  <h2>Add Patient Consultation</h2>
   <span (click)="close()">❌</span>
 </div>
 <mat-divider></mat-divider>
+<form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
+
+  <!-- Contact Information -->
+  <div class="section">
+    <h3>Contact Information</h3>
+    <div class="field-group">
+      <label>Email</label>
+      <input formControlName="email" type="email" placeholder="example@mail.com" />
+      <div *ngIf="patientForm.get('email')?.invalid && patientForm.get('email')?.touched">
+        Invalid email.
+      </div>
+
+      <label>Phone*</label>
+      <input formControlName="phone" type="tel" placeholder="0712345678" />
+      <div *ngIf="patientForm.get('phone')?.invalid && patientForm.get('phone')?.touched">
+        Invalid or missing phone number.
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal Info -->
+  <div class="section">
+    <h3>Personal Information</h3>
+    <div class="field-group">
+      <label>First Name*</label>
+      <input formControlName="firstName" type="text" />
+      <div *ngIf="patientForm.get('firstName')?.invalid && patientForm.get('firstName')?.touched">
+        First name is required (min 2 chars).
+      </div>
+
+      <label>Last Name*</label>
+      <input formControlName="lastName" type="text" />
+      <div *ngIf="patientForm.get('lastName')?.invalid && patientForm.get('lastName')?.touched">
+        Last name is required (min 2 chars).
+      </div>
+
+      <label>CNP*</label>
+      <input formControlName="cnp" type="text" placeholder="1234567890123" />
+      <div *ngIf="patientForm.get('cnp')?.invalid && patientForm.get('cnp')?.touched">
+        Invalid CNP.
+      </div>
+
+      <label>Age</label>
+      <input [value]="age" disabled />
+
+      <label>Occupation*</label>
+      <input formControlName="occupation" type="text" />
+    </div>
+  </div>
+
+  <!-- Address -->
+  <div class="section">
+    <h3>Address</h3>
+    <div class="field-group">
+      <label>City*</label>
+      <input formControlName="locality" type="text" />
+
+      <label>Street*</label>
+      <input formControlName="street" type="text" />
+
+      <label>No*</label>
+      <input formControlName="number" type="text" />
+
+      <label>Block</label>
+      <input formControlName="block" type="text" />
+
+      <label>Staircase</label>
+      <input formControlName="staircase" type="text" />
+
+      <label>Apartment</label>
+      <input formControlName="apartment" type="text" />
+
+      <label>Floor</label>
+      <input formControlName="floor" type="text" />
+    </div>
+  </div>
+
+  <!-- Medical Info -->
+  <div class="section">
+    <h3>Medical Information</h3>
+    <div class="field-group">
+      <label>Blood Group*</label>
+      <select formControlName="bloodGroup">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="O">O</option>
+        <option value="AB">AB</option>
+      </select>
+      <label>Rh Factor*</label>
+      <select formControlName="rh">
+        <option value="POZITIV">Positive</option>
+        <option value="NEGATIV">Negative</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Disease Section -->
+  <div class="section">
+    <h3>Diseases</h3>
+    <div class="disease-list">
+      <div class="disease-item" *ngFor="let diseaseCtrl of diseases.controls; let i = index" [formGroupName]="i">
+        <input formControlName="name" placeholder="Disease name" />
+        <select formControlName="category">
+          <option value="Infectious">Infectious</option>
+          <option value="Chronic">Chronic</option>
+          <option value="Genetic">Genetic</option>
+          <option value="Autoimmune">Autoimmune</option>
+          <option value="Other">Other</option>
+        </select>
+        <textarea formControlName="description" placeholder="Description"></textarea>
+      </div>
+    </div>
+    <button type="button" class="button-add-disease" (click)="addDisease()">➕ Add Disease</button>
+  </div>
+  <button class="button-add-patient" type="submit" [disabled]="patientForm.invalid">➕ Add Patient</button>
+</form>
+
+<div *ngIf="successMessage">{{ successMessage }}</div>

@@ -8,8 +8,7 @@ import {MatSort, MatSortModule} from "@angular/material/sort";
 import {MatDialog} from "@angular/material/dialog";
 import {AddNewConsultationComponent} from "../dialogs/add-new-consultation/add-new-consultation.component";
 import {ConfirmationDialogComponent} from "../dialogs/confirmation-dialog/confirmation-dialog.component";
-import {MatFormField, MatLabel} from "@angular/material/form-field";
-import {MatIcon} from "@angular/material/icon";
+import {MatFormField} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 
 @Component({
@@ -30,7 +29,7 @@ import {MatInput} from "@angular/material/input";
 
 export class PatientListComponent implements OnInit, AfterViewInit {
 
-  displayedColumns: string[] = ['id','name', 'consultation', 'settings'];
+  displayedColumns: string[] = ['id','name', 'consultation','charts','alarms','recommendation','settings'];
   dataSource = new MatTableDataSource<any>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -60,8 +59,8 @@ export class PatientListComponent implements OnInit, AfterViewInit {
 
   openDialog() {
     this.dialog.open(AddNewConsultationComponent, {
-      width: '80%',
-      height: '80%',
+      width: '60%',
+      height: '100%',
       data: { }
     });
   }
