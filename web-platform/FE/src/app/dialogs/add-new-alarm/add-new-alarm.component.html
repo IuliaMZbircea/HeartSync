@@ -1,0 +1,49 @@
+<div class="close">
+  <h4>Add new Alarm</h4>
+  <span (click)="close()">❌</span>
+</div>
+<mat-divider></mat-divider>
+
+<form [formGroup]="alarmForm" (ngSubmit)="onSubmit()">
+  <div class="section">
+    <h4>Alarm Settings</h4>
+    <div class="field-group">
+      <label>Parameter*</label>
+      <select formControlName="parameter">
+        <option value="pulse">Pulse</option>
+        <option value="temperature">Temperature</option>
+        <option value="humidity">Humidity</option>
+        <option value="ecg">ECG</option>
+      </select>
+
+      <label>Condition*</label>
+      <select formControlName="condition">
+        <option value=">">Greater than</option>
+        <option value="<">Less than</option>
+        <option value="=">Equal to</option>
+      </select>
+
+      <label>Threshold*</label>
+      <input type="number" formControlName="threshold" placeholder="Enter threshold value" />
+
+      <label>Duration (sec)*</label>
+      <input type="number" formControlName="duration" placeholder="e.g. 30" />
+
+      <label>After Activity?</label>
+      <select formControlName="afterActivity">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section">
+    <h4>Message</h4>
+    <div class="field-group">
+      <label>Alarm Message*</label>
+      <textarea formControlName="message" placeholder="Custom message shown when alarm is triggered"></textarea>
+    </div>
+  </div>
+
+  <button class="button-add-alarm" type="submit" [disabled]="alarmForm.invalid">➕ Save Alarm</button>
+</form>
