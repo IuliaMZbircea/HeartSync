@@ -1,0 +1,37 @@
+<div class="close">
+  <h2>Add Recommendation</h2>
+  <span (click)="close()">❌</span>
+</div>
+<mat-divider></mat-divider>
+
+<form [formGroup]="recommendationForm" (ngSubmit)="onSubmit()">
+  <div class="section">
+    <h3>Recommendation Details</h3>
+    <div class="field-group">
+      <label>Activity Type*</label>
+      <select formControlName="activityType">
+        <option value="bicycle">Bicycle</option>
+        <option value="walk">Walk</option>
+        <option value="run">Run</option>
+        <option value="exercise">Physical Exercise</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label>Daily Duration (min)*</label>
+      <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" />
+
+      <label>Start Date*</label>
+      <input type="date" formControlName="startDate" />
+
+      <label>End Date</label>
+      <input type="date" formControlName="endDate" />
+
+      <label>Additional Notes</label>
+      <textarea formControlName="additionalNotes" placeholder="Optional notes..."></textarea>
+    </div>
+  </div>
+
+  <button class="button-add-recommendation" type="submit" [disabled]="recommendationForm.invalid">
+    ➕ Save Recommendation
+  </button>
+</form>

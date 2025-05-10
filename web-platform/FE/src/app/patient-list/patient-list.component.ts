@@ -11,6 +11,7 @@ import {ConfirmationDialogComponent} from "../dialogs/confirmation-dialog/confir
 import {MatFormField} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {AddNewAlarmComponent} from "../dialogs/add-new-alarm/add-new-alarm.component";
+import {AddNewRecommendationComponent} from "../dialogs/add-new-recommendation/add-new-recommendation.component";
 
 @Component({
   selector: 'app-patient-list',
@@ -61,7 +62,7 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   openAddConsultationDialog() {
     this.dialog.open(AddNewConsultationComponent, {
       width: '60%',
-      height: '100%',
+      height: '95%',
       data: { }
     });
   }
@@ -78,6 +79,14 @@ export class PatientListComponent implements OnInit, AfterViewInit {
     this.dialog.open(AddNewAlarmComponent, {
       width: '20%',
       height: '100%',
+      data: { id: id }
+    });
+  }
+
+  openRecommendationDialog(id:string) {
+    this.dialog.open(AddNewRecommendationComponent, {
+      width: '20%',
+      height: '85%',
       data: { id: id }
     });
   }
