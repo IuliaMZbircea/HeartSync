@@ -170,7 +170,9 @@ const mockPatientData = (() => {
       ],
     },
     demographics: {
-      name: 'John Smith',
+      name: 'John',
+      surname: 'Smith',
+      cnp: '1800515123456',
       dob: '1980-05-15',
       gender: 'Male',
       patientId: 'P123456789',
@@ -178,6 +180,71 @@ const mockPatientData = (() => {
       phone: '+40123456789',
       email: 'john.smith@email.com',
     },
+    medications: [
+      {
+        productId: 'M001',
+        name: 'Metoprolol',
+        status: 'current',
+        startDate: '2024-01-10',
+        lastPrescription: '2024-04-01',
+        dosage: '25mg once daily',
+      },
+      {
+        productId: 'M002',
+        name: 'Aspirin',
+        status: 'past',
+        startDate: '2023-01-10',
+        lastPrescription: '2023-12-01',
+        dosage: '75mg once daily',
+      },
+    ],
+    allergies: [
+      {
+        substance: 'Penicillin',
+        reaction: 'Rash',
+        severity: 'moderate',
+      },
+      {
+        substance: 'Peanuts',
+        reaction: 'Anaphylaxis',
+        severity: 'severe',
+      },
+    ],
+    healthProblems: [
+      {
+        problem: 'Hypertension',
+        status: 'active',
+        since: '2022-06-01',
+      },
+      {
+        problem: 'Arrhythmia',
+        status: 'active',
+        since: '2023-09-15',
+      },
+      {
+        problem: 'Asthma',
+        status: 'resolved',
+        since: '2010-01-01',
+        resolved: '2015-01-01',
+      },
+    ],
+    versionHistory: [
+      {
+        item: 'Metoprolol dosage',
+        date: '2024-04-01',
+        change: 'Increased from 12.5mg to 25mg',
+      },
+      {
+        item: 'Aspirin',
+        date: '2023-12-01',
+        change: 'Discontinued',
+      },
+      {
+        item: 'Allergy - Peanuts',
+        date: '2022-03-10',
+        change: 'Added',
+      },
+    ],
   };
 })();
 

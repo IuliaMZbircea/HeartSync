@@ -174,17 +174,59 @@ function generateEHRHtml(data) {
     return `<tr><td colspan='2' style='font-weight:bold;font-size:18px;padding:12px 0 4px 0;color:#3B4B75;'>${title}</td></tr>`;
   }
   // Vitals
+  function highlightAbnormal(label, value, isAbnormal) {
+    return `<tr><td style='font-weight:bold;padding:4px 8px;'>${label}</td><td style='padding:4px 8px;${isAbnormal ? 'color:#E57373;font-weight:bold;' : ''}'>${value}${isAbnormal ? ' ⚠️' : ''}</td></tr>`;
+  }
+  // Abnormal logic
+  const isAbnormalBP = data.bloodPressure.systolic >= 140 || data.bloodPressure.diastolic >= 90;
+  const isAbnormalPulse = data.pulse >= 100;
+  const isAbnormalTemp = data.bodyTemperature >= 37.5;
+  const isAbnormalSpO2 = data.spo2 < 95;
+  const isAbnormalRR = data.respiratoryRate > 20;
+  const isAbnormalHRV = data.hrv < 40;
+  // Vitals section
   const vitals = [
-    row('Pulse', data.pulse + ' BPM'),
-    row('Body Temperature', data.bodyTemperature + ' °C'),
-    row('Blood Pressure', data.bloodPressure.systolic + '/' + data.bloodPressure.diastolic + ' mmHg'),
-    row('SpO₂', data.spo2 + ' %'),
-    row('Respiratory Rate', data.respiratoryRate + ' /min'),
-    row('HRV', data.hrv + ' ms'),
+    highlightAbnormal('Pulse', data.pulse + ' BPM', isAbnormalPulse),
+    highlightAbnormal('Body Temperature', data.bodyTemperature + ' °C', isAbnormalTemp),
+    highlightAbnormal('Blood Pressure', data.bloodPressure.systolic + '/' + data.bloodPressure.diastolic + ' mmHg', isAbnormalBP),
+    highlightAbnormal('SpO₂', data.spo2 + ' %', isAbnormalSpO2),
+    highlightAbnormal('Respiratory Rate', data.respiratoryRate + ' /min', isAbnormalRR),
+    highlightAbnormal('HRV', data.hrv + ' ms', isAbnormalHRV),
     row('Steps', data.steps),
     row('Sleep', data.sleep.duration + 'h (' + data.sleep.quality + ')'),
     row('ECG', data.ecg),
   ].join('');
+  // Medications
+  const meds = (data.medications || []).map(m => `
+    <tr style='background:${m.status === 'current' ? '#E8F6E8' : '#F6E8E8'};'>
+      <td colspan='2' style='font-weight:bold;color:${m.status === 'current' ? '#388E3C' : '#B71C1C'};'>${m.name} (${m.status === 'current' ? 'Current' : 'Past'})</td>
+    </tr>
+    ${row('Product ID', m.productId)}
+    ${row('Start Date', m.startDate)}
+    ${row('Last Prescription', m.lastPrescription)}
+    ${row('Dosage', m.dosage)}
+  `).join('');
+  // Allergies
+  const allergies = (data.allergies || []).map(a => `
+    <tr>
+      <td style='font-weight:bold;'>${a.substance}</td>
+      <td>${a.reaction} (${a.severity})</td>
+    </tr>
+  `).join('');
+  // Health Problems
+  const problems = (data.healthProblems || []).map(p => `
+    <tr>
+      <td style='font-weight:bold;'>${p.problem}</td>
+      <td>${p.status === 'active' ? 'Active' : 'Resolved'}${p.since ? ' (since ' + p.since + ')' : ''}${p.resolved ? ', resolved ' + p.resolved : ''}</td>
+    </tr>
+  `).join('');
+  // Version History
+  const history = (data.versionHistory || []).map(h => `
+    <tr>
+      <td style='font-weight:bold;'>${h.item}</td>
+      <td>${h.date}: ${h.change}</td>
+    </tr>
+  `).join('');
   // Recommendations
   const recs = (data.recommendations || []).map(r => `<li>${r.text}</li>`).join('');
   return `
@@ -194,10 +236,11 @@ function generateEHRHtml(data) {
         <title>Electronic Health Record</title>
       </head>
       <body style='font-family:sans-serif;background:#F5F6FA;'>
-        <h2 style='color:#3B4B75;text-align:center;margin-bottom:0;'>Electronic Health Record (HL7 style)</h2>
+        <h2 style='color:#3B4B75;text-align:center;margin-bottom:0;'>Electronic Health Record (HL7/FHIR style)</h2>
         <table style='width:100%;margin:16px 0 24px 0;background:#E8EAF6;border-radius:12px;'>
-          ${sectionTitle('Patient Demographics')}
-          ${row('Name', d.name)}
+          ${sectionTitle('Patient Identification & Demographics')}
+          ${row('Name', d.name + ' ' + d.surname)}
+          ${row('CNP', d.cnp)}
           ${row('Patient ID', d.patientId)}
           ${row('Date of Birth', d.dob)}
           ${row('Gender', d.gender)}
@@ -208,6 +251,22 @@ function generateEHRHtml(data) {
         <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
           ${sectionTitle('Current Vitals & Observations')}
           ${vitals}
+        </table>
+        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
+          ${sectionTitle('Medications')}
+          ${meds}
+        </table>
+        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
+          ${sectionTitle('Allergies')}
+          ${allergies}
+        </table>
+        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
+          ${sectionTitle('Health Problems')}
+          ${problems}
+        </table>
+        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
+          ${sectionTitle('Version History')}
+          ${history}
         </table>
         <div style='margin-bottom:24px;'>
           <div style='font-weight:bold;font-size:18px;color:#3B4B75;margin-bottom:8px;'>Doctor Recommendations</div>
