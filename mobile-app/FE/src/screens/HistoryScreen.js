@@ -1,288 +1,437 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
-import mockPatientData from '../mockPatientData';
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { LineChart } from 'react-native-chart-kit';
+import { Dimensions } from 'react-native';
 
 const HEADER_BG = '#E8EAF6';
+const screenWidth = Dimensions.get('window').width;
 
-const HistoryScreen = ({ navigation }) => {
-  const data = mockPatientData;
-
-  async function handleDownload() {
-    try {
-      const html = generateEHRHtml(data);
-      const { uri } = await Print.printToFileAsync({ html, base64: false });
-      await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Share EHR PDF' });
-    } catch (e) {
-      Alert.alert('Error', 'Could not generate or share PDF.');
-    }
-  }
-
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.header}>
-        <View style={{ width: 40 }} />
-        <Text style={styles.title}>History</Text>
-        <TouchableOpacity style={styles.iconButton} onPress={handleDownload}>
-          <Ionicons name="download-outline" size={22} color="#3B4B75" />
-        </TouchableOpacity>
-      </View>
-      <View style={{ height: 18 }} />
-      <View style={styles.profileBox}>
-        <Text style={styles.profileName}>{data.name}</Text>
-      </View>
-      <Text style={styles.sectionTitle}>Latest Medical Data</Text>
-      {/* ECG */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'ecg' })}>
-        <View style={styles.cardLeft}>
-          <MaterialCommunityIcons name="heart-pulse" size={28} color="#3B4B75" style={{ marginRight: 10 }} />
-          <View>
-            <Text style={styles.cardLabel}>ECG</Text>
-            <Text style={styles.cardValue}>{data.ecg}</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-      {/* Pulse */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'pulse' })}>
-        <View style={styles.cardLeft}>
-          <Ionicons name="heart" size={28} color="#3B4B75" style={{ marginRight: 10 }} />
-          <View>
-            <Text style={styles.cardLabel}>Pulse</Text>
-            <Text style={styles.cardValue}>{data.pulse} BPM</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-      {/* Body Temperature */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'bodyTemperature' })}>
-        <View style={styles.cardLeft}>
-          <Ionicons name="thermometer" size={28} color="#3B4B75" style={{ marginRight: 10 }} />
-          <View>
-            <Text style={styles.cardLabel}>Body Temperature</Text>
-            <Text style={styles.cardValue}>{data.bodyTemperature} °C</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-      {/* Blood Pressure */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'bloodPressure' })}>
-        <View style={styles.cardLeft}>
-          <FontAwesome5 name="tint" size={26} color="#3B4B75" style={{ marginRight: 12 }} />
-          <View>
-            <Text style={styles.cardLabel}>Blood Pressure</Text>
-            <Text style={styles.cardValue}>{data.bloodPressure.systolic}/{data.bloodPressure.diastolic} mmHg</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-      {/* SpO2 */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'spo2' })}>
-        <View style={styles.cardLeft}>
-          <FontAwesome5 name="lungs" size={26} color="#3B4B75" style={{ marginRight: 12 }} />
-          <View>
-            <Text style={styles.cardLabel}>SpO₂</Text>
-            <Text style={styles.cardValue}>{data.spo2}%</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-      {/* Respiratory Rate */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'respiratoryRate' })}>
-        <View style={styles.cardLeft}>
-          <MaterialCommunityIcons name="weather-windy" size={28} color="#3B4B75" style={{ marginRight: 10 }} />
-          <View>
-            <Text style={styles.cardLabel}>Respiratory Rate</Text>
-            <Text style={styles.cardValue}>{data.respiratoryRate} /min</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-      {/* HRV */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'hrv' })}>
-        <View style={styles.cardLeft}>
-          <MaterialCommunityIcons name="heart-settings" size={28} color="#3B4B75" style={{ marginRight: 10 }} />
-          <View>
-            <Text style={styles.cardLabel}>HRV</Text>
-            <Text style={styles.cardValue}>{data.hrv} ms</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-      {/* Steps */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'steps' })}>
-        <View style={styles.cardLeft}>
-          <MaterialCommunityIcons name="walk" size={28} color="#3B4B75" style={{ marginRight: 10 }} />
-          <View>
-            <Text style={styles.cardLabel}>Steps</Text>
-            <Text style={styles.cardValue}>{data.steps}</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-      {/* Sleep */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ParameterDetails', { parameter: 'sleep' })}>
-        <View style={styles.cardLeft}>
-          <MaterialCommunityIcons name="sleep" size={28} color="#3B4B75" style={{ marginRight: 10 }} />
-          <View>
-            <Text style={styles.cardLabel}>Sleep</Text>
-            <Text style={styles.cardValue}>{data.sleep.duration}h ({data.sleep.quality})</Text>
-          </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusDotGreen} />
-          <Ionicons name="chevron-forward" size={22} color="#3B4B75" />
-        </View>
-      </TouchableOpacity>
-    </ScrollView>
-  );
+// Thresholds for abnormal values
+const THRESHOLDS = {
+  heart_rate: {
+    low: 60,
+    high: 100,
+  },
+  blood_pressure: {
+    systolic: {
+      low: 90,
+      high: 130,
+    },
+    diastolic: {
+      low: 60,
+      high: 85,
+    },
+  },
+  oxygen_saturation: {
+    low: 95,
+    high: 100,
+  },
+  temperature: {
+    low: 36.1,
+    high: 37.2,
+  },
+  humidity: {
+    low: 30,
+    high: 60,
+  },
+  qt_interval: {
+    low: 350,
+    high: 450,
+  },
+  pr_interval: {
+    low: 120,
+    high: 200,
+  },
 };
 
-function generateEHRHtml(data) {
-  const d = data.demographics;
-  const today = new Date().toISOString().slice(0, 10);
-  function row(label, value) {
-    return `<tr><td style='font-weight:bold;padding:4px 8px;'>${label}</td><td style='padding:4px 8px;'>${value}</td></tr>`;
+// Function to check if a value is abnormal
+const isAbnormal = (type, value) => {
+  switch (type) {
+    case 'heart_rate':
+      return value < THRESHOLDS.heart_rate.low || value > THRESHOLDS.heart_rate.high;
+    case 'blood_pressure':
+      const [systolic, diastolic] = value.split('/').map(Number);
+      return systolic < THRESHOLDS.blood_pressure.systolic.low || 
+             systolic > THRESHOLDS.blood_pressure.systolic.high ||
+             diastolic < THRESHOLDS.blood_pressure.diastolic.low || 
+             diastolic > THRESHOLDS.blood_pressure.diastolic.high;
+    case 'oxygen_saturation':
+      return value < THRESHOLDS.oxygen_saturation.low || value > THRESHOLDS.oxygen_saturation.high;
+    case 'temperature':
+      return value < THRESHOLDS.temperature.low || value > THRESHOLDS.temperature.high;
+    case 'humidity':
+      return value < THRESHOLDS.humidity.low || value > THRESHOLDS.humidity.high;
+    case 'qt_interval':
+      return value < THRESHOLDS.qt_interval.low || value > THRESHOLDS.qt_interval.high;
+    case 'pr_interval':
+      return value < THRESHOLDS.pr_interval.low || value > THRESHOLDS.pr_interval.high;
+    default:
+      return false;
   }
-  function sectionTitle(title) {
-    return `<tr><td colspan='2' style='font-weight:bold;font-size:18px;padding:12px 0 4px 0;color:#3B4B75;'>${title}</td></tr>`;
+};
+
+// Mock historical data (in a real app, this would come from a database)
+const generateHistoricalData = (date = new Date()) => {
+  const data = [];
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  
+  // Generate 24 hours of data
+  for (let i = 0; i < 24; i++) {
+    const timestamp = new Date(startOfDay.getTime() + i * 3600000);
+    
+    // Generate some abnormal values at specific times
+    const isAbnormalHour = i === 3 || i === 8 || i === 15 || i === 20;
+    
+    const heartRate = isAbnormalHour && i % 2 === 0 ? 
+      Math.floor(Math.random() * 20) + 110 : // Abnormal high: 110-130
+      Math.floor(Math.random() * 20) + 70;   // Normal: 70-90
+
+    const bloodPressure = isAbnormalHour && i % 3 === 0 ?
+      `${Math.floor(Math.random() * 20) + 140}/${Math.floor(Math.random() * 10) + 90}` : // Abnormal high
+      `${Math.floor(Math.random() * 20) + 110}/${Math.floor(Math.random() * 10) + 70}`;  // Normal
+
+    const oxygenSaturation = isAbnormalHour && i % 4 === 0 ?
+      Math.floor(Math.random() * 3) + 92 : // Abnormal low: 92-94
+      Math.floor(Math.random() * 3) + 97;  // Normal: 97-100
+
+    const temperature = isAbnormalHour && i % 5 === 0 ?
+      (Math.random() * 0.8) + 37.3 : // Abnormal high: 37.3-38.1
+      (Math.random() * 0.5) + 36.5;  // Normal: 36.5-37.0
+
+    data.push({
+      timestamp,
+      ecg: {
+        heart_rate: heartRate,
+        qt_interval: Math.floor(Math.random() * 50) + 375,
+        pr_interval: Math.floor(Math.random() * 30) + 150,
+      },
+      pulse: {
+        blood_pressure: bloodPressure,
+        oxygen_saturation: oxygenSaturation,
+      },
+      temperature: temperature,
+      humidity: Math.floor(Math.random() * 10) + 45,
+    });
   }
-  // Vitals
-  function highlightAbnormal(label, value, isAbnormal) {
-    return `<tr><td style='font-weight:bold;padding:4px 8px;'>${label}</td><td style='padding:4px 8px;${isAbnormal ? 'color:#E57373;font-weight:bold;' : ''}'>${value}${isAbnormal ? ' ⚠️' : ''}</td></tr>`;
-  }
-  // Abnormal logic
-  const isAbnormalBP = data.bloodPressure.systolic >= 140 || data.bloodPressure.diastolic >= 90;
-  const isAbnormalPulse = data.pulse >= 100;
-  const isAbnormalTemp = data.bodyTemperature >= 37.5;
-  const isAbnormalSpO2 = data.spo2 < 95;
-  const isAbnormalRR = data.respiratoryRate > 20;
-  const isAbnormalHRV = data.hrv < 40;
-  // Vitals section
-  const vitals = [
-    highlightAbnormal('Pulse', data.pulse + ' BPM', isAbnormalPulse),
-    highlightAbnormal('Body Temperature', data.bodyTemperature + ' °C', isAbnormalTemp),
-    highlightAbnormal('Blood Pressure', data.bloodPressure.systolic + '/' + data.bloodPressure.diastolic + ' mmHg', isAbnormalBP),
-    highlightAbnormal('SpO₂', data.spo2 + ' %', isAbnormalSpO2),
-    highlightAbnormal('Respiratory Rate', data.respiratoryRate + ' /min', isAbnormalRR),
-    highlightAbnormal('HRV', data.hrv + ' ms', isAbnormalHRV),
-    row('Steps', data.steps),
-    row('Sleep', data.sleep.duration + 'h (' + data.sleep.quality + ')'),
-    row('ECG', data.ecg),
-  ].join('');
-  // Medications
-  const meds = (data.medications || []).map(m => `
-    <tr style='background:${m.status === 'current' ? '#E8F6E8' : '#F6E8E8'};'>
-      <td colspan='2' style='font-weight:bold;color:${m.status === 'current' ? '#388E3C' : '#B71C1C'};'>${m.name} (${m.status === 'current' ? 'Current' : 'Past'})</td>
-    </tr>
-    ${row('Product ID', m.productId)}
-    ${row('Start Date', m.startDate)}
-    ${row('Last Prescription', m.lastPrescription)}
-    ${row('Dosage', m.dosage)}
-  `).join('');
-  // Allergies
-  const allergies = (data.allergies || []).map(a => `
-    <tr>
-      <td style='font-weight:bold;'>${a.substance}</td>
-      <td>${a.reaction} (${a.severity})</td>
-    </tr>
-  `).join('');
-  // Health Problems
-  const problems = (data.healthProblems || []).map(p => `
-    <tr>
-      <td style='font-weight:bold;'>${p.problem}</td>
-      <td>${p.status === 'active' ? 'Active' : 'Resolved'}${p.since ? ' (since ' + p.since + ')' : ''}${p.resolved ? ', resolved ' + p.resolved : ''}</td>
-    </tr>
-  `).join('');
-  // Version History
-  const history = (data.versionHistory || []).map(h => `
-    <tr>
-      <td style='font-weight:bold;'>${h.item}</td>
-      <td>${h.date}: ${h.change}</td>
-    </tr>
-  `).join('');
-  // Recommendations
-  const recs = (data.recommendations || []).map(r => `<li>${r.text}</li>`).join('');
-  return `
-    <html>
-      <head>
-        <meta charset='utf-8' />
-        <title>Electronic Health Record</title>
-      </head>
-      <body style='font-family:sans-serif;background:#F5F6FA;'>
-        <h2 style='color:#3B4B75;text-align:center;margin-bottom:0;'>Electronic Health Record (HL7/FHIR style)</h2>
-        <table style='width:100%;margin:16px 0 24px 0;background:#E8EAF6;border-radius:12px;'>
-          ${sectionTitle('Patient Identification & Demographics')}
-          ${row('Name', d.name + ' ' + d.surname)}
-          ${row('CNP', d.cnp)}
-          ${row('Patient ID', d.patientId)}
-          ${row('Date of Birth', d.dob)}
-          ${row('Gender', d.gender)}
-          ${row('Address', d.address)}
-          ${row('Phone', d.phone)}
-          ${row('Email', d.email)}
-        </table>
-        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
-          ${sectionTitle('Current Vitals & Observations')}
-          ${vitals}
-        </table>
-        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
-          ${sectionTitle('Medications')}
-          ${meds}
-        </table>
-        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
-          ${sectionTitle('Allergies')}
-          ${allergies}
-        </table>
-        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
-          ${sectionTitle('Health Problems')}
-          ${problems}
-        </table>
-        <table style='width:100%;margin-bottom:24px;background:#E8EAF6;border-radius:12px;'>
-          ${sectionTitle('Version History')}
-          ${history}
-        </table>
-        <div style='margin-bottom:24px;'>
-          <div style='font-weight:bold;font-size:18px;color:#3B4B75;margin-bottom:8px;'>Doctor Recommendations</div>
-          <ul>${recs}</ul>
-        </div>
-        <div style='font-size:12px;color:#888;text-align:center;margin-top:32px;'>Generated on ${today}</div>
-      </body>
-    </html>
-  `;
-}
+  return data;
+};
+
+const formatTime = (date) => {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+const formatDate = (date) => {
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+};
+
+const HistoryScreen = ({ navigation }) => {
+  const [historicalData, setHistoricalData] = useState(generateHistoricalData());
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState('heart_rate');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [abnormalPoints, setAbnormalPoints] = useState([]);
+
+  // Calculate abnormal points whenever historicalData or selectedMetric changes
+  useEffect(() => {
+    const newAbnormalPoints = [];
+    historicalData.forEach((d, index) => {
+      switch (selectedMetric) {
+        case 'heart_rate':
+          if (isAbnormal('heart_rate', d.ecg.heart_rate)) {
+            newAbnormalPoints.push(index);
+          }
+          break;
+        case 'blood_pressure':
+          if (isAbnormal('blood_pressure', d.pulse.blood_pressure)) {
+            newAbnormalPoints.push(index);
+          }
+          break;
+        case 'oxygen_saturation':
+          if (isAbnormal('oxygen_saturation', d.pulse.oxygen_saturation)) {
+            newAbnormalPoints.push(index);
+          }
+          break;
+        case 'temperature':
+          if (isAbnormal('temperature', d.temperature)) {
+            newAbnormalPoints.push(index);
+          }
+          break;
+        case 'humidity':
+          if (isAbnormal('humidity', d.humidity)) {
+            newAbnormalPoints.push(index);
+          }
+          break;
+        case 'qt_interval':
+          if (isAbnormal('qt_interval', d.ecg.qt_interval)) {
+            newAbnormalPoints.push(index);
+          }
+          break;
+        case 'pr_interval':
+          if (isAbnormal('pr_interval', d.ecg.pr_interval)) {
+            newAbnormalPoints.push(index);
+          }
+          break;
+      }
+    });
+    setAbnormalPoints(newAbnormalPoints);
+  }, [historicalData, selectedMetric]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    // In a real app, this would fetch the latest historical data
+    setTimeout(() => {
+      setHistoricalData(generateHistoricalData(selectedDate));
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  const getChartData = (metric) => {
+    const labels = historicalData.map((d, index) => 
+      index % 3 === 0 ? formatTime(d.timestamp) : ''
+    );
+    let data = [];
+    let color = '#3B4B75';
+    let title = '';
+
+    switch (metric) {
+      case 'heart_rate':
+        data = historicalData.map(d => d.ecg.heart_rate);
+        title = 'Heart Rate (bpm)';
+        break;
+      case 'blood_pressure':
+        data = historicalData.map(d => parseInt(d.pulse.blood_pressure.split('/')[0]));
+        title = 'Systolic Blood Pressure (mmHg)';
+        break;
+      case 'oxygen_saturation':
+        data = historicalData.map(d => d.pulse.oxygen_saturation);
+        title = 'Oxygen Saturation (%)';
+        break;
+      case 'temperature':
+        data = historicalData.map(d => d.temperature);
+        title = 'Body Temperature (°C)';
+        break;
+      case 'humidity':
+        data = historicalData.map(d => d.humidity);
+        title = 'Environmental Humidity (%)';
+        break;
+      case 'qt_interval':
+        data = historicalData.map(d => d.ecg.qt_interval);
+        title = 'QT Interval (ms)';
+        break;
+      case 'pr_interval':
+        data = historicalData.map(d => d.ecg.pr_interval);
+        title = 'PR Interval (ms)';
+        break;
+    }
+
+    return {
+      labels,
+      datasets: [{
+        data,
+        color: () => color,
+      }],
+      title,
+    };
+  };
+
+  const navigateDate = (days) => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() + days);
+    setSelectedDate(newDate);
+    setHistoricalData(generateHistoricalData(newDate));
+  };
+
+  const renderDateSelector = () => {
+    return (
+      <View style={styles.dateSelector}>
+        <TouchableOpacity
+          onPress={() => navigateDate(-1)}
+          style={styles.dateButton}
+        >
+          <Ionicons name="chevron-back" size={24} color="#3B4B75" />
+        </TouchableOpacity>
+        <Text style={styles.dateText}>
+          {formatDate(selectedDate)}
+        </Text>
+        <TouchableOpacity
+          onPress={() => navigateDate(1)}
+          style={styles.dateButton}
+        >
+          <Ionicons name="chevron-forward" size={24} color="#3B4B75" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderMetricSelector = () => {
+    const metrics = [
+      { id: 'heart_rate', label: 'Heart Rate', icon: 'pulse' },
+      { id: 'blood_pressure', label: 'Blood Pressure', icon: 'water' },
+      { id: 'oxygen_saturation', label: 'O2 Saturation', icon: 'fitness' },
+      { id: 'temperature', label: 'Temperature', icon: 'thermometer' },
+      { id: 'humidity', label: 'Humidity', icon: 'water-outline' },
+      { id: 'qt_interval', label: 'QT Interval', icon: 'heart' },
+      { id: 'pr_interval', label: 'PR Interval', icon: 'heart' },
+    ];
+
+    return (
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.metricSelector}
+      >
+        {metrics.map(metric => (
+          <TouchableOpacity
+            key={metric.id}
+            style={[
+              styles.metricButton,
+              selectedMetric === metric.id && styles.selectedMetricButton,
+            ]}
+            onPress={() => setSelectedMetric(metric.id)}
+          >
+            <Ionicons 
+              name={metric.icon} 
+              size={20} 
+              color={selectedMetric === metric.id ? '#fff' : '#3B4B75'} 
+            />
+            <Text style={[
+              styles.metricButtonText,
+              selectedMetric === metric.id && styles.selectedMetricButtonText,
+            ]}>
+              {metric.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    );
+  };
+
+  const renderLatestReadings = () => {
+    const latest = historicalData[historicalData.length - 1];
+    return (
+      <View style={styles.latestReadings}>
+        <Text style={styles.latestReadingsTitle}>Latest Readings</Text>
+        <View style={styles.readingsGrid}>
+          <View style={styles.readingItem}>
+            <Ionicons name="pulse" size={24} color="#3B4B75" />
+            <Text style={styles.readingValue}>{latest.ecg.heart_rate} bpm</Text>
+            <Text style={styles.readingLabel}>Heart Rate</Text>
+          </View>
+          <View style={styles.readingItem}>
+            <Ionicons name="water" size={24} color="#3B4B75" />
+            <Text style={styles.readingValue}>{latest.pulse.blood_pressure}</Text>
+            <Text style={styles.readingLabel}>Blood Pressure</Text>
+          </View>
+          <View style={styles.readingItem}>
+            <Ionicons name="fitness" size={24} color="#3B4B75" />
+            <Text style={styles.readingValue}>{latest.pulse.oxygen_saturation}%</Text>
+            <Text style={styles.readingLabel}>O2 Saturation</Text>
+          </View>
+          <View style={styles.readingItem}>
+            <Ionicons name="thermometer" size={24} color="#3B4B75" />
+            <Text style={styles.readingValue}>{latest.temperature.toFixed(1)}°C</Text>
+            <Text style={styles.readingLabel}>Temperature</Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerLeft} />
+        <Text style={styles.title}>History</Text>
+        <TouchableOpacity
+          onPress={onRefresh}
+          style={styles.iconButton}
+        >
+          <Ionicons name="refresh" size={24} color="#3B4B75" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#3B4B75']}
+          />
+        }
+      >
+        {renderDateSelector()}
+        {renderMetricSelector()}
+        
+        <View style={styles.chartContainer}>
+          <LineChart
+            data={getChartData(selectedMetric)}
+            width={screenWidth - 48}
+            height={200}
+            chartConfig={{
+              backgroundColor: '#ffffff',
+              backgroundGradientFrom: '#ffffff',
+              backgroundGradientTo: '#ffffff',
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(59, 75, 117, ${opacity})`,
+              style: {
+                borderRadius: 16,
+              },
+              propsForLabels: {
+                fontSize: 10,
+              },
+            }}
+            bezier
+            style={styles.chart}
+            withInnerLines={false}
+            withOuterLines={true}
+            withVerticalLines={false}
+            withHorizontalLines={true}
+            withDots={true}
+            withShadow={false}
+            segments={4}
+            renderDotContent={({ x, y, index }) => {
+              if (abnormalPoints.includes(index)) {
+                return (
+                  <View
+                    key={index}
+                    style={{
+                      position: 'absolute',
+                      top: y - 4,
+                      left: x - 4,
+                      width: 8,
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: '#FF3B30',
+                    }}
+                  />
+                );
+              }
+              return null;
+            }}
+          />
+        </View>
+
+        {renderLatestReadings()}
+      </ScrollView>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F6FA',
-    paddingHorizontal: 0,
   },
   header: {
     flexDirection: 'row',
@@ -291,7 +440,7 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     paddingBottom: 12,
     paddingHorizontal: 24,
-    backgroundColor: HEADER_BG,
+    backgroundColor: '#E8EAF6',
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     shadowColor: '#000',
@@ -299,12 +448,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 1,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#3B4B75',
-    textAlign: 'center',
-    flex: 1,
+  headerLeft: {
+    width: 40,
   },
   iconButton: {
     width: 40,
@@ -314,69 +459,120 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  profileBox: {
-    backgroundColor: '#E8EAF6',
-    borderRadius: 16,
-    paddingVertical: 24,
-    paddingHorizontal: 0,
-    marginHorizontal: 24,
-    marginBottom: 18,
-    alignItems: 'center',
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#3B4B75',
+    textAlign: 'center',
+    flex: 1,
   },
-  profileName: {
-    fontSize: 22,
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  metricSelector: {
+    marginBottom: 16,
+  },
+  metricButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 8,
+    borderRadius: 20,
+    backgroundColor: '#E8EAF6',
+  },
+  selectedMetricButton: {
+    backgroundColor: '#3B4B75',
+  },
+  metricButtonText: {
+    marginLeft: 8,
+    fontSize: 14,
     fontWeight: '600',
     color: '#3B4B75',
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#3B4B75',
-    marginLeft: 24,
-    marginBottom: 20,
+  selectedMetricButtonText: {
+    color: '#fff',
   },
-  card: {
-    backgroundColor: '#F0F1F6',
+  chartContainer: {
+    backgroundColor: '#fff',
     borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 24,
-    marginBottom: 14,
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    justifyContent: 'space-between',
+    padding: 16,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  cardLeft: {
+  chart: {
+    marginVertical: 8,
+    borderRadius: 16,
+  },
+  latestReadings: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  latestReadingsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#3B4B75',
+    marginBottom: 16,
+  },
+  readingsGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+    flexWrap: 'wrap',
+    marginHorizontal: -8,
   },
-  cardLabel: {
+  readingItem: {
+    width: '50%',
+    padding: 8,
+    alignItems: 'center',
+  },
+  readingValue: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#3B4B75',
+    marginTop: 8,
   },
-  cardValue: {
-    fontSize: 15,
-    fontWeight: '500',
+  readingLabel: {
+    fontSize: 12,
     color: '#3B4B75',
-    marginTop: 2,
+    opacity: 0.7,
+    marginTop: 4,
   },
-  cardRight: {
+  dateSelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  statusDotGreen: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#4CAF50',
-    marginRight: 8,
+  dateButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E8EAF6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#3B4B75',
+    marginHorizontal: 16,
   },
 });
 
