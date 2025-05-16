@@ -1,26 +1,27 @@
 import React from 'react';
-import { View, Text, StyleSheet, Switch, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const HEADER_BG = '#E8EAF6';
 
-const SettingsScreen = () => {
+const SettingsScreen = ({ navigation }) => {
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.header}>
-        <View style={{ width: 40 }} />
+        <View style={styles.iconButton} />
         <Text style={styles.title}>Settings</Text>
-        <View style={styles.iconButton}>
-          <Ionicons name="settings" size={22} color="#3B4B75" />
-        </View>
+        <View style={styles.iconButton} />
       </View>
       <View style={{ height: 18 }} />
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Account</Text>
-        <View style={styles.row}>
+        <TouchableOpacity 
+          style={styles.row}
+          onPress={() => navigation.navigate('ProfileInfo')}
+        >
           <Ionicons name="person-circle" size={22} color="#3B4B75" />
           <Text style={styles.label}>Profile Info</Text>
-        </View>
+        </TouchableOpacity>
         <View style={styles.row}>
           <Ionicons name="lock-closed" size={22} color="#3B4B75" />
           <Text style={styles.label}>Change Password</Text>
@@ -36,17 +37,24 @@ const SettingsScreen = () => {
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>App</Text>
-        <View style={styles.row}>
+        <TouchableOpacity 
+          style={styles.row}
+          onPress={() => navigation.navigate('About')}
+        >
           <Ionicons name="information-circle" size={22} color="#3B4B75" />
           <Text style={styles.label}>About</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#F5F6FA',
+    paddingHorizontal: 0,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

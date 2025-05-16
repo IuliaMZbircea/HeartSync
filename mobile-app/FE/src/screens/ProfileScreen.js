@@ -12,7 +12,7 @@ import mockPatientData from '../mockPatientData';
 
 const HEADER_BG = '#E8EAF6';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const today = new Date().toISOString().slice(0, 10); // e.g., '2025-04-03'
   const recommendations = mockPatientData.recommendations || [];
   const newRecs = recommendations.filter(r => r.new && r.date === today);
@@ -31,9 +31,12 @@ const ProfileScreen = () => {
         <View style={{ height: 24 }} />
         <View style={styles.greetingRowMockup}>
           <Text style={styles.greeting}>Hello, John!</Text>
-          <View style={styles.avatarMockup}>
+          <TouchableOpacity 
+            style={styles.avatarMockup}
+            onPress={() => navigation.navigate('ProfileInfo')}
+          >
             <Ionicons name="person" size={22} color="#fff" />
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={{ height: 18 }} />
         <View style={styles.recommendationsCard}>
@@ -60,11 +63,17 @@ const ProfileScreen = () => {
         </View>
       </ScrollView>
       <View style={styles.bottomMenuContainer}>
-        <TouchableOpacity style={styles.menuItemMockup}>
+        <TouchableOpacity 
+          style={styles.menuItemMockup}
+          onPress={() => navigation.navigate('Calendar')}
+        >
           <MaterialCommunityIcons name="calendar" size={28} color="#3B4B75" />
           <Text style={styles.menuTextMockup}>Calendar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItemMockup}>
+        <TouchableOpacity 
+          style={styles.menuItemMockup}
+          onPress={() => navigation.navigate('Alerts')}
+        >
           <Ionicons name="warning" size={28} color="#E57373" />
           <Text style={styles.menuTextMockup}>Alerts</Text>
         </TouchableOpacity>
