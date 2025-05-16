@@ -9,17 +9,22 @@
   <div class="section">
     <h3>Contact Information</h3>
     <div class="field-group">
-      <label>Email</label>
-      <input formControlName="email" type="email" placeholder="example@mail.com" />
-      <div *ngIf="patientForm.get('email')?.invalid && patientForm.get('email')?.touched">
-        Invalid email.
+      <div class="field-group-div">
+        <label>Email</label>
+        <input formControlName="email" type="email" placeholder="example@mail.com" />
+        <div class="error-message" *ngIf="patientForm.get('email')?.invalid && patientForm.get('email')?.touched">
+          Invalid email.
+        </div>
       </div>
 
-      <label>Phone*</label>
-      <input formControlName="phone" type="tel" placeholder="0712345678" />
-      <div *ngIf="patientForm.get('phone')?.invalid && patientForm.get('phone')?.touched">
-        Invalid or missing phone number.
+      <div class="field-group-div">
+        <label>Phone*</label>
+        <input formControlName="phone" type="tel" placeholder="0712345678" />
+        <div class="error-message" *ngIf="patientForm.get('phone')?.invalid && patientForm.get('phone')?.touched">
+          Invalid or missing phone number.
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -27,29 +32,43 @@
   <div class="section">
     <h3>Personal Information</h3>
     <div class="field-group">
-      <label>First Name*</label>
-      <input formControlName="firstName" type="text" />
-      <div *ngIf="patientForm.get('firstName')?.invalid && patientForm.get('firstName')?.touched">
-        First name is required (min 2 chars).
+      <div class="field-group-div">
+        <label>First Name*</label>
+        <input formControlName="firstName" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('firstName')?.invalid && patientForm.get('firstName')?.touched">
+          First name is required (min 2 chars).
+        </div>
       </div>
 
-      <label>Last Name*</label>
-      <input formControlName="lastName" type="text" />
-      <div *ngIf="patientForm.get('lastName')?.invalid && patientForm.get('lastName')?.touched">
-        Last name is required (min 2 chars).
+      <div class="field-group-div">
+        <label>Last Name*</label>
+        <input formControlName="lastName" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('lastName')?.invalid && patientForm.get('lastName')?.touched">
+          Last name is required (min 2 chars).
+        </div>
       </div>
 
-      <label>CNP*</label>
-      <input formControlName="cnp" type="text" placeholder="1234567890123" />
-      <div *ngIf="patientForm.get('cnp')?.invalid && patientForm.get('cnp')?.touched">
-        Invalid CNP.
+      <div class="field-group-div">
+        <label>CNP*</label>
+        <input formControlName="cnp" type="text" placeholder="1234567890123" />
+        <div class="error-message" *ngIf="patientForm.get('cnp')?.invalid && patientForm.get('cnp')?.touched">
+          Invalid CNP.
+        </div>
       </div>
 
-      <label>Age</label>
-      <input [value]="age" disabled />
+      <div class="field-group-div">
+        <label>Age</label>
+        <input [value]="age" disabled />
+      </div>
 
-      <label>Occupation*</label>
-      <input formControlName="occupation" type="text" />
+
+      <div class="field-group-div">
+        <label>Occupation*</label>
+        <input formControlName="occupation" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('occupation')?.invalid && patientForm.get('occupation')?.touched">
+          Invalid occupation.
+        </div>
+      </div>
     </div>
   </div>
 
@@ -57,26 +76,49 @@
   <div class="section">
     <h3>Address</h3>
     <div class="field-group">
-      <label>City*</label>
-      <input formControlName="locality" type="text" />
+      <div class="field-group-div">
+        <label>City*</label>
+        <input formControlName="locality" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('locality')?.invalid && patientForm.get('locality')?.touched">
+          City is required.
+        </div>
+      </div>
 
-      <label>Street*</label>
-      <input formControlName="street" type="text" />
+      <div class="field-group-div">
+        <label>Street*</label>
+        <input formControlName="street" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('street')?.invalid && patientForm.get('street')?.touched">
+          Street is required.
+        </div>
+      </div>
 
-      <label>No*</label>
-      <input formControlName="number" type="text" />
+      <div class="field-group-div">
+        <label>No*</label>
+        <input formControlName="number" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('number')?.invalid && patientForm.get('number')?.touched">
+          Number is required.
+        </div>
+      </div>
 
-      <label>Block</label>
-      <input formControlName="block" type="text" />
+      <div class="field-group-div">
+        <label>Block</label>
+        <input formControlName="block" type="text" />
+      </div>
 
-      <label>Staircase</label>
-      <input formControlName="staircase" type="text" />
+      <div class="field-group-div">
+        <label>Staircase</label>
+        <input formControlName="staircase" type="text" />
+      </div>
 
-      <label>Apartment</label>
-      <input formControlName="apartment" type="text" />
+      <div class="field-group-div">
+        <label>Apartment</label>
+        <input formControlName="apartment" type="text" />
+      </div>
 
-      <label>Floor</label>
-      <input formControlName="floor" type="text" />
+      <div class="field-group-div">
+        <label>Floor</label>
+        <input formControlName="floor" type="text" />
+      </div>
     </div>
   </div>
 
@@ -84,18 +126,31 @@
   <div class="section">
     <h3>Medical Information</h3>
     <div class="field-group">
-      <label>Blood Group*</label>
-      <select formControlName="bloodGroup">
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="O">O</option>
-        <option value="AB">AB</option>
-      </select>
-      <label>Rh Factor*</label>
-      <select formControlName="rh">
-        <option value="POZITIV">Positive</option>
-        <option value="NEGATIV">Negative</option>
-      </select>
+      <div class="field-group-div">
+        <label>Blood Group*</label>
+        <select formControlName="bloodGroup">
+          <option value="">Select your blood group</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="O">O</option>
+          <option value="AB">AB</option>
+        </select>
+        <div class="error-message" *ngIf="patientForm.get('bloodGroup')?.invalid && patientForm.get('bloodGroup')?.touched">
+          Blood Group is required.
+        </div>
+      </div>
+
+      <div class="field-group-div">
+        <label>Rh Factor*</label>
+        <select formControlName="rh">
+          <option value="">Select your Rh Factor</option>
+          <option value="POZITIV">Positive</option>
+          <option value="NEGATIV">Negative</option>
+        </select>
+        <div class="error-message" *ngIf="patientForm.get('rh')?.invalid && patientForm.get('rh')?.touched">
+          Rh Factor is required.
+        </div>
+      </div>
     </div>
   </div>
 
@@ -117,6 +172,7 @@
     </div>
     <button type="button" class="button-add-disease" (click)="addDisease()">➕ Add Disease</button>
   </div>
+
   <button class="button-add-patient" type="submit" [disabled]="patientForm.invalid">➕ Add Patient</button>
 </form>
 

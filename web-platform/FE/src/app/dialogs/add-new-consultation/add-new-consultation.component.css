@@ -181,7 +181,6 @@ textarea{
 .add-disease:hover:not(:disabled) {
   background-color: #5a3da6;
   color: white;
-
 }
 
 .form-grid { display: grid; gap: 20px; }
@@ -189,6 +188,10 @@ textarea{
 .field-group { display: flex; flex-wrap: wrap; gap: 15px; }
 .disease-list { display: flex; flex-direction: column; gap: 10px; }
 .disease-item { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.field-group-div{
+  display: flex; flex-direction: column;
+}
 
 .disease-item input, .disease-item select, .disease-item textarea {
   flex: 1;
