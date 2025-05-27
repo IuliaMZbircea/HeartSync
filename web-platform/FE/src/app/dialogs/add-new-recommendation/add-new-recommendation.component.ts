@@ -2,13 +2,15 @@ import { Component } from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatDivider} from "@angular/material/divider";
 import {MatDialogRef} from "@angular/material/dialog";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-add-new-recommendation',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatDivider
+    MatDivider,
+    NgIf
   ],
   templateUrl: './add-new-recommendation.component.html',
   styleUrl: './add-new-recommendation.component.css'

@@ -1,5 +1,5 @@
 .close{
-  padding: 1%;
+  padding: 2%;
   display: flex;
   justify-content: space-between;
 
@@ -81,4 +81,15 @@ input:invalid, select:invalid, textarea:invalid {
   background-color: transparent;
   color: #1a1f38;
   border: 1px solid #9ca1c4;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  display: block;
+}
+
+form{
+  padding: 5%;
+  overflow: auto;
 }

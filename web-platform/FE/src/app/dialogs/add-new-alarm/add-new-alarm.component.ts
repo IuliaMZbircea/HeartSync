@@ -2,13 +2,15 @@ import { Component } from '@angular/core';
 import {MatDivider} from "@angular/material/divider";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatDialogRef} from "@angular/material/dialog";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-add-new-alarm',
   standalone: true,
   imports: [
     MatDivider,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgIf
   ],
   templateUrl: './add-new-alarm.component.html',
   styleUrl: './add-new-alarm.component.css'
