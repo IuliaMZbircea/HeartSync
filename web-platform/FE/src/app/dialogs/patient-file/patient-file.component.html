@@ -1,0 +1,84 @@
+<div class="close">
+  <div class="flex">
+    <img src="assets/images/file.png">
+    <p class="title">Patient File: {{ patient.firstName }} {{ patient.lastName }}</p>
+  </div>
+  <span (click)="close()">❌</span>
+</div>
+<mat-divider></mat-divider>
+
+<div class="patient-folder">
+  <!-- Contact Info -->
+  <section>
+    <h3>Contact</h3>
+    <p><strong>Email:</strong> {{ patient.email }}</p>
+    <p><strong>Phone:</strong> {{ patient.phone }}</p>
+  </section>
+
+  <!-- Personal Info -->
+  <section>
+    <h3>Personal Information</h3>
+    <p><strong>CNP:</strong> {{ patient.cnp }}</p>
+    <p><strong>Sex:</strong> {{ patient.sex }}</p>
+    <p><strong>Birth Date:</strong> {{ patient.birthDate | date }}</p>
+    <p><strong>Occupation:</strong> {{ patient.occupation }}</p>
+  </section>
+
+  <!-- Address -->
+  <section>
+    <h3>Address</h3>
+    <p>{{ patient.street }} Nr. {{ patient.number }}, Bl. {{ patient.block }}, Sc. {{ patient.staircase }}, Ap. {{ patient.apartment }}, Et. {{ patient.floor }}, {{ patient.locality }}</p>
+  </section>
+
+  <!-- Medical Info -->
+  <section>
+    <h3>Medical Info</h3>
+    <p><strong>Blood Group:</strong> {{ patient.bloodGroup }}</p>
+    <p><strong>Rh:</strong> {{ patient.rh }}</p>
+    <p><strong>Height:</strong> {{ patient.height }} cm</p>
+    <p><strong>Weight:</strong> {{ patient.weight }} kg</p>
+    <p><strong>Allergies:</strong> {{ patient.allergies }}</p>
+  </section>
+
+  <!-- Diseases -->
+  <section *ngIf="patient.diseases?.length">
+    <h3>Diseases</h3>
+    <div *ngFor="let disease of patient.diseases" class="item">
+      <p><strong>Name:</strong> {{ disease.name }}</p>
+      <p><strong>Category:</strong> {{ disease.category }}</p>
+      <p><strong>Description:</strong> {{ disease.description }}</p>
+    </div>
+  </section>
+
+  <!-- Consultations -->
+  <section *ngIf="patient.consultations?.length">
+    <h3>Consultations</h3>
+    <div *ngFor="let cons of patient.consultations" class="item">
+      <p><strong>Date:</strong> {{ cons.date | date }}</p>
+      <p><strong>Doctor:</strong> {{ cons.doctorName }}</p>
+      <p><strong>Notes:</strong> {{ cons.notes }}</p>
+    </div>
+  </section>
+
+<!--   Alarms-->
+  <section *ngIf="patient.alarms?.length">
+    <h3>Alarms</h3>
+    <div *ngFor="let alarm of patient.alarms" class="item">
+      <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
+      <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
+      <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
+      <p><strong>Message:</strong> {{ alarm.message }}</p>
+    </div>
+  </section>
+
+  <!-- Recommendations -->
+  <section *ngIf="patient.recommendations?.length">
+    <h3>Recommendations</h3>
+    <div *ngFor="let rec of patient.recommendations" class="item">
+      <p><strong>Activity:</strong> {{ rec.activityType }}</p>
+      <p><strong>Duration:</strong> {{ rec.dailyDuration }} min/day</p>
+      <p><strong>From:</strong> {{ rec.startDate | date }} to {{ rec.endDate ? (rec.endDate | date) : 'N/A' }}</p>
+      <p *ngIf="rec.additionalNotes"><strong>Notes:</strong> {{ rec.additionalNotes }}</p>
+    </div>
+  </section>
+</div>

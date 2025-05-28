@@ -29,6 +29,55 @@ export class PatientService {
       weight: 58.5,
       height: 165,
       allergies: 'Polen, penicilină',
+      validAccount:true,
+      diseases: [
+        {
+          name: 'Hipertensiune arterială',
+          category: 'Cardiovascular',
+          description: 'Tensiune arterială ridicată observată în ultimii 2 ani'
+        },
+        {
+          name: 'Astm',
+          category: 'Respirator',
+          description: 'Astm bronșic diagnosticat în copilărie'
+        }
+      ],
+      birthDate: new Date('1998-05-25'),
+      sex: 'F',
+      consultations: [
+        {
+          date: new Date('2024-12-10'),
+          doctorName: 'Dr. Ionescu',
+          notes: 'Control de rutină, recomandare pentru analize'
+        },
+        {
+          date: new Date('2025-03-15'),
+          doctorName: 'Dr. Marinescu',
+          notes: 'Tensiune crescută, început tratament'
+        }
+      ],
+      recommendations: []
+    },
+    {
+      email: 'ana.popescu@example.com',
+      phone: '0722123456',
+      firstName: 'Ana',
+      lastName: 'Popescu',
+      cnp: '2980525123456',
+      occupation: 'Medic',
+      locality: 'Cluj-Napoca',
+      street: 'Strada Primaverii',
+      number: '12',
+      block: 'B1',
+      staircase: '2',
+      apartment: 5,
+      floor: 1,
+      bloodGroup: 'A',
+      rh: '+',
+      weight: 58.5,
+      height: 165,
+      allergies: 'Polen, penicilină',
+      validAccount:true,
       diseases: [
         {
           name: 'Hipertensiune arterială',
@@ -89,6 +138,7 @@ export class PatientService {
       rh: '-',
       weight: 75.2,
       height: 180,
+      validAccount:true,
       allergies: 'Lactoză',
       diseases: [
         {
@@ -165,6 +215,7 @@ export class PatientService {
       weight: 75.2,
       height: 178,
       allergies: 'Nuci',
+      validAccount:false,
       diseases: [
         {
           name: 'Diabet tip 2',
@@ -228,6 +279,7 @@ export class PatientService {
       weight: 62,
       height: 170,
       allergies: 'Lactoză',
+      validAccount:false,
       diseases: [
         {
           name: 'Anemie feriprivă',
@@ -292,6 +344,7 @@ export class PatientService {
       weight: 80.7,
       height: 183,
       allergies: '',
+      validAccount:true,
       diseases: [
         {
           name: 'Boala Parkinson',

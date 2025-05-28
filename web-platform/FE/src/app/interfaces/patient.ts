@@ -27,6 +27,7 @@ export interface Patient {
   weight: number;
   height: number;
   allergies?: string;
+  validAccount:Boolean;
   diseases: Disease[];
   birthDate?: Date;
   sex?: 'M' | 'F';
