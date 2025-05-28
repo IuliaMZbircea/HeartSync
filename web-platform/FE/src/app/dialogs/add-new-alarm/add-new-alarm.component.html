@@ -1,10 +1,22 @@
 <div class="close">
-  <h4>Add new Alarm</h4>
+  <h4>Alarms</h4>
   <span (click)="close()">❌</span>
 </div>
 <mat-divider></mat-divider>
 
-<form [formGroup]="alarmForm" (ngSubmit)="onSubmit()">
+<div class="toggle-button">
+  <mat-button-toggle-group
+    name="viewAddToggle"
+    aria-label="View/Add Toggle"
+    [hideSingleSelectionIndicator]="true"
+    [value]="selectedOption"
+    (change)="onToggleChange($event)">
+    <mat-button-toggle value="view">View</mat-button-toggle>
+    <mat-button-toggle value="add">Add</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+<form [formGroup]="alarmForm" (ngSubmit)="onSubmit()" *ngIf="selectedOption === 'add'">
   <div class="section">
     <div class="field-group">
       <label>Parameter*</label>
@@ -60,3 +72,15 @@
 
   <button class="button-add-alarm" type="submit" [disabled]="alarmForm.invalid">➕ Save Alarm</button>
 </form>
+
+<div class="view">
+<div *ngIf="alarms?.length && selectedOption === 'view'">
+  <div class="alarm-card section" *ngFor="let alarm of alarms">
+    <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
+    <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
+    <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
+    <p><strong>After Activity:</strong> {{ alarm.afterActivity === 'true' ? 'Yes' : 'No' }}</p>
+    <p><strong>Message:</strong> {{ alarm.message }}</p>
+  </div>
+</div>
+</div>

@@ -125,7 +125,26 @@ export class PatientService {
           startDate: new Date('2025-03-10'),
           additionalNotes: 'Dimineața devreme, pentru reglarea glicemiei'
         }
+      ],
+      alarms: [
+        {
+          parameter: 'humidity',
+          condition: '<',
+          threshold: 30,
+          duration: 300,
+          afterActivity: false,
+          message: 'Aer prea uscat. Hidratează-te și evită efortul.'
+        },
+        {
+          parameter: 'pulse',
+          condition: '>',
+          threshold: 130,
+          duration: 45,
+          afterActivity: true,
+          message: 'Puls crescut semnificativ după efort.'
+        }
       ]
+
     },
     {
       email: 'mihai.ionescu@example.com',
@@ -169,6 +188,24 @@ export class PatientService {
           startDate: new Date('2025-02-01'),
           endDate: new Date('2025-05-31'),
           additionalNotes: 'De 3 ori pe săptămână'
+        }
+      ],
+      alarms: [
+        {
+          parameter: 'pulse',
+          condition: '>',
+          threshold: 120,
+          duration: 30,
+          afterActivity: true,
+          message: 'Puls ridicat după activitate fizică. Odihnă recomandată.'
+        },
+        {
+          parameter: 'temperature',
+          condition: '>',
+          threshold: 37.8,
+          duration: 60,
+          afterActivity: false,
+          message: 'Temperatură corporală crescută. Posibilă infecție.'
         }
       ]
     },
@@ -215,7 +252,26 @@ export class PatientService {
           endDate: new Date('2025-04-10'),
           additionalNotes: 'Relaxare și reducerea stresului'
         }
+      ],
+      alarms: [
+        {
+          parameter: 'pulse',
+          condition: '>',
+          threshold: 110,
+          duration: 30,
+          afterActivity: true,
+          message: 'Pulsul este prea mare după mers. Se recomandă pauză.'
+        },
+        {
+          parameter: 'temperature',
+          condition: '>',
+          threshold: 38,
+          duration: 60,
+          afterActivity: false,
+          message: 'Febră detectată. Se recomandă consult medical.'
+        }
       ]
+
     },
     {
       email: 'andrei.moldovan@example.com',
@@ -247,6 +303,16 @@ export class PatientService {
           startDate: new Date('2025-05-01'),
           endDate: new Date('2025-07-31'),
           additionalNotes: 'Parc dimineața, evitând orele de vârf'
+        }
+      ],
+      alarms: [
+        {
+          parameter: 'ecg',
+          condition: '=',
+          threshold: 0,
+          duration: 60,
+          afterActivity: false,
+          message: 'Semnal ECG pierdut. Verifică senzorul.'
         }
       ]
     }

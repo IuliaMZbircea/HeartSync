@@ -2,7 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatDivider} from "@angular/material/divider";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {DatePipe, NgForOf, NgIf, TitleCasePipe} from "@angular/common";
+import {DatePipe, NgForOf, NgIf} from "@angular/common";
 import {MatButtonToggle, MatButtonToggleGroup} from "@angular/material/button-toggle";
 import {PatientService} from "../../services/patient.service";
 import {Patient} from "../../interfaces/patient";
@@ -38,7 +38,7 @@ export class AddNewRecommendationComponent implements OnInit {
     additionalNotes: ['']
   });
 
-  selectedOption: string | undefined = 'view';
+  selectedOption: string | undefined = 'add';
   patient!: Patient;
   recommendations: any[] = [];
 
@@ -59,14 +59,12 @@ export class AddNewRecommendationComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.data.id)
     this.patientService.getPatients().subscribe(patients => {
       const found = patients.find(p => p.cnp === this.data.id);
       if (found) {
         this.patient = found;
         this.recommendations = found.recommendations;
       }
-      console.log(this.recommendations)
     });
   }
 }

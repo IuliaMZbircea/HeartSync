@@ -1,5 +1,6 @@
 import {Consultation} from "./consultation";
 import {Recommendation} from "./recommendation";
+import {Alarm} from "./alarm";
 
 export interface Disease {
   name: string;
@@ -31,4 +32,5 @@ export interface Patient {
   sex?: 'M' | 'F';
   consultations?: Consultation[];
   recommendations?: Recommendation[];
+  alarms?: Alarm[];
 }

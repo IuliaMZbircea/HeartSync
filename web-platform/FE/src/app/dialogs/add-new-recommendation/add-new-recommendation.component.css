@@ -93,11 +93,13 @@ input:invalid, select:invalid, textarea:invalid {
   justify-content: flex-end;
   padding-right: 7%;
   padding-top: 2%;
+  padding-bottom: 2%;
 }
 
 form{
   overflow: auto;
-  padding: 5%;
+  padding-right: 3%;
+  padding-left: 3%;
 }
 
 .custom-toggle-group {

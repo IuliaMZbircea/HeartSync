@@ -71,10 +71,18 @@ export class PatientListComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  openAddConsultationDialog() {
+  openAddConsultationDialog(id:string) {
     this.dialog.open(AddNewConsultationComponent, {
       width: '60%',
-      height: '95%',
+      height: '90%',
+      data: { id: id}
+    });
+  }
+
+  openAddNewConsultationDialog() {
+    this.dialog.open(AddNewConsultationComponent, {
+      width: '60%',
+      height: '90%',
       data: { }
     });
   }
@@ -90,7 +98,7 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   openAddAlarmDialog(id:string) {
     this.dialog.open(AddNewAlarmComponent, {
       width: '30%',
-      height: '100%',
+      height: '90%',
       data: { id: id },
     });
   }
