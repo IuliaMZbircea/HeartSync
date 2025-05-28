@@ -68,3 +68,8 @@
   </div>
 </div>
 
+<div *ngIf="recommendations?.length == 0 && selectedOption === 'view'" class="center">
+  <img src="assets/images/no_recommendation.png">
+  <h3>There are no recommendations yet!</h3>
+</div>
+

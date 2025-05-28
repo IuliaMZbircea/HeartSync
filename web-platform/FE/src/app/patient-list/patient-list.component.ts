@@ -15,6 +15,8 @@ import {AddNewRecommendationComponent} from "../dialogs/add-new-recommendation/a
 import {MatIcon} from "@angular/material/icon";
 import {MatIconButton} from "@angular/material/button";
 import {MatBadge} from "@angular/material/badge";
+import {PatientFileComponent} from "../dialogs/patient-file/patient-file.component";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-patient-list',
@@ -29,7 +31,8 @@ import {MatBadge} from "@angular/material/badge";
     MatInput,
     MatIcon,
     MatIconButton,
-    MatBadge
+    MatBadge,
+    NgIf
   ],
   templateUrl: './patient-list.component.html',
   styleUrl: './patient-list.component.css'
@@ -98,6 +101,14 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   openAddAlarmDialog(id:string) {
     this.dialog.open(AddNewAlarmComponent, {
       width: '30%',
+      height: '90%',
+      data: { id: id },
+    });
+  }
+
+  openPatientFile(id:string){
+    this.dialog.open(PatientFileComponent, {
+      width: '50%',
       height: '90%',
       data: { id: id },
     });

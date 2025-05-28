@@ -1,0 +1,43 @@
+.close{
+  padding: 1%;
+  display: flex;
+  justify-content: space-between;
+
+  span{
+    cursor: pointer;
+  }
+}
+
+.patient-folder {
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: auto;
+}
+
+section {
+  margin-bottom: 20px;
+  background: #f8f8f8;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.item {
+  background-color: #fff;
+  border-left: 4px solid #d32f2f;
+  margin-bottom: 10px;
+  padding-left: 10px;
+}
+
+.flex{
+  display: flex;
+  align-items: center;
+  width: 70%;
+}
+
+.title{
+  font-size: 2rem;
+  color: #1a1f38;
+  font-weight: bolder;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}

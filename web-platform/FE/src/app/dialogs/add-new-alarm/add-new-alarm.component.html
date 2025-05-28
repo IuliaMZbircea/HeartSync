@@ -84,3 +84,8 @@
   </div>
 </div>
 </div>
+
+<div *ngIf="alarms?.length == 0 && selectedOption === 'view'" class="center">
+    <img src="assets/images/no-alarms.jpg">
+    <h3>There are no alarms yet!</h3>
+</div>
