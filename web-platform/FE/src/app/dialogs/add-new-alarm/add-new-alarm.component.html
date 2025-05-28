@@ -1,12 +1,23 @@
 <div class="close">
-  <h4>Add new Alarm</h4>
+  <h4>Alarms</h4>
   <span (click)="close()">❌</span>
 </div>
 <mat-divider></mat-divider>
 
-<form [formGroup]="alarmForm" (ngSubmit)="onSubmit()">
+<div class="toggle-button">
+  <mat-button-toggle-group
+    name="viewAddToggle"
+    aria-label="View/Add Toggle"
+    [hideSingleSelectionIndicator]="true"
+    [value]="selectedOption"
+    (change)="onToggleChange($event)">
+    <mat-button-toggle value="view">View</mat-button-toggle>
+    <mat-button-toggle value="add">Add</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+<form [formGroup]="alarmForm" (ngSubmit)="onSubmit()" *ngIf="selectedOption === 'add'">
   <div class="section">
-    <h4>Alarm Settings</h4>
     <div class="field-group">
       <label>Parameter*</label>
       <select formControlName="parameter">
@@ -15,6 +26,9 @@
         <option value="humidity">Humidity</option>
         <option value="ecg">ECG</option>
       </select>
+      <div class="error-message" *ngIf="alarmForm.get('parameter')?.invalid && alarmForm.get('parameter')?.touched">
+        Parameter is required.
+      </div>
 
       <label>Condition*</label>
       <select formControlName="condition">
@@ -22,12 +36,21 @@
         <option value="<">Less than</option>
         <option value="=">Equal to</option>
       </select>
+      <div class="error-message" *ngIf="alarmForm.get('condition')?.invalid && alarmForm.get('condition')?.touched">
+        Condition is required.
+      </div>
 
       <label>Threshold*</label>
       <input type="number" formControlName="threshold" placeholder="Enter threshold value" />
+      <div class="error-message" *ngIf="alarmForm.get('threshold')?.invalid && alarmForm.get('threshold')?.touched">
+        Threshold must be a positive number.
+      </div>
 
       <label>Duration (sec)*</label>
       <input type="number" formControlName="duration" placeholder="e.g. 30" />
+      <div class="error-message" *ngIf="alarmForm.get('duration')?.invalid && alarmForm.get('duration')?.touched">
+        Duration must be at least 1 second.
+      </div>
 
       <label>After Activity?</label>
       <select formControlName="afterActivity">
@@ -38,12 +61,26 @@
   </div>
 
   <div class="section">
-    <h4>Message</h4>
     <div class="field-group">
       <label>Alarm Message*</label>
       <textarea formControlName="message" placeholder="Custom message shown when alarm is triggered"></textarea>
+    </div>
+    <div class="error-message" *ngIf="alarmForm.get('message')?.invalid && alarmForm.get('message')?.touched">
+      Message is required.
     </div>
   </div>
 
   <button class="button-add-alarm" type="submit" [disabled]="alarmForm.invalid">➕ Save Alarm</button>
 </form>
+
+<div class="view">
+<div *ngIf="alarms?.length && selectedOption === 'view'">
+  <div class="alarm-card section" *ngFor="let alarm of alarms">
+    <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
+    <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
+    <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
+    <p><strong>After Activity:</strong> {{ alarm.afterActivity === 'true' ? 'Yes' : 'No' }}</p>
+    <p><strong>Message:</strong> {{ alarm.message }}</p>
+  </div>
+</div>
+</div>

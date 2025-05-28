@@ -12,6 +12,9 @@ import {MatFormField} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {AddNewAlarmComponent} from "../dialogs/add-new-alarm/add-new-alarm.component";
 import {AddNewRecommendationComponent} from "../dialogs/add-new-recommendation/add-new-recommendation.component";
+import {MatIcon} from "@angular/material/icon";
+import {MatIconButton} from "@angular/material/button";
+import {MatBadge} from "@angular/material/badge";
 
 @Component({
   selector: 'app-patient-list',
@@ -23,7 +26,10 @@ import {AddNewRecommendationComponent} from "../dialogs/add-new-recommendation/a
     MatDivider,
     MatSortModule,
     MatFormField,
-    MatInput
+    MatInput,
+    MatIcon,
+    MatIconButton,
+    MatBadge
   ],
   templateUrl: './patient-list.component.html',
   styleUrl: './patient-list.component.css'
@@ -35,12 +41,18 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  alarmCount:number=5
 
  constructor(private patientService:PatientService, private dialog: MatDialog) { }
 
   ngOnInit() {
     this.patientService.getPatients().subscribe((values) => {
-      this.dataSource.data = values;
+      const modifiedValues = values.map(patient => ({
+        ...patient,
+        name: `${patient.firstName} ${patient.lastName}`
+      }));
+
+      this.dataSource.data = modifiedValues;
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
 
@@ -59,10 +71,18 @@ export class PatientListComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  openAddConsultationDialog() {
+  openAddConsultationDialog(id:string) {
     this.dialog.open(AddNewConsultationComponent, {
       width: '60%',
-      height: '95%',
+      height: '90%',
+      data: { id: id}
+    });
+  }
+
+  openAddNewConsultationDialog() {
+    this.dialog.open(AddNewConsultationComponent, {
+      width: '60%',
+      height: '90%',
       data: { }
     });
   }
@@ -77,16 +97,16 @@ export class PatientListComponent implements OnInit, AfterViewInit {
 
   openAddAlarmDialog(id:string) {
     this.dialog.open(AddNewAlarmComponent, {
-      width: '20%',
-      height: '100%',
-      data: { id: id }
+      width: '30%',
+      height: '90%',
+      data: { id: id },
     });
   }
 
   openRecommendationDialog(id:string) {
     this.dialog.open(AddNewRecommendationComponent, {
-      width: '20%',
-      height: '85%',
+      width: '30%',
+      height: '90%',
       data: { id: id }
     });
   }

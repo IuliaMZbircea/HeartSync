@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {MatDivider} from "@angular/material/divider";
-import {MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgForOf, NgIf} from "@angular/common";
+import {PatientService} from "../../services/patient.service";
+import {Patient} from "../../interfaces/patient";
+import {Consultation} from "../../interfaces/consultation";
 
 @Component({
   selector: 'app-add-new-consultation',
@@ -16,13 +19,19 @@ import {NgForOf, NgIf} from "@angular/common";
   templateUrl: './add-new-consultation.component.html',
   styleUrl: './add-new-consultation.component.css'
 })
-export class AddNewConsultationComponent {
+export class AddNewConsultationComponent implements OnInit{
 
   patientForm!: FormGroup;
   successMessage = '';
   age = 0;
+  selectedOption: string = 'add';
+  patient!: Patient;
+  consultations: Consultation[] = [];
 
-  constructor(private dialogRef: MatDialogRef<AddNewConsultationComponent>, private fb: FormBuilder){}
+  constructor(private dialogRef: MatDialogRef<AddNewConsultationComponent>,
+              private fb: FormBuilder,
+              private patientService: PatientService,
+              @Inject(MAT_DIALOG_DATA) public data: { id: string }){}
 
   ngOnInit(): void {
     this.patientForm = this.fb.group({
@@ -49,6 +58,36 @@ export class AddNewConsultationComponent {
 
     this.patientForm.get('cnp')?.valueChanges.subscribe(val => {
       this.validateAndExtractCNP(val);
+    });
+
+    this.patientService.getPatients().subscribe(patients => {
+      const found = patients.find(p => p.cnp === this.data.id);
+      if (found) {
+        this.patient = found;
+        this.consultations = found.consultations || [];
+
+        this.patientForm.patchValue({
+          email: found.email,
+          phone: found.phone,
+          firstName: found.firstName,
+          lastName: found.lastName,
+          cnp: found.cnp,
+          occupation: found.occupation,
+          locality: found.locality,
+          street: found.street,
+          number: found.number,
+          block: found.block,
+          staircase: found.staircase,
+          apartment: found.apartment,
+          floor: found.floor,
+          bloodGroup: found.bloodGroup,
+          rh: found.rh,
+          weight: found.weight,
+          height: found.height,
+          allergies: found.allergies
+        });
+        this.validateAndExtractCNP(found.cnp);
+      }
     });
   }
 

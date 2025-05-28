@@ -1,37 +1,70 @@
 <div class="close">
   <h2>Add Recommendation</h2>
-  <span (click)="close()">❌</span>
+    <span (click)="close()">❌</span>
 </div>
 <mat-divider></mat-divider>
 
-<form [formGroup]="recommendationForm" (ngSubmit)="onSubmit()">
+<div class="toggle-button">
+  <mat-button-toggle-group
+    name="viewAddToggle"
+    aria-label="View/Add Toggle"
+    [hideSingleSelectionIndicator]="true"
+    [value]="selectedOption"
+    (change)="onToggleChange($event)">
+    <mat-button-toggle value="view">View</mat-button-toggle>
+    <mat-button-toggle value="add">Add</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+<form [formGroup]="recommendationForm" (ngSubmit)="onSubmit()" *ngIf="selectedOption === 'add'">
   <div class="section">
-    <h3>Recommendation Details</h3>
     <div class="field-group">
-      <label>Activity Type*</label>
-      <select formControlName="activityType">
-        <option value="bicycle">Bicycle</option>
-        <option value="walk">Walk</option>
-        <option value="run">Run</option>
-        <option value="exercise">Physical Exercise</option>
-        <option value="other">Other</option>
-      </select>
+        <label>Activity Type*</label>
+        <select formControlName="activityType">
+          <option value="bicycle">Bicycle</option>
+          <option value="walk">Walk</option>
+          <option value="run">Run</option>
+          <option value="exercise">Physical Exercise</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="error-message" *ngIf="recommendationForm.get('activityType')?.invalid && recommendationForm.get('activityType')?.touched">
+          Activity type is required.
+        </div>
 
-      <label>Daily Duration (min)*</label>
-      <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" />
+        <label>Daily Duration (min)*</label>
+        <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" />
+        <div class="error-message" *ngIf="recommendationForm.get('dailyDuration')?.invalid && recommendationForm.get('dailyDuration')?.touched">
+          Please enter a valid daily duration (min 1 minute).
+        </div>
 
-      <label>Start Date*</label>
-      <input type="date" formControlName="startDate" />
+        <label>Start Date*</label>
+        <input type="date" formControlName="startDate" />
+        <div class="error-message" *ngIf="recommendationForm.get('startDate')?.invalid && recommendationForm.get('startDate')?.touched">
+          Start date is required.
+        </div>
 
-      <label>End Date</label>
-      <input type="date" formControlName="endDate" />
+        <label>End Date</label>
+        <input type="date" formControlName="endDate" />
 
-      <label>Additional Notes</label>
-      <textarea formControlName="additionalNotes" placeholder="Optional notes..."></textarea>
-    </div>
+        <label>Additional Notes</label>
+        <textarea formControlName="additionalNotes" placeholder="Optional notes..."></textarea>
+      </div>
   </div>
 
   <button class="button-add-recommendation" type="submit" [disabled]="recommendationForm.invalid">
     ➕ Save Recommendation
   </button>
 </form>
+
+<div class="view">
+  <div *ngIf="recommendations?.length && selectedOption === 'view'">
+    <div class="recommendation-card section" *ngFor="let rec of recommendations">
+      <h3>{{ rec.activityType }}</h3>
+      <p><strong>Duration:</strong> {{ rec.dailyDuration }} min/day</p>
+      <p><strong>Start:</strong> {{ rec.startDate | date }}</p>
+      <p><strong>End:</strong> {{ rec.endDate ? (rec.endDate | date) : 'N/A' }}</p>
+      <p *ngIf="rec.additionalNotes"><strong>Notes:</strong> {{ rec.additionalNotes }}</p>
+    </div>
+  </div>
+</div>
+

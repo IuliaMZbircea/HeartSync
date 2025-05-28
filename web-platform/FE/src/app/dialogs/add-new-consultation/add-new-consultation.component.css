@@ -242,3 +242,7 @@ button:hover{
   color: #1a1f38;
   border-radius: 5px;
 }
+
+form{
+  overflow: auto;
+}

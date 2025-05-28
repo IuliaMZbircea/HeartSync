@@ -5,7 +5,6 @@
 <mat-divider></mat-divider>
 <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
 
-  <!-- Contact Information -->
   <div class="section">
     <h3>Contact Information</h3>
     <div class="field-group">
@@ -144,8 +143,8 @@
         <label>Rh Factor*</label>
         <select formControlName="rh">
           <option value="">Select your Rh Factor</option>
-          <option value="POZITIV">Positive</option>
-          <option value="NEGATIV">Negative</option>
+          <option value="+">Positive</option>
+          <option value="-">Negative</option>
         </select>
         <div class="error-message" *ngIf="patientForm.get('rh')?.invalid && patientForm.get('rh')?.touched">
           Rh Factor is required.
@@ -176,4 +175,3 @@
   <button class="button-add-patient" type="submit" [disabled]="patientForm.invalid">➕ Add Patient</button>
 </form>
 
-<div *ngIf="successMessage">{{ successMessage }}</div>

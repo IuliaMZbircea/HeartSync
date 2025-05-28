@@ -1,5 +1,5 @@
 .close{
-  padding: 1%;
+  padding: 2%;
   display: flex;
   justify-content: space-between;
 
@@ -8,7 +8,6 @@
   }
 }
 
-/* Section container */
 .section {
   background-color: #f5f5f5;
   padding: 20px;
@@ -30,6 +29,10 @@
   flex-wrap: wrap;
   gap: 20px;
   align-items: flex-start;
+}
+
+.field-group-div{
+  display: flex; flex-direction: column;
 }
 
 .field-group label {
@@ -77,8 +80,32 @@ input:invalid, select:invalid, textarea:invalid {
   cursor: not-allowed;
 }
 
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  display: block;
+}
+
 .button-add-alarm:hover:not(:disabled) {
   background-color: transparent;
   color: #1a1f38;
   border: 1px solid #9ca1c4;
+}
+
+form{
+  overflow: auto;
+  padding-right: 3%;
+  padding-left: 3%;
+}
+
+.toggle-button{
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 7%;
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+
+.view{
+  padding:5%;
 }

@@ -1,21 +1,34 @@
-import { Component } from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Component, Inject, OnInit} from '@angular/core';
+import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatDivider} from "@angular/material/divider";
-import {MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {DatePipe, NgForOf, NgIf} from "@angular/common";
+import {MatButtonToggle, MatButtonToggleGroup} from "@angular/material/button-toggle";
+import {PatientService} from "../../services/patient.service";
+import {Patient} from "../../interfaces/patient";
 
 @Component({
   selector: 'app-add-new-recommendation',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatDivider
+    MatDivider,
+    NgIf,
+    MatButtonToggle,
+    MatButtonToggleGroup,
+    FormsModule,
+    DatePipe,
+    NgForOf,
   ],
   templateUrl: './add-new-recommendation.component.html',
   styleUrl: './add-new-recommendation.component.css'
 })
-export class AddNewRecommendationComponent {
+export class AddNewRecommendationComponent implements OnInit {
 
-  constructor(private dialogRef: MatDialogRef<AddNewRecommendationComponent>, public fb:FormBuilder){}
+  constructor(private dialogRef: MatDialogRef<AddNewRecommendationComponent>,
+              public fb:FormBuilder,
+              @Inject(MAT_DIALOG_DATA) public data: { id: string },
+              private patientService: PatientService){}
 
   recommendationForm = this.fb.group({
     activityType: ['', Validators.required],
@@ -25,10 +38,18 @@ export class AddNewRecommendationComponent {
     additionalNotes: ['']
   });
 
+  selectedOption: string | undefined = 'add';
+  patient!: Patient;
+  recommendations: any[] = [];
+
+  onToggleChange(event: any): void {
+    console.log('Selected:', event.value);
+    this.selectedOption = event.value;
+  }
+
   onSubmit() {
     if (this.recommendationForm.valid) {
       const data = this.recommendationForm.value;
-      console.log('Recommendation saved:', data);
       this.dialogRef.close(data);
     }
   }
@@ -37,4 +58,13 @@ export class AddNewRecommendationComponent {
     this.dialogRef.close();
   }
 
+  ngOnInit() {
+    this.patientService.getPatients().subscribe(patients => {
+      const found = patients.find(p => p.cnp === this.data.id);
+      if (found) {
+        this.patient = found;
+        this.recommendations = found.recommendations;
+      }
+    });
+  }
 }
