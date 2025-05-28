@@ -89,16 +89,15 @@ export class PatientListComponent implements OnInit, AfterViewInit {
 
   openAddAlarmDialog(id:string) {
     this.dialog.open(AddNewAlarmComponent, {
-      width: '20%',
+      width: '30%',
       height: '100%',
       data: { id: id },
-      panelClass: 'custom-dialog-shadow'
     });
   }
 
   openRecommendationDialog(id:string) {
     this.dialog.open(AddNewRecommendationComponent, {
-      width: '20%',
+      width: '30%',
       height: '90%',
       data: { id: id }
     });

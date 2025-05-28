@@ -1,10 +1,22 @@
 <div class="close">
   <h2>Add Recommendation</h2>
-  <span (click)="close()">❌</span>
+    <span (click)="close()">❌</span>
 </div>
 <mat-divider></mat-divider>
 
-<form [formGroup]="recommendationForm" (ngSubmit)="onSubmit()">
+<div class="toggle-button">
+  <mat-button-toggle-group
+    name="viewAddToggle"
+    aria-label="View/Add Toggle"
+    [hideSingleSelectionIndicator]="true"
+    [value]="selectedOption"
+    (change)="onToggleChange($event)">
+    <mat-button-toggle value="view">View</mat-button-toggle>
+    <mat-button-toggle value="add">Add</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+<form [formGroup]="recommendationForm" (ngSubmit)="onSubmit()" *ngIf="selectedOption === 'add'">
   <div class="section">
     <div class="field-group">
         <label>Activity Type*</label>
@@ -43,3 +55,16 @@
     ➕ Save Recommendation
   </button>
 </form>
+
+<div class="view">
+  <div *ngIf="recommendations?.length && selectedOption === 'view'">
+    <div class="recommendation-card section" *ngFor="let rec of recommendations">
+      <h3>{{ rec.activityType }}</h3>
+      <p><strong>Duration:</strong> {{ rec.dailyDuration }} min/day</p>
+      <p><strong>Start:</strong> {{ rec.startDate | date }}</p>
+      <p><strong>End:</strong> {{ rec.endDate ? (rec.endDate | date) : 'N/A' }}</p>
+      <p *ngIf="rec.additionalNotes"><strong>Notes:</strong> {{ rec.additionalNotes }}</p>
+    </div>
+  </div>
+</div>
+

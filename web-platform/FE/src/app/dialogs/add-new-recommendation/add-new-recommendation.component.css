@@ -8,7 +8,6 @@
   }
 }
 
-/* Section container */
 .section {
   background-color: #f5f5f5;
   padding: 20px;
@@ -89,7 +88,42 @@ input:invalid, select:invalid, textarea:invalid {
   display: block;
 }
 
-form{
-  padding: 5%;
-  overflow: auto;
+.toggle-button{
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 7%;
+  padding-top: 2%;
 }
+
+form{
+  overflow: auto;
+  padding: 5%;
+}
+
+.custom-toggle-group {
+  background: transparent;
+  border: none;
+}
+
+.custom-toggle-group .mat-button-toggle {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+  background-color: white;
+  color: #333;
+  transition: background-color 0.2s ease;
+}
+
+.custom-toggle-group .mat-button-toggle-checked {
+  background-color: #3f51b5;
+  color: white;
+}
+
+.custom-toggle-group .mat-button-toggle:hover {
+  background-color: #f0f0f0;
+}
+
+.view{
+  padding:5%;
+}
+
