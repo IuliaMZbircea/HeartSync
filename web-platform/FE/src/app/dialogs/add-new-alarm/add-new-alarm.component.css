@@ -109,3 +109,21 @@ form{
 .view{
   padding:5%;
 }
+
+h3 {
+  margin-bottom: 1rem;
+  color: #1a1f38;
+  font-weight: bolder;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.center{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  img{
+    width: 60%;
+  }
+}

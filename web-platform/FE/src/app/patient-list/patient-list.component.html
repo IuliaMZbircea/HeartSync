@@ -39,7 +39,7 @@
       <ng-container matColumnDef="alarms">
         <th mat-header-cell mat-sort-header *matHeaderCellDef> Alarm history </th>
         <td mat-cell *matCellDef="let element">
-          <button mat-icon-button [matBadge]="alarmCount" matBadgeColor="warn" (click)="openAddAlarmDialog(element.cnp)">
+          <button mat-icon-button [matBadge]="element.alarms?.length || 0" matBadgeColor="warn" (click)="openAddAlarmDialog(element.cnp)">
             <img class="element" src="assets/images/clock.png">
           </button>
         </td>

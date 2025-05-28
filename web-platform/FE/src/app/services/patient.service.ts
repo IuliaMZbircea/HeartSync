@@ -292,7 +292,29 @@ export class PatientService {
       weight: 80.7,
       height: 183,
       allergies: '',
-      diseases: [],
+      diseases: [
+        {
+          name: 'Boala Parkinson',
+          category: 'Neurologic',
+          description: 'Tulburare degenerativă a sistemului nervos ce afectează mișcările.'
+        },
+        {
+          name: 'Boala celiacă',
+          category: 'Autoimun',
+          description: 'Intoleranță la gluten, provoacă leziuni intestinale.'
+        },
+        {
+          name: 'Bronșită cronică',
+          category: 'Respirator',
+          description: 'Inflamație prelungită a bronhiilor, adesea cauzată de fumat.'
+        },
+        {
+          name: 'Insuficiență renală cronică',
+          category: 'Renal',
+          description: 'Pierderea treptată a funcției rinichilor.'
+        }
+      ]
+      ,
       birthDate: new Date('1982-12-22'),
       sex: 'M',
       consultations: [],

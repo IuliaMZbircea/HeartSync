@@ -172,6 +172,17 @@
     <button type="button" class="button-add-disease" (click)="addDisease()">➕ Add Disease</button>
   </div>
 
+  <div class="section" *ngIf="patientDiseases.length > 0">
+    <h3>Existing Diseases</h3>
+    <div class="disease-list">
+      <div class="disease-item" *ngFor="let disease of patientDiseases">
+        <div><strong>Name:</strong> {{ disease.name }}</div>
+        <div><strong>Category:</strong> {{ disease.category }}</div>
+        <div><strong>Description:</strong> {{ disease.description }}</div>
+      </div>
+    </div>
+  </div>
+
   <button class="button-add-patient" type="submit" [disabled]="patientForm.invalid">➕ Add Patient</button>
 </form>
 

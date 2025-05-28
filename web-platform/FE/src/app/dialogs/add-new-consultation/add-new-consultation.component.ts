@@ -6,6 +6,7 @@ import {NgForOf, NgIf} from "@angular/common";
 import {PatientService} from "../../services/patient.service";
 import {Patient} from "../../interfaces/patient";
 import {Consultation} from "../../interfaces/consultation";
+import {Disease} from "../../interfaces/disease";
 
 @Component({
   selector: 'app-add-new-consultation',
@@ -27,6 +28,7 @@ export class AddNewConsultationComponent implements OnInit{
   selectedOption: string = 'add';
   patient!: Patient;
   consultations: Consultation[] = [];
+  patientDiseases:Disease[]=[];
 
   constructor(private dialogRef: MatDialogRef<AddNewConsultationComponent>,
               private fb: FormBuilder,
@@ -65,6 +67,8 @@ export class AddNewConsultationComponent implements OnInit{
       if (found) {
         this.patient = found;
         this.consultations = found.consultations || [];
+        this.patientDiseases=found.diseases || [];
+
 
         this.patientForm.patchValue({
           email: found.email,
