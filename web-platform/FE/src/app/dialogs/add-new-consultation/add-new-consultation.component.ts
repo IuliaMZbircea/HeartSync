@@ -25,15 +25,31 @@ export class AddNewConsultationComponent implements OnInit{
   patientForm!: FormGroup;
   successMessage = '';
   age = 0;
-  selectedOption: string = 'add';
   patient!: Patient;
   consultations: Consultation[] = [];
   patientDiseases:Disease[]=[];
+  mode: 'view' | 'edit' | 'add';
+  id?: string;
 
   constructor(private dialogRef: MatDialogRef<AddNewConsultationComponent>,
               private fb: FormBuilder,
               private patientService: PatientService,
-              @Inject(MAT_DIALOG_DATA) public data: { id: string }){}
+              @Inject(MAT_DIALOG_DATA) public data: { id: string, mode: 'view' | 'edit' | 'add'}){
+              this.mode = data.mode;
+              this.id = data.id;
+  }
+
+  get isViewMode(): boolean {
+    return this.mode === 'view';
+  }
+
+  get isEditMode(): boolean {
+    return this.mode === 'edit';
+  }
+
+  get isAddMode(): boolean {
+    return this.mode === 'add';
+  }
 
   ngOnInit(): void {
     this.patientForm = this.fb.group({
@@ -61,6 +77,13 @@ export class AddNewConsultationComponent implements OnInit{
     this.patientForm.get('cnp')?.valueChanges.subscribe(val => {
       this.validateAndExtractCNP(val);
     });
+
+    if (this.isViewMode) {
+      const controlsToDisable = ['bloodGroup', 'rh', 'email', 'phone', 'firstName', 'lastName', 'cnp', 'occupation', 'locality', 'street', 'number', 'block', 'staircase', 'apartment', 'floor'];
+      controlsToDisable.forEach(control => {
+        this.patientForm.get(control)?.disable();
+      });
+    }
 
     this.patientService.getPatients().subscribe(patients => {
       const found = patients.find(p => p.cnp === this.data.id);
