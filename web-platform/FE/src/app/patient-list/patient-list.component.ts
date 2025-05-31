@@ -29,7 +29,6 @@ import {NgIf} from "@angular/common";
     MatSortModule,
     MatFormField,
     MatInput,
-    MatIcon,
     MatIconButton,
     MatBadge,
     NgIf
@@ -73,19 +72,27 @@ export class PatientListComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  openAddConsultationDialog(id:string) {
-    this.dialog.open(AddNewConsultationComponent, {
-      width: '60%',
-      height: '90%',
-      data: { id: id}
-    });
-  }
-
   openAddNewConsultationDialog() {
     this.dialog.open(AddNewConsultationComponent, {
       width: '60%',
       height: '90%',
-      data: { }
+      data: { mode: 'add' }
+    });
+  }
+
+  openAddConsultationDialog(id: string) {
+    this.dialog.open(AddNewConsultationComponent, {
+      width: '60%',
+      height: '90%',
+      data: { id: id, mode: 'view' }
+    });
+  }
+
+  openEditConsultationDialog(id: string) {
+    this.dialog.open(AddNewConsultationComponent, {
+      width: '60%',
+      height: '90%',
+      data: { id: id, mode: 'edit' }
     });
   }
 

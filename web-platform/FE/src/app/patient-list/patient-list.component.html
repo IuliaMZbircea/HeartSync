@@ -58,14 +58,19 @@
           <div class="settings">
             <img *ngIf="!element.validAccount" appHoverScale (click)="openDeleteConfirmationDialog()" src="assets/images/delete.png">
             <img *ngIf="element.validAccount" appHoverScale (click)="openDeleteConfirmationDialog()" src="assets/images/valid_account.png">
-            <img appHoverScale  src="assets/images/edit.png">
+            <img appHoverScale src="assets/images/edit.png" (click)="openEditConsultationDialog(element.cnp)">
             <img appHoverScale (click)="openPatientFile(element.cnp)" src="assets/images/eye.png">
           </div>
         </td >
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          [class.readonly-row]="!row.validAccount"
+          [class.clickable]="row.validAccount"
+      >
+    </tr>
+
     </table>
     <mat-divider></mat-divider>
     <mat-paginator [length]="100"

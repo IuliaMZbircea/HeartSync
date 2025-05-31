@@ -97,6 +97,7 @@ textarea{
   background-color: #b7b7c344;
   padding: 20px;
 }
+
 .info5{
   background-color: #af95d11e;
   padding: 20px;
@@ -191,6 +192,7 @@ textarea{
 
 .field-group-div{
   display: flex; flex-direction: column;
+  width: 23%;
 }
 
 .disease-item input, .disease-item select, .disease-item textarea {
@@ -245,4 +247,8 @@ button:hover{
 
 form{
   overflow: auto;
+}
+
+img{
+  width:2%;
 }

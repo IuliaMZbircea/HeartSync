@@ -33,6 +33,7 @@ section {
   display: flex;
   align-items: center;
   width: 70%;
+  gap: 4%;
 }
 
 .title{

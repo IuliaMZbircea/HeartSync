@@ -10,7 +10,7 @@
     <div class="field-group">
       <div class="field-group-div">
         <label>Email</label>
-        <input formControlName="email" type="email" placeholder="example@mail.com" />
+        <input formControlName="email" type="email" placeholder="example@mail.com" [readonly]="isViewMode"  />
         <div class="error-message" *ngIf="patientForm.get('email')?.invalid && patientForm.get('email')?.touched">
           Invalid email.
         </div>
@@ -18,7 +18,7 @@
 
       <div class="field-group-div">
         <label>Phone*</label>
-        <input formControlName="phone" type="tel" placeholder="0712345678" />
+        <input formControlName="phone" type="tel" placeholder="0712345678" [readonly]="isViewMode" />
         <div class="error-message" *ngIf="patientForm.get('phone')?.invalid && patientForm.get('phone')?.touched">
           Invalid or missing phone number.
         </div>
@@ -33,7 +33,7 @@
     <div class="field-group">
       <div class="field-group-div">
         <label>First Name*</label>
-        <input formControlName="firstName" type="text" />
+        <input formControlName="firstName" type="text" [readonly]="isViewMode" />
         <div class="error-message" *ngIf="patientForm.get('firstName')?.invalid && patientForm.get('firstName')?.touched">
           First name is required (min 2 chars).
         </div>
@@ -41,7 +41,7 @@
 
       <div class="field-group-div">
         <label>Last Name*</label>
-        <input formControlName="lastName" type="text" />
+        <input formControlName="lastName" type="text" [readonly]="isViewMode"/>
         <div class="error-message" *ngIf="patientForm.get('lastName')?.invalid && patientForm.get('lastName')?.touched">
           Last name is required (min 2 chars).
         </div>
@@ -49,7 +49,7 @@
 
       <div class="field-group-div">
         <label>CNP*</label>
-        <input formControlName="cnp" type="text" placeholder="1234567890123" />
+        <input formControlName="cnp" type="text" placeholder="1234567890123" [readonly]="isViewMode" />
         <div class="error-message" *ngIf="patientForm.get('cnp')?.invalid && patientForm.get('cnp')?.touched">
           Invalid CNP.
         </div>
@@ -57,13 +57,13 @@
 
       <div class="field-group-div">
         <label>Age</label>
-        <input [value]="age" disabled />
+        <input [value]="age" disabled [readonly]="isViewMode"/>
       </div>
 
 
       <div class="field-group-div">
         <label>Occupation*</label>
-        <input formControlName="occupation" type="text" />
+        <input formControlName="occupation" type="text" [readonly]="isViewMode"/>
         <div class="error-message" *ngIf="patientForm.get('occupation')?.invalid && patientForm.get('occupation')?.touched">
           Invalid occupation.
         </div>
@@ -77,7 +77,7 @@
     <div class="field-group">
       <div class="field-group-div">
         <label>City*</label>
-        <input formControlName="locality" type="text" />
+        <input formControlName="locality" type="text" [readonly]="isViewMode" />
         <div class="error-message" *ngIf="patientForm.get('locality')?.invalid && patientForm.get('locality')?.touched">
           City is required.
         </div>
@@ -85,7 +85,7 @@
 
       <div class="field-group-div">
         <label>Street*</label>
-        <input formControlName="street" type="text" />
+        <input formControlName="street" type="text" [readonly]="isViewMode" />
         <div class="error-message" *ngIf="patientForm.get('street')?.invalid && patientForm.get('street')?.touched">
           Street is required.
         </div>
@@ -93,7 +93,7 @@
 
       <div class="field-group-div">
         <label>No*</label>
-        <input formControlName="number" type="text" />
+        <input formControlName="number" type="text" [readonly]="isViewMode" />
         <div class="error-message" *ngIf="patientForm.get('number')?.invalid && patientForm.get('number')?.touched">
           Number is required.
         </div>
@@ -101,22 +101,22 @@
 
       <div class="field-group-div">
         <label>Block</label>
-        <input formControlName="block" type="text" />
+        <input formControlName="block" type="text" [readonly]="isViewMode" />
       </div>
 
       <div class="field-group-div">
         <label>Staircase</label>
-        <input formControlName="staircase" type="text" />
+        <input formControlName="staircase" type="text" [readonly]="isViewMode" />
       </div>
 
       <div class="field-group-div">
         <label>Apartment</label>
-        <input formControlName="apartment" type="text" />
+        <input formControlName="apartment" type="text" [readonly]="isViewMode"/>
       </div>
 
       <div class="field-group-div">
         <label>Floor</label>
-        <input formControlName="floor" type="text" />
+        <input formControlName="floor" type="text" [readonly]="isViewMode" />
       </div>
     </div>
   </div>
@@ -127,7 +127,7 @@
     <div class="field-group">
       <div class="field-group-div">
         <label>Blood Group*</label>
-        <select formControlName="bloodGroup">
+        <select formControlName="bloodGroup" [disabled]="isViewMode">
           <option value="">Select your blood group</option>
           <option value="A">A</option>
           <option value="B">B</option>
@@ -141,7 +141,7 @@
 
       <div class="field-group-div">
         <label>Rh Factor*</label>
-        <select formControlName="rh">
+        <select formControlName="rh" [disabled]="isViewMode">
           <option value="">Select your Rh Factor</option>
           <option value="+">Positive</option>
           <option value="-">Negative</option>
@@ -167,6 +167,7 @@
           <option value="Other">Other</option>
         </select>
         <textarea formControlName="description" placeholder="Description"></textarea>
+        <img src="assets/images/delete-trash.png">
       </div>
     </div>
     <button type="button" class="button-add-disease" (click)="addDisease()">➕ Add Disease</button>
@@ -183,6 +184,7 @@
     </div>
   </div>
 
-  <button class="button-add-patient" type="submit" [disabled]="patientForm.invalid">➕ Add Patient</button>
+  <button class="button-add-patient" type="submit" [disabled]="patientForm.invalid" *ngIf="isEditMode">✏️ Edit Patient</button>
+  <button class="button-add-patient" type="submit" [disabled]="patientForm.invalid" *ngIf="isAddMode">➕ Add Patient</button>
 </form>
 
