@@ -41,3 +41,31 @@ section {
   font-weight: bolder;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
+
+button{
+  padding: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.3s, color 0.3s;
+  border-radius: 5px;
+  background-color: #1a1f38;
+  color: white;
+  border: 2px solid #9ca1c4;
+}
+
+button:hover{
+  background-color: transparent;
+  border: 1px solid #9ca1c4;
+  color: #1a1f38;
+  border-radius: 5px;
+}
+
+.export_button{
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 4%;
+  margin-top: 1%;
+}

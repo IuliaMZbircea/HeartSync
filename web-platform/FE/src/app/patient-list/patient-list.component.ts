@@ -44,7 +44,6 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  alarmCount:number=5
 
  constructor(private patientService:PatientService, private dialog: MatDialog) { }
 

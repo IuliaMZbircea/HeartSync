@@ -6,22 +6,32 @@
   <span (click)="close()">❌</span>
 </div>
 <mat-divider></mat-divider>
+<div class="export_button">
+  <button (click)="exportToPDF()">
+    <div>
+      <img src="assets/images/download_pdf.png">
+      <span>Export PDF File</span>
+    </div>
+    </button>
+</div>
 
-<div class="patient-folder">
+<div class="patient-folder" #patientContent id="patientContent">
+
+  <!-- Personal Info -->
+  <section>
+    <h3>Personal Information</h3>
+    <p><strong>Name:</strong> {{ patient.firstName }} {{patient.lastName}}</p>
+    <p><strong>CNP:</strong> {{ patient.cnp }}</p>
+    <p><strong>Sex:</strong> {{ patient.sex }}</p>
+    <p><strong>Birth Date:</strong> {{ patient.birthDate | date }}</p>
+    <p><strong>Occupation:</strong> {{ patient.occupation }}</p>
+  </section>
+
   <!-- Contact Info -->
   <section>
     <h3>Contact</h3>
     <p><strong>Email:</strong> {{ patient.email }}</p>
     <p><strong>Phone:</strong> {{ patient.phone }}</p>
-  </section>
-
-  <!-- Personal Info -->
-  <section>
-    <h3>Personal Information</h3>
-    <p><strong>CNP:</strong> {{ patient.cnp }}</p>
-    <p><strong>Sex:</strong> {{ patient.sex }}</p>
-    <p><strong>Birth Date:</strong> {{ patient.birthDate | date }}</p>
-    <p><strong>Occupation:</strong> {{ patient.occupation }}</p>
   </section>
 
   <!-- Address -->
