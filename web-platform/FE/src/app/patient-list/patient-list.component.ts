@@ -132,7 +132,7 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   }
 
   openConsultationsDialog(id:string) {
-    this.router.navigate([`/view-consultations`]);
+    this.router.navigate([`/view-consultations`, id]);
   }
 
   openRecommendationsDialog(id:string) {

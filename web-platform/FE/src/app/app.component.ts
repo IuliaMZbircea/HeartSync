@@ -5,11 +5,13 @@ import {PresentationPageComponent} from "./presentation-page/presentation-page.c
 import {FooterComponent} from "./footer/footer.component";
 import {RegisterComponent} from "./authentification/register/register.component";
 import {PatientListComponent} from "./patient-list/patient-list.component";
+import {DiagnosisCodeComponent} from "./diagnosis-code/diagnosis-code.component";
+import {AddNewConsultationComponent} from "./dialogs/add-new-consultation/add-new-consultation.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavBarComponent, FooterComponent, PatientListComponent],
+  imports: [RouterOutlet, NavBarComponent, FooterComponent, PatientListComponent, DiagnosisCodeComponent, AddNewConsultationComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

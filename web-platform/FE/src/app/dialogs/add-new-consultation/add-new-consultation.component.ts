@@ -1,55 +1,29 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {MatDivider} from "@angular/material/divider";
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgForOf, NgIf} from "@angular/common";
-import {PatientService} from "../../services/patient.service";
-import {Patient} from "../../interfaces/patient";
-import {Consultation} from "../../interfaces/consultation";
-import {Disease} from "../../interfaces/disease";
+import { Component, OnInit } from '@angular/core';
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import { NgIf, NgForOf } from '@angular/common';
+import {debounceTime, of, switchMap} from "rxjs";
+import {IcdService} from "../../services/diagnosis.code.service";
+import {DiagnosisCodeComponent} from "../../diagnosis-code/diagnosis-code.component";
 
 @Component({
   selector: 'app-add-new-consultation',
   standalone: true,
   imports: [
-    MatDivider,
     ReactiveFormsModule,
     NgForOf,
-    NgIf
+    NgIf,
+    DiagnosisCodeComponent
   ],
+  providers: [IcdService],
   templateUrl: './add-new-consultation.component.html',
   styleUrl: './add-new-consultation.component.css'
 })
-export class AddNewConsultationComponent implements OnInit{
-
+export class AddNewConsultationComponent implements OnInit {
   patientForm!: FormGroup;
-  successMessage = '';
   age = 0;
-  patient!: Patient;
-  consultations: Consultation[] = [];
-  patientDiseases:Disease[]=[];
-  mode: 'view' | 'edit' | 'add';
-  id?: string;
-
-  constructor(private dialogRef: MatDialogRef<AddNewConsultationComponent>,
-              private fb: FormBuilder,
-              private patientService: PatientService,
-              @Inject(MAT_DIALOG_DATA) public data: { id: string, mode: 'view' | 'edit' | 'add'}){
-              this.mode = data.mode;
-              this.id = data.id;
-  }
-
-  get isViewMode(): boolean {
-    return this.mode === 'view';
-  }
-
-  get isEditMode(): boolean {
-    return this.mode === 'edit';
-  }
-
-  get isAddMode(): boolean {
-    return this.mode === 'add';
-  }
+  token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE3NDkwNDAzMzAsImV4cCI6MTc0OTA0MzkzMCwiaXNzIjoiaHR0cHM6Ly9pY2RhY2Nlc3NtYW5hZ2VtZW50Lndoby5pbnQiLCJhdWQiOlsiaHR0cHM6Ly9pY2RhY2Nlc3NtYW5hZ2VtZW50Lndoby5pbnQvcmVzb3VyY2VzIiwiaWNkYXBpIl0sImNsaWVudF9pZCI6IjQwMDYxMDkyLTZhYjktNGI5OC04ZWI3LWJmMGM1YzU0MWE2Zl81NGIzZmZiNC1jMjc3LTQ0NDItYTUyZi0yMDY3YmRkNTM3NzQiLCJzY29wZSI6WyJpY2RhcGlfYWNjZXNzIl19.XSHsBcJm8eHMfvocuTDUMP-nlHXmJOTfUKgkEY6pC_cq3lzq4j-iARjS-chN2T5yFE8hmlt0OBGl_LpbbzPDQk0Daa5NpQZlmvheHO-Y_xTjL6KVxVwatuXYIOAT0k7lnPbt8dffDClViKE-FovkadDQHdqIRgk3l2svFrMGUkIn7ZFJyjyK63KS1qez_AcFCU5qCVKynAJjaPh7hZ7T-FUAwFABOfwwatcYgr2Dk4FPgLcpfZ9SiC3QftO33UXDaLbRab0zhVj-B4YrecQIWyQNBdZRJ0YyYMLsw_Q9K31CIdUQY9-clZRXUk3KkIIR-6nw5KdJYettInZcbFt9vQ'
+  diseaseSuggestions: Array<any[]> = [];
+  constructor(private fb: FormBuilder, private icdService: IcdService) { }
 
   ngOnInit(): void {
     this.patientForm = this.fb.group({
@@ -77,59 +51,53 @@ export class AddNewConsultationComponent implements OnInit{
     this.patientForm.get('cnp')?.valueChanges.subscribe(val => {
       this.validateAndExtractCNP(val);
     });
+    this.addDisease();
 
-    if (this.isViewMode) {
-      const controlsToDisable = ['bloodGroup', 'rh', 'email', 'phone', 'firstName', 'lastName', 'cnp', 'occupation', 'locality', 'street', 'number', 'block', 'staircase', 'apartment', 'floor'];
-      controlsToDisable.forEach(control => {
-        this.patientForm.get(control)?.disable();
-      });
-    }
-
-    this.patientService.getPatients().subscribe(patients => {
-      const found = patients.find(p => p.cnp === this.data.id);
-      if (found) {
-        this.patient = found;
-        this.consultations = found.consultations || [];
-        this.patientDiseases=found.diseases || [];
-
-
-        this.patientForm.patchValue({
-          email: found.email,
-          phone: found.phone,
-          firstName: found.firstName,
-          lastName: found.lastName,
-          cnp: found.cnp,
-          occupation: found.occupation,
-          locality: found.locality,
-          street: found.street,
-          number: found.number,
-          block: found.block,
-          staircase: found.staircase,
-          apartment: found.apartment,
-          floor: found.floor,
-          bloodGroup: found.bloodGroup,
-          rh: found.rh,
-          weight: found.weight,
-          height: found.height,
-          allergies: found.allergies
-        });
-        this.validateAndExtractCNP(found.cnp);
-      }
-    });
   }
 
   get diseases(): FormArray {
     return this.patientForm.get('diseases') as FormArray;
   }
 
-  addDisease(disease: any = { name: '', category: '', description: '' }): void {
-    this.diseases.push(
-      this.fb.group({
-        name: [disease.name],
-        category: [disease.category],
-        description: [disease.description]
+  createDiseaseGroup() {
+    return this.fb.group({
+      name: ['', Validators.required],
+      category: ['Infectious'],
+      description: [''],
+      icdCode: ['']
+    });
+  }
+
+  addDisease() {
+    this.diseases.push(this.createDiseaseGroup());
+    this.diseaseSuggestions.push([]);
+
+    const index = this.diseases.length - 1;
+    const control = this.diseases.at(index).get('name');
+
+    control?.valueChanges.pipe(
+      debounceTime(300),
+      switchMap(value => {
+        if (!value?.trim()) {
+          this.diseaseSuggestions[index] = [];
+          return of(null);
+        }
+        return this.icdService.searchDisease(value, this.token);
       })
-    );
+    ).subscribe((res: any) => {
+      if (res?.destinationEntities?.length > 0) {
+        this.diseaseSuggestions[index] = res.destinationEntities.map((item: any) => ({
+          title: this.stripHtmlTags(item.title),
+          code: item.code || item.theCode || 'N/A'
+        }));
+      } else {
+        this.diseaseSuggestions[index] = [];
+      }
+    });
+  }
+
+  stripHtmlTags(text: string): string {
+    return text.replace(/<\/?[^>]+(>|$)/g, "");
   }
 
   validateAndExtractCNP(cnp: string): void {
@@ -142,25 +110,24 @@ export class AddNewConsultationComponent implements OnInit{
     const prefix = genderCode === '1' || genderCode === '2' ? '19' : '20';
     const birthDate = new Date(`${prefix}${year}-${month}-${day}`);
     this.age = new Date().getFullYear() - birthDate.getFullYear();
-
-    this.patientForm.patchValue({
-      birthDate: birthDate,
-      sex: genderCode === '1' || genderCode === '3' ? 'M' : 'F'
-    });
   }
 
   onSubmit(): void {
     if (this.patientForm.valid) {
-      const patientData = this.patientForm.value;
-      console.log(patientData);
-      this.successMessage = 'Patient added successfully!';
+      console.log('Form data:', this.patientForm.value);
     } else {
-      this.successMessage = '';
       this.patientForm.markAllAsTouched();
     }
   }
+  onDiseaseSelected(index: number, disease: {title: string, code: string}) {
+    const diseaseGroup = this.diseases.at(index);
+    diseaseGroup.patchValue({
+      name: disease.title,
+      icdCode: disease.code
+    });
 
-  close(): void {
-    this.dialogRef.close();
+  }
+  getDiseaseNameControl(i: number): FormControl {
+    return this.diseases.at(i).get('name') as FormControl;
   }
 }

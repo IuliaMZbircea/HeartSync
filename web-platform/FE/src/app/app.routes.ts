@@ -11,6 +11,7 @@ import {ViewRecommendationComponent} from "./view-recommendation/view-recommenda
 import {ViewAllergiesComponent} from "./view-allergies/view-allergies.component";
 import {ViewEHRComponent} from "./view-ehr/view-ehr.component";
 import {ViewConsultationsComponent} from "./view-consultations/view-consultations.component";
+import {AddNewConsultationComponent} from "./dialogs/add-new-consultation/add-new-consultation.component";
 
 export const routes: Routes = [
   { path: '', component: PresentationPageComponent },
@@ -20,10 +21,11 @@ export const routes: Routes = [
   { path: 'Register', component: RegisterComponent },
   { path: 'PatientList', component: PatientListComponent },
   { path: 'add-patient', component: AddPatientComponent },
+  { path: 'add-consultation', component: AddNewConsultationComponent },
   { path: 'view-alert', component: ViewAlertsComponent },
   { path: 'view-medication', component: ViewMedicationComponent },
   { path: 'view-recommendation', component: ViewRecommendationComponent },
-  { path: 'view-consultations', component: ViewConsultationsComponent },
+  { path: 'view-consultations/:id', component: ViewConsultationsComponent },
   { path: 'view-allergies', component: ViewAllergiesComponent },
   { path: 'view-ehr', component: ViewEHRComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }
