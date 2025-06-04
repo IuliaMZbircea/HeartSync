@@ -318,4 +318,14 @@ export class PatientService {
   getPatients(): Observable<any[]> {
     return of(this.patient)
   }
+
+  updatePatient(updatedPatient: Patient): void {
+    const index = this.patient.findIndex(p => p.id === updatedPatient.id);
+    if (index !== -1) {
+      this.patient[index] = { ...updatedPatient };
+    } else {
+      console.warn('Patient not found for update');
+    }
+  }
+
 }

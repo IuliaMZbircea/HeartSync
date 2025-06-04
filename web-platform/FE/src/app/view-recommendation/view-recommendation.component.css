@@ -101,6 +101,7 @@ form{
   padding-right: 3%;
   padding-left: 3%;
   font-size: 1.3rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 255, 0.5);
 }
 
 .custom-toggle-group {
@@ -166,14 +167,13 @@ section {
   background: #f8f8f8;
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  border-left: 4px solid red;
+  box-shadow: 0 4px 8px rgba(0, 0, 255, 0.5);
+  border-left: 4px solid darkblue;
   font-size: 1.3rem;
   line-height: 1.6;
   display: block;
   overflow: visible;
 }
-
 
 .mat-expansion-panel-header {
   min-height: 56px;

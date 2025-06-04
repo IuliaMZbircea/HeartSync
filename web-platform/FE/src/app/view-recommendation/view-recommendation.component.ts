@@ -109,7 +109,10 @@ export class ViewRecommendationComponent implements OnInit {
       };
 
       this.recommendations.push(newRecommendation);
-      // this.patientService.updatePatient(this.patient);
+
+      this.patient.recommendations = this.recommendations;
+      this.patientService.updatePatient(this.patient);
+
       this.recommendationForm.reset();
     }
   }
@@ -148,7 +151,10 @@ export class ViewRecommendationComponent implements OnInit {
       };
 
       this.recommendations[index] = updatedRecommendation;
-      // this.patientService.updatePatient(this.patient);
+
+      this.patient.recommendations = this.recommendations;
+      this.patientService.updatePatient(this.patient);
+
       this.isEditing = false;
     }
   }

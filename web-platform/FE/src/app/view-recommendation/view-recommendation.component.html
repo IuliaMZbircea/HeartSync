@@ -83,7 +83,7 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <div *ngIf="recommendations.length > 0; else noRecs" class="section">
+      <div *ngIf="recommendations.length > 0; else noRecs">
         <div *ngFor="let rec of recommendations" class="recommendation-card">
           <section>
             <h4>{{ rec.activityType }}</h4>
