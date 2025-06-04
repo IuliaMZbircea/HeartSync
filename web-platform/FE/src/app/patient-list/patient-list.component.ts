@@ -135,6 +135,13 @@ export class PatientListComponent implements OnInit, AfterViewInit {
     return diseases.map(d => d.name).join(', ');
   }
 
+  openConsultationsDialog(id:string) {
+    this.router.navigate([`/view-consultations`]);
+  }
+
+  openRecommendationsDialog(id:string) {
+    this.router.navigate([`/view-recommendation`]);
+  }
 }
 
 
