@@ -1,7 +1,5 @@
 <div class="h-24"></div>
 
-<div>
-</div>
 <div class="accordion-wrapper">
 
   <div class="patient-info-card">
@@ -14,7 +12,6 @@
   </div>
 
   <mat-accordion>
-
     <mat-expansion-panel hideToggle>
       <mat-expansion-panel-header>
         <mat-panel-title>
@@ -22,17 +19,57 @@
         </mat-panel-title>
         <mat-panel-description>
           🧬 Key patient information for initial medical assessment.
+          <button
+            mat-icon-button
+            aria-label="Edit"
+            (click)="enableEdit(); $event.stopPropagation()"
+            *ngIf="!isEditing && latestRecommendation"
+            style="margin-left: 8px;"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
         </mat-panel-description>
       </mat-expansion-panel-header>
-      <section>
-        <div *ngIf="latestRecommendation">
-          <h4>🧠 Latest Recommendation</h4>
+
+      <section *ngIf="latestRecommendation">
+        <h4>🧠 Latest Recommendation</h4>
+
+        <div *ngIf="!isEditing">
           <p><strong>Activity:</strong> {{ latestRecommendation.activityType }}</p>
           <p><strong>Start:</strong> {{ latestRecommendation.startDate | date }}</p>
           <p><strong>Duration:</strong> {{ latestRecommendation.dailyDuration }} min/day</p>
           <p *ngIf="latestRecommendation.endDate"><strong>End:</strong> {{ latestRecommendation.endDate | date }}</p>
           <p *ngIf="latestRecommendation.additionalNotes"><strong>Notes:</strong> {{ latestRecommendation.additionalNotes }}</p>
         </div>
+
+        <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
+          <div class="field-group">
+            <label>Activity Type*</label>
+            <select formControlName="activityType">
+              <option value="bicycle">Bicycle</option>
+              <option value="walk">Walk</option>
+              <option value="run">Run</option>
+              <option value="exercise">Physical Exercise</option>
+              <option value="other">Other</option>
+            </select>
+
+            <label>Daily Duration (min)*</label>
+            <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" />
+
+            <label>Start Date*</label>
+            <input type="date" formControlName="startDate" />
+
+            <label>End Date</label>
+            <input type="date" formControlName="endDate" />
+
+            <label>Additional Notes</label>
+            <textarea formControlName="additionalNotes" placeholder="Optional notes..."></textarea>
+          </div>
+          <div class="buttons">
+            <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">💾 Save</button>
+            <button mat-button color="warn" type="button" (click)="cancelEdit()">❌ Cancel</button></div>
+
+        </form>
       </section>
     </mat-expansion-panel>
 
