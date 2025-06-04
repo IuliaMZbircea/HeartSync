@@ -1,0 +1,11 @@
+<div class="p-12 mt-12">
+  <input type="text" [formControl]="diseaseControl" placeholder="Search disease" />
+
+  <ul *ngIf="suggestions.length > 0" class="suggestions-list">
+    <li *ngFor="let s of suggestions" (click)="onSelect(s)">
+      {{ s.title }} - {{ s.code }}
+    </li>
+  </ul>
+
+  <p *ngIf="icdCode">ICD: Code {{ icdCode }}</p>
+</div>
