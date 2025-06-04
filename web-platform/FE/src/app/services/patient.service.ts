@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {Observable, of} from "rxjs";
-import {Patient} from "../interfaces/patient";
+import { Observable, of } from "rxjs";
+import { Patient } from "../interfaces/patient";
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +9,8 @@ export class PatientService {
 
   constructor() { }
 
-  patient:Patient[]= [
-    {
+  patient: Patient[] = [
+    { id: 1,
       email: 'ana.popescu@example.com',
       phone: '0722123456',
       firstName: 'Ana',
@@ -29,16 +29,16 @@ export class PatientService {
       weight: 58.5,
       height: 165,
       allergies: 'Polen, penicilină',
-      validAccount:true,
+      validAccount: true,
       diseases: [
         {
           name: 'Hipertensiune arterială',
-          category: 'Cardiovascular',
+          type: 'chronic',
           description: 'Tensiune arterială ridicată observată în ultimii 2 ani'
         },
         {
           name: 'Astm',
-          category: 'Respirator',
+          type: 'chronic',
           description: 'Astm bronșic diagnosticat în copilărie'
         }
       ],
@@ -59,68 +59,7 @@ export class PatientService {
       recommendations: []
     },
     {
-      email: 'ana.popescu@example.com',
-      phone: '0722123456',
-      firstName: 'Ana',
-      lastName: 'Popescu',
-      cnp: '2980525123456',
-      occupation: 'Medic',
-      locality: 'Cluj-Napoca',
-      street: 'Strada Primaverii',
-      number: '12',
-      block: 'B1',
-      staircase: '2',
-      apartment: 5,
-      floor: 1,
-      bloodGroup: 'A',
-      rh: '+',
-      weight: 58.5,
-      height: 165,
-      allergies: 'Polen, penicilină',
-      validAccount:true,
-      diseases: [
-        {
-          name: 'Hipertensiune arterială',
-          category: 'Cardiovascular',
-          description: 'Tensiune arterială ridicată observată în ultimii 2 ani'
-        },
-        {
-          name: 'Astm',
-          category: 'Respirator',
-          description: 'Astm bronșic diagnosticat în copilărie'
-        }
-      ],
-      birthDate: new Date('1998-05-25'),
-      sex: 'F',
-      consultations: [
-        {
-          date: new Date('2024-12-10'),
-          doctorName: 'Dr. Ionescu',
-          notes: 'Control de rutină, recomandare pentru analize'
-        },
-        {
-          date: new Date('2025-03-15'),
-          doctorName: 'Dr. Marinescu',
-          notes: 'Tensiune crescută, început tratament'
-        }
-      ],
-      recommendations: [
-        {
-          activityType: 'Mers pe jos',
-          dailyDuration: 30,
-          startDate: new Date('2025-04-01'),
-          endDate: new Date('2025-06-30'),
-          additionalNotes: 'Ideal dimineața, în parc'
-        },
-        {
-          activityType: 'Exerciții de respirație',
-          dailyDuration: 10,
-          startDate: new Date('2025-05-01'),
-          additionalNotes: 'De efectuat acasă, dimineața și seara'
-        }
-      ]
-    },
-    {
+      id: 2,
       email: 'andrei.ionescu@example.com',
       phone: '0744987654',
       firstName: 'Andrei',
@@ -138,12 +77,12 @@ export class PatientService {
       rh: '-',
       weight: 75.2,
       height: 180,
-      validAccount:true,
+      validAccount: true,
       allergies: 'Lactoză',
       diseases: [
         {
           name: 'Diabet tip 2',
-          category: 'Metabolic',
+          type: 'chronic',
           description: 'Diagnosticat în 2020, sub tratament'
         }
       ],
@@ -194,138 +133,9 @@ export class PatientService {
           message: 'Puls crescut semnificativ după efort.'
         }
       ]
-
     },
     {
-      email: 'mihai.ionescu@example.com',
-      phone: '0733111222',
-      firstName: 'Mihai',
-      lastName: 'Ionescu',
-      cnp: '1950410123456',
-      occupation: 'Inginer software',
-      locality: 'București',
-      street: 'Strada Aviatorilor',
-      number: '45A',
-      block: 'C2',
-      staircase: '1',
-      apartment: 12,
-      floor: 3,
-      bloodGroup: 'B',
-      rh: '-',
-      weight: 75.2,
-      height: 178,
-      allergies: 'Nuci',
-      validAccount:false,
-      diseases: [
-        {
-          name: 'Diabet tip 2',
-          category: 'Metabolic',
-          description: 'Diagnosticat în 2020, sub control cu dietă'
-        }
-      ],
-      birthDate: new Date('1995-04-10'),
-      sex: 'M',
-      consultations: [
-        {
-          date: new Date('2025-01-20'),
-          doctorName: 'Dr. Georgescu',
-          notes: 'Evaluare periodică, valori glicemie normale'
-        }
-      ],
-      recommendations: [
-        {
-          activityType: 'Înot',
-          dailyDuration: 45,
-          startDate: new Date('2025-02-01'),
-          endDate: new Date('2025-05-31'),
-          additionalNotes: 'De 3 ori pe săptămână'
-        }
-      ],
-      alarms: [
-        {
-          parameter: 'pulse',
-          condition: '>',
-          threshold: 120,
-          duration: 30,
-          afterActivity: true,
-          message: 'Puls ridicat după activitate fizică. Odihnă recomandată.'
-        },
-        {
-          parameter: 'temperature',
-          condition: '>',
-          threshold: 37.8,
-          duration: 60,
-          afterActivity: false,
-          message: 'Temperatură corporală crescută. Posibilă infecție.'
-        }
-      ]
-    },
-    {
-      email: 'elena.stan@example.com',
-      phone: '0744555666',
-      firstName: 'Elena',
-      lastName: 'Stan',
-      cnp: '2880314123456',
-      occupation: 'Profesor',
-      locality: 'Iași',
-      street: 'Strada Independenței',
-      number: '88',
-      block: 'D4',
-      staircase: '3',
-      apartment: 20,
-      floor: 5,
-      bloodGroup: 'O',
-      rh: '+',
-      weight: 62,
-      height: 170,
-      allergies: 'Lactoză',
-      validAccount:false,
-      diseases: [
-        {
-          name: 'Anemie feriprivă',
-          category: 'Hematologic',
-          description: 'Niveluri scăzute de fier observate la analize'
-        }
-      ],
-      birthDate: new Date('1988-03-14'),
-      sex: 'F',
-      consultations: [
-        {
-          date: new Date('2024-11-05'),
-          doctorName: 'Dr. Vasilescu',
-          notes: 'Oboseală generalizată, recomandare suplimente'
-        }
-      ],
-      recommendations: [
-        {
-          activityType: 'Yoga',
-          dailyDuration: 20,
-          startDate: new Date('2025-01-10'),
-          endDate: new Date('2025-04-10'),
-          additionalNotes: 'Relaxare și reducerea stresului'
-        }
-      ],
-      alarms: [
-        {
-          parameter: 'pulse',
-          condition: '>',
-          threshold: 110,
-          duration: 30,
-          afterActivity: true,
-          message: 'Pulsul este prea mare după mers. Se recomandă pauză.'
-        },
-        {
-          parameter: 'temperature',
-          condition: '>',
-          threshold: 38,
-          duration: 60,
-          afterActivity: false,
-          message: 'Febră detectată. Se recomandă consult medical.'
-        }
-      ]
-
-    },
-    {
+      id: 3,
       email: 'andrei.moldovan@example.com',
       phone: '0766777888',
       firstName: 'Andrei',
@@ -344,30 +154,29 @@ export class PatientService {
       weight: 80.7,
       height: 183,
       allergies: '',
-      validAccount:true,
+      validAccount: true,
       diseases: [
         {
           name: 'Boala Parkinson',
-          category: 'Neurologic',
+          type: 'chronic',
           description: 'Tulburare degenerativă a sistemului nervos ce afectează mișcările.'
         },
         {
           name: 'Boala celiacă',
-          category: 'Autoimun',
+          type: 'chronic',
           description: 'Intoleranță la gluten, provoacă leziuni intestinale.'
         },
         {
           name: 'Bronșită cronică',
-          category: 'Respirator',
+          type: 'chronic',
           description: 'Inflamație prelungită a bronhiilor, adesea cauzată de fumat.'
         },
         {
           name: 'Insuficiență renală cronică',
-          category: 'Renal',
+          type: 'chronic',
           description: 'Pierderea treptată a funcției rinichilor.'
         }
-      ]
-      ,
+      ],
       birthDate: new Date('1982-12-22'),
       sex: 'M',
       consultations: [],
@@ -390,10 +199,113 @@ export class PatientService {
           message: 'Semnal ECG pierdut. Verifică senzorul.'
         }
       ]
+    },
+    {
+      id: 4,
+      email: 'maria.dumitru@example.com',
+      phone: '0755432167',
+      firstName: 'Maria',
+      lastName: 'Dumitru',
+      cnp: '2870316123456',
+      occupation: 'Economist',
+      locality: 'Iași',
+      street: 'Strada Independenței',
+      number: '99',
+      block: 'D2',
+      staircase: 'B',
+      apartment: 8,
+      floor: 2,
+      bloodGroup: '0',
+      rh: '+',
+      weight: 62.3,
+      height: 170,
+      allergies: 'Nuci',
+      validAccount: true,
+      diseases: [
+        {
+          name: 'Talassemie majoră',
+          type: 'genetic',
+          description: 'Boală ereditară a sângelui, necesită monitorizare constantă.'
+        }
+      ],
+      birthDate: new Date('1987-03-16'),
+      sex: 'F',
+      consultations: [
+        {
+          date: new Date('2025-04-11'),
+          doctorName: 'Dr. Georgescu',
+          notes: 'Verificare hemoglobină, necesar transfuzie lunară'
+        }
+      ],
+      recommendations: [],
+      alarms: [
+        {
+          parameter: 'hemoglobin',
+          condition: '<',
+          threshold: 8,
+          duration: 120,
+          afterActivity: false,
+          message: 'Nivel hemoglobină scăzut, necesară evaluare.'
+        }
+      ]
+    },
+    {
+      id: 6,
+      email: 'radu.enache@example.com',
+      phone: '0788888899',
+      firstName: 'Radu',
+      lastName: 'Enache',
+      cnp: '1990704123456',
+      occupation: 'Student',
+      locality: 'Constanța',
+      street: 'Strada Traian',
+      number: '15',
+      block: 'F7',
+      staircase: 'C',
+      apartment: 12,
+      floor: 4,
+      bloodGroup: 'A',
+      rh: '-',
+      weight: 68.9,
+      height: 178,
+      allergies: '',
+      validAccount: true,
+      diseases: [
+        {
+          name: 'Faringită acută',
+          type: 'acute',
+          description: 'Infecție recentă a gâtului, tratament cu antibiotice.'
+        },
+        {
+          name: 'Gastroenterită virală',
+          type: 'acute',
+          description: 'Infecție virală a tractului digestiv, simptome ușoare.'
+        }
+      ],
+      birthDate: new Date('1999-07-04'),
+      sex: 'M',
+      consultations: [
+        {
+          date: new Date('2025-05-20'),
+          doctorName: 'Dr. Nistor',
+          notes: 'Prescris antibiotic și repaus alimentar'
+        }
+      ],
+      recommendations: [
+        {
+          activityType: 'Odihnă',
+          dailyDuration: 90,
+          startDate: new Date('2025-05-21'),
+          additionalNotes: 'Fără activitate fizică în timpul tratamentului'
+        }
+      ],
+      alarms: []
     }
+
+
   ]
 
-  getPatients():Observable<any[]>{
+  getPatients(): Observable<any[]> {
     return of(this.patient)
- }
+  }
 }

@@ -4,11 +4,12 @@ import {Alarm} from "./alarm";
 
 export interface Disease {
   name: string;
-  category: string;
+  type: string;
   description: string;
 }
 
 export interface Patient {
+  id: number;
   email: string;
   phone: string;
   firstName: string;

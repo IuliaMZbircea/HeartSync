@@ -1,9 +1,9 @@
 .table-container {
-  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 5%;
+  margin-top: 0;
   flex-direction: column;
 
   .custom-table{
@@ -19,27 +19,24 @@
   cursor: pointer;
 }
 
-.add-button{
-  padding: 10px;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: background-color 0.3s, color 0.3s;
-  border-radius: 5px;
-  background-color: #1a1f38;
-  color: white;
-  border: 2px solid #9ca1c4;
-}
-
-.add-button:hover{
-  background-color: transparent;
+.add-patient{
+  width: auto;
+  height: auto;
+  background: #9ca1c4;
   border: 1px solid #9ca1c4;
-  color: #1a1f38;
+  color: #1c1e37;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
   border-radius: 5px;
 }
 
+.add-patient:hover{
+  border: 1px solid #9ca1c4;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
 .search{
   width: 100%;
   display: flex;
@@ -63,15 +60,25 @@ mat-form-field img[matPrefix] {
 }
 
 .element{
-  cursor:pointer;
+  cursor:pointer
 }
 
-td{
-  height: 5rem !important;
+
+a{
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+}
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px 2px rgba(79, 70, 229, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 10px 4px rgba(79, 70, 229, 1);
+  }
 }
 
-.readonly-row {
-  opacity: 0.5;
-  pointer-events: none;
-  cursor: default;
+input[matInput] {
+  animation: pulseGlow 2s infinite;
+  border-color: #4f46e5;
 }

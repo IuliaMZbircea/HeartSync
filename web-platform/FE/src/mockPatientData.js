@@ -17,6 +17,7 @@ const mockPatientData = (() => {
       duration: 7.2, // hours
       quality: 'Good',
     },
+    sex: 'M',
     recommendations: [
       {
         text: 'Reduce your caffeine intake today.',

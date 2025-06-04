@@ -4,11 +4,12 @@ import {NavBarComponent} from "./nav-bar/nav-bar.component";
 import {PresentationPageComponent} from "./presentation-page/presentation-page.component";
 import {FooterComponent} from "./footer/footer.component";
 import {RegisterComponent} from "./authentification/register/register.component";
+import {PatientListComponent} from "./patient-list/patient-list.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavBarComponent, FooterComponent],
+  imports: [RouterOutlet, NavBarComponent, FooterComponent, PatientListComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
