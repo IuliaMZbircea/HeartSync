@@ -118,10 +118,6 @@ export class PatientListComponent implements OnInit, AfterViewInit {
     this.router.navigate([`/view-ehr`]);
   }
 
-  openAlertsDialog(id:string) {
-      this.router.navigate([`/view-alert`]);
-  }
-
   openMedicationsDialog(id:string) {
       this.router.navigate([`/view-medication`]);
 
@@ -141,6 +137,10 @@ export class PatientListComponent implements OnInit, AfterViewInit {
 
   openRecommendationsDialog(id:string) {
     this.router.navigate([`/view-recommendation`]);
+  }
+
+  goToAlertDetail(id: string) {
+    this.router.navigate([`/view-alert`]);
   }
 }
 
