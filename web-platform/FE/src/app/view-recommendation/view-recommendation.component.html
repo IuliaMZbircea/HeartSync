@@ -1,1 +1,98 @@
-<p>view-recommendation works!</p>
+<div class="h-24"></div>
+
+<div class="accordion-wrapper">
+  <mat-accordion>
+
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h2>Current Status</h2>
+        </mat-panel-title>
+        <mat-panel-description>
+          🧬 Key patient information for initial medical assessment.
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <div class="section">
+        <p><strong>Name:</strong> </p>
+        <p><strong>Sex:</strong> </p>
+        <p><strong>Last Name:</strong> </p>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h2>History</h2>
+        </mat-panel-title>
+        <mat-panel-description>
+          📜 Previous activity recommendations to track progress and adherence.
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div *ngIf="recommendations.length > 0; else noRecs" class="section">
+        <div *ngFor="let rec of recommendations" class="recommendation-card">
+          <h4>{{ rec.activityType }}</h4>
+          <p><strong>Duration:</strong> {{ rec.dailyDuration }} min/day</p>
+          <p><strong>Start:</strong> {{ rec.startDate | date }}</p>
+          <p><strong>End:</strong> {{ rec.endDate ? (rec.endDate | date) : 'N/A' }}</p>
+          <p *ngIf="rec.additionalNotes"><strong>Notes:</strong> {{ rec.additionalNotes }}</p>
+        </div>
+      </div>
+      <ng-template #noRecs>
+        <div class="center">
+          <img src="assets/images/no_recommendation.png" />
+          <h2>There are no recommendations yet!</h2>
+        </div>
+      </ng-template>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h2>Add New Recommendation</h2>
+        </mat-panel-title>
+        <mat-panel-description>
+          ➕ Provide a personalized activity plan tailored to the patient’s needs.
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <form [formGroup]="recommendationForm" (ngSubmit)="onSubmit()" class="section">
+        <div class="field-group">
+          <label>Activity Type*</label>
+          <select formControlName="activityType">
+            <option value="bicycle">Bicycle</option>
+            <option value="walk">Walk</option>
+            <option value="run">Run</option>
+            <option value="exercise">Physical Exercise</option>
+            <option value="other">Other</option>
+          </select>
+          <div class="error-message" *ngIf="recommendationForm.get('activityType')?.invalid && recommendationForm.get('activityType')?.touched">
+            Activity type is required.
+          </div>
+
+          <label>Daily Duration (min)*</label>
+          <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" />
+          <div class="error-message" *ngIf="recommendationForm.get('dailyDuration')?.invalid && recommendationForm.get('dailyDuration')?.touched">
+            Please enter a valid daily duration (min 1 minute).
+          </div>
+
+          <label>Start Date*</label>
+          <input type="date" formControlName="startDate" />
+          <div class="error-message" *ngIf="recommendationForm.get('startDate')?.invalid && recommendationForm.get('startDate')?.touched">
+            Start date is required.
+          </div>
+
+          <label>End Date</label>
+          <input type="date" formControlName="endDate" />
+
+          <label>Additional Notes</label>
+          <textarea formControlName="additionalNotes" placeholder="Optional notes..."></textarea>
+        </div>
+
+        <button class="button-add-recommendation" type="submit" [disabled]="recommendationForm.invalid">
+          ➕ Save Recommendation
+        </button>
+      </form>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
+

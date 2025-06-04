@@ -24,7 +24,7 @@ export const routes: Routes = [
   { path: 'add-consultation', component: AddNewConsultationComponent },
   { path: 'view-alert', component: ViewAlertsComponent },
   { path: 'view-medication', component: ViewMedicationComponent },
-  { path: 'view-recommendation', component: ViewRecommendationComponent },
+  { path: 'view-recommendation/:id', component: ViewRecommendationComponent },
   { path: 'view-consultations/:id', component: ViewConsultationsComponent },
   { path: 'view-allergies', component: ViewAllergiesComponent },
   { path: 'view-ehr', component: ViewEHRComponent },
