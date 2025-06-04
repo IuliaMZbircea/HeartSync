@@ -69,6 +69,13 @@ export class ViewRecommendationComponent implements OnInit {
     }
   }
 
+  get latestRecommendation(): Recommendation | null {
+    if (this.recommendations.length === 0) return null;
+
+    return [...this.recommendations]
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())[0];
+  }
+
   onSubmit(): void {
     if (this.recommendationForm.valid) {
       const formValue = this.recommendationForm.value;

@@ -297,12 +297,22 @@ export class PatientService {
           dailyDuration: 90,
           startDate: new Date('2025-05-21'),
           additionalNotes: 'Fără activitate fizică în timpul tratamentului'
+        },
+        {
+          activityType: 'Alergare',
+          dailyDuration: 90,
+          startDate: new Date('2025-05-21'),
+          additionalNotes: 'Fără activitate fizică în timpul tratamentului'
+        },
+        {
+          activityType: 'Odihnă',
+          dailyDuration: 90,
+          startDate: new Date('2025-05-21'),
+          additionalNotes: 'Fără activitate fizică în timpul tratamentului'
         }
       ],
       alarms: []
     }
-
-
   ]
 
   getPatients(): Observable<any[]> {
