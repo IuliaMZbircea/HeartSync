@@ -12,13 +12,14 @@
   </div>
 
   <mat-accordion>
-    <mat-expansion-panel hideToggle>
+
+    <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
           <h2>Current Status</h2>
         </mat-panel-title>
         <mat-panel-description>
-          🧬 Key patient information for initial medical assessment.
+          🧬 The current active medical advice.
           <button
             mat-icon-button
             aria-label="Edit"
@@ -31,8 +32,8 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <section *ngIf="latestRecommendation">
-        <h4>🧠 Latest Recommendation</h4>
+      <section *ngIf="latestRecommendation; else noCurrentRecommendation">
+        <h4>Latest Recommendation</h4>
 
         <div *ngIf="!isEditing">
           <p><strong>Activity:</strong> {{ latestRecommendation.activityType }}</p>
@@ -43,34 +44,56 @@
         </div>
 
         <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
-          <div class="field-group">
-            <label>Activity Type*</label>
-            <select formControlName="activityType">
-              <option value="bicycle">Bicycle</option>
-              <option value="walk">Walk</option>
-              <option value="run">Run</option>
-              <option value="exercise">Physical Exercise</option>
-              <option value="other">Other</option>
-            </select>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label>Activity Type*</label>
+              <select formControlName="activityType" class="w-full">
+                <option value="bicycle">Bicycle</option>
+                <option value="walk">Walk</option>
+                <option value="run">Run</option>
+                <option value="exercise">Physical Exercise</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
 
-            <label>Daily Duration (min)*</label>
-            <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" />
+            <div>
+              <label>Daily Duration (min)*</label>
+              <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" class="w-full" />
+            </div>
 
-            <label>Start Date*</label>
-            <input type="date" formControlName="startDate" />
+            <div>
+              <label>Start Date*</label>
+              <input type="date" formControlName="startDate" class="w-full" />
+            </div>
 
-            <label>End Date</label>
-            <input type="date" formControlName="endDate" />
+            <div>
+              <label>End Date</label>
+              <input type="date" formControlName="endDate" class="w-full" />
+            </div>
 
-            <label>Additional Notes</label>
-            <textarea formControlName="additionalNotes" placeholder="Optional notes..."></textarea>
+            <div class="md:col-span-2">
+              <label>Additional Notes</label>
+              <textarea formControlName="additionalNotes" placeholder="Optional notes..." class="w-full"></textarea>
+            </div>
           </div>
-          <div class="buttons">
-            <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">💾 Save</button>
-            <button mat-button color="warn" type="button" (click)="cancelEdit()">❌ Cancel</button></div>
 
+          <div class="flex justify-end mt-4">
+            <button
+              mat-flat-button
+              color="primary"
+              type="submit"
+              [disabled]="editForm.invalid"
+            >💾 Save</button>
+          </div>
         </form>
       </section>
+
+      <ng-template #noCurrentRecommendation>
+        <div class="center">
+          <h2> There is no current recommendation!</h2>
+        </div>
+      </ng-template>
+
     </mat-expansion-panel>
 
     <mat-expansion-panel (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
@@ -79,7 +102,7 @@
           <h2>History</h2>
         </mat-panel-title>
         <mat-panel-description>
-          📜 Previous activity recommendations to track progress and adherence.
+          📜Overview of previous activity recommendations.
         </mat-panel-description>
       </mat-expansion-panel-header>
 
@@ -94,61 +117,74 @@
           </section>
         </div>
       </div>
+
       <ng-template #noRecs>
         <div class="center">
-          <img src="assets/images/no_recommendation.png" />
           <h2>There are no recommendations yet!</h2>
         </div>
       </ng-template>
     </mat-expansion-panel>
 
-    <mat-expansion-panel hideToggle>
+    <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
           <h2>Add New Recommendation</h2>
         </mat-panel-title>
         <mat-panel-description>
-          ➕ Provide a personalized activity plan tailored to the patient’s needs.
+          🌿 Create a personalized activity plan tailored
         </mat-panel-description>
       </mat-expansion-panel-header>
+
       <form [formGroup]="recommendationForm" (ngSubmit)="onSubmit()" class="section">
-        <div class="field-group">
-          <label>Activity Type*</label>
-          <select formControlName="activityType">
-            <option value="bicycle">Bicycle</option>
-            <option value="walk">Walk</option>
-            <option value="run">Run</option>
-            <option value="exercise">Physical Exercise</option>
-            <option value="other">Other</option>
-          </select>
-          <div class="error-message" *ngIf="recommendationForm.get('activityType')?.invalid && recommendationForm.get('activityType')?.touched">
-            Activity type is required.
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label>Activity Type*</label>
+            <select formControlName="activityType" class="w-full">
+              <option value="bicycle">Bicycle</option>
+              <option value="walk">Walk</option>
+              <option value="run">Run</option>
+              <option value="exercise">Physical Exercise</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="error-message" *ngIf="recommendationForm.get('activityType')?.invalid && recommendationForm.get('activityType')?.touched">
+              Activity type is required.
+            </div>
           </div>
 
-          <label>Daily Duration (min)*</label>
-          <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" />
-          <div class="error-message" *ngIf="recommendationForm.get('dailyDuration')?.invalid && recommendationForm.get('dailyDuration')?.touched">
-            Please enter a valid daily duration (min 1 minute).
+          <div>
+            <label>Daily Duration (min)*</label>
+            <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" class="w-full" />
+            <div class="error-message" *ngIf="recommendationForm.get('dailyDuration')?.invalid && recommendationForm.get('dailyDuration')?.touched">
+              Please enter a valid daily duration (min 1 minute).
+            </div>
           </div>
 
-          <label>Start Date*</label>
-          <input type="date" formControlName="startDate" />
-          <div class="error-message" *ngIf="recommendationForm.get('startDate')?.invalid && recommendationForm.get('startDate')?.touched">
-            Start date is required.
+          <div>
+            <label>Start Date*</label>
+            <input type="date" formControlName="startDate" class="w-full" />
+            <div class="error-message" *ngIf="recommendationForm.get('startDate')?.invalid && recommendationForm.get('startDate')?.touched">
+              Start date is required.
+            </div>
           </div>
 
-          <label>End Date</label>
-          <input type="date" formControlName="endDate" />
+          <div>
+            <label>End Date</label>
+            <input type="date" formControlName="endDate" class="w-full" />
+          </div>
 
-          <label>Additional Notes</label>
-          <textarea formControlName="additionalNotes" placeholder="Optional notes..."></textarea>
+          <div class="md:col-span-2">
+            <label>Additional Notes</label>
+            <textarea formControlName="additionalNotes" placeholder="Optional notes..." class="w-full"></textarea>
+          </div>
         </div>
 
-        <button class="button-add-recommendation" type="submit" [disabled]="recommendationForm.invalid">
-          ➕ Save Recommendation
-        </button>
+        <div class="mt-4">
+          <button class="button-add-recommendation" type="submit" [disabled]="recommendationForm.invalid">
+            ➕ Save Recommendation
+          </button>
+        </div>
       </form>
     </mat-expansion-panel>
+
   </mat-accordion>
 </div>
-

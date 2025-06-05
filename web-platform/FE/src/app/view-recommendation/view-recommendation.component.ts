@@ -12,12 +12,11 @@ import { Patient } from '../interfaces/patient';
 import { PatientService } from '../services/patient.service';
 import { Recommendation } from '../interfaces/recommendation';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
-
-// ✅ Angular Material modules (corect)
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import {AlertService} from "../services/alert.service";
 
 @Component({
   selector: 'app-view-recommendation',
@@ -38,7 +37,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule
   ],
   templateUrl: './view-recommendation.component.html',
-  styleUrls: ['./view-recommendation.component.css'] // ✅ corectat din `styleUrl`
+  styleUrls: ['./view-recommendation.component.css']
 })
 export class ViewRecommendationComponent implements OnInit {
   readonly panelOpenState = signal(false);
@@ -59,7 +58,8 @@ export class ViewRecommendationComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private patientService: PatientService,
-    public fb: FormBuilder
+    public fb: FormBuilder,
+    private alertService: AlertService
   ) {
     this.editForm = this.fb.group({
       activityType: ['', Validators.required],
@@ -113,7 +113,10 @@ export class ViewRecommendationComponent implements OnInit {
       this.patient.recommendations = this.recommendations;
       this.patientService.updatePatient(this.patient);
 
+      this.alertService.success('New recommendation added successfully!');
+
       this.recommendationForm.reset();
+
     }
   }
 
@@ -132,9 +135,6 @@ export class ViewRecommendationComponent implements OnInit {
     this.isEditing = true;
   }
 
-  cancelEdit(): void {
-    this.isEditing = false;
-  }
 
   saveEdit(): void {
     if (this.editForm.invalid || !this.latestRecommendation) return;
@@ -154,6 +154,7 @@ export class ViewRecommendationComponent implements OnInit {
 
       this.patient.recommendations = this.recommendations;
       this.patientService.updatePatient(this.patient);
+      this.alertService.success('Recommendation updated successfully!');
 
       this.isEditing = false;
     }

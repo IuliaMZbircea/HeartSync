@@ -21,24 +21,29 @@
 
     </div>
 
-    <div class="overflow-x-auto rounded-lg ">
-      <table mat-table matSort [dataSource]="dataSource" class="mat-elevation-z8 w-full table-fixed bg-white text-sm">
+    <div class="overflow-x-auto rounded-lg">
+      <table mat-table matSort [dataSource]="dataSource" class="mat-elevation-z8 w-full table-fixed bg-white text-xs">
 
         <ng-container matColumnDef="id">
-          <td mat-cell *matCellDef="let element" class="text-left px-4 py-3 border-b border-r border-gray-200">{{ element.id }}</td>
-          <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-left px-4 py-3 text-indigo-700 border-r border-gray-200">Patient ID</th>
+          <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-left px-2 py-2 text-indigo-700 border-r border-gray-200">
+            ID
+          </th>
+          <td mat-cell *matCellDef="let element" class="text-left px-2 py-2 border-b border-r border-gray-200">
+            {{ element.id }}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="patient">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-left px-4 py-3 text-indigo-700 border-r border-gray-200" style="min-width: 250px;">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-left px-2 py-2 text-indigo-700 border-r border-gray-200" style="min-width: 180px;">
             Patient
           </th>
-          <td mat-cell *matCellDef="let element" class="text-left px-4 py-3 border-b border-r border-gray-200" style="min-width: 200px;">
-            <a [routerLink]="['/patient', element.id]" class="text-indigo-600 hover:underline cursor-pointer">
-              {{ element.lastName }}  {{ element.firstName }}, {{ element.age }}, {{ element.sex }}
+          <td mat-cell *matCellDef="let element" class="text-left px-2 py-2 border-b border-r border-gray-200">
+            <a [routerLink]="['/patient', element.id]" class="text-indigo-600 hover:underline">
+              {{ element.lastName }} {{ element.firstName }}, {{ element.age }}, {{ element.sex }}
             </a>
           </td>
         </ng-container>
+
 
         <ng-container matColumnDef="diseases">
           <th mat-header-cell *matHeaderCellDef class="text-left px-4 py-3 text-indigo-700 border-r border-gray-200">Diseases</th>
@@ -75,7 +80,7 @@
 
 
         <ng-container matColumnDef="risk">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-center px-4 py-3 text-indigo-700 border-r border-gray-200">Risk score</th>
+          <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-center px-4 py-3 text-indigo-700 border-r border-gray-200">Clinical Risk</th>
           <td mat-cell *matCellDef="let element" class="text-left px-4 py-3 border-b border-r border-gray-200">
             <div class="flex items-center justify-center h-full">
                 <span
@@ -91,12 +96,39 @@
           <th mat-header-cell *matHeaderCellDef class="text-center px-4 py-3 text-indigo-700">Actions</th>
           <td mat-cell *matCellDef="let element" class="text-left px-4 py-3   ">
             <div class="flex items-center justify-center gap-4">
-              <i class="fa-solid fa-capsules cursor-pointer" style="color: #9b2727;" (click)="openMedicationsDialog(element.id)" title="Medications"></i>
-              <i class="fa-solid fa-allergies cursor-pointer" style="color: #d97706;" (click)="openAllergiesDialog(element.id)" title="Allergies"></i>
-              <i class="fa-solid fa-file-medical cursor-pointer" style="color: #2563eb;" (click)="openEhrDialog(element.id)" title="EHR"></i>
-              <i class="fa-solid fa-user-doctor cursor-pointer" style="color: #10b981;" (click)="openConsultationsDialog(element.id)" title="Consultations"></i>
-              <i class="fa-solid fa-comment-medical cursor-pointer" style="color: #7c3aed;" (click)="openRecommendationsDialog(element.id)" title="Recommendations"></i>
+              <div class="patient-actions mt-4 flex gap-4 text-xl">
+                <i class="fa-solid fa-capsules cursor-pointer"
+                   style="color: #9b2727;"
+                   (click)="openMedicationsDialog(element.id)"
+                   matTooltip="Medications"></i>
+
+                <i class="fa-solid fa-allergies cursor-pointer"
+                   style="color: #d97706;"
+                   (click)="openAllergiesDialog(element.id)"
+                   matTooltip="Allergies"></i>
+
+                <i class="fa-solid fa-file-medical cursor-pointer"
+                   style="color: #2563eb;"
+                   (click)="openEhrDialog(element.id)"
+                   matTooltip="EHR"></i>
+
+                <i class="fa-solid fa-user-doctor cursor-pointer"
+                   style="color: #10b981;"
+                   (click)="openConsultationsDialog(element.id)"
+                   matTooltip="Consultations"></i>
+
+                <i class="fa-solid fa-comment-medical cursor-pointer"
+                   style="color: #7c3aed;"
+                   (click)="openRecommendationsDialog(element.id)"
+                   matTooltip="Recommendations"></i>
+
+                <i class="fa-solid fa-hospital-user cursor-pointer"
+                   style="color: #dc2626;"
+                   (click)="openReferralsDialog(element.id)"
+                   matTooltip="Investigations"></i>
+              </div>
             </div>
+
           </td>
         </ng-container>
 

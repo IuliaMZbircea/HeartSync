@@ -8,6 +8,7 @@ import calculateRiskScore from "../utils/calculate-risk-score";
 import {NgClass} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
 import calculateAge from "../utils/calculate-age";
+import {MatTooltip} from "@angular/material/tooltip";
 
 @Component({
   selector: 'app-patient-list',
@@ -18,7 +19,8 @@ import calculateAge from "../utils/calculate-age";
     MatSortModule,
     MatInput,
     NgClass,
-    RouterLink
+    RouterLink,
+    MatTooltip
   ],
   templateUrl: './patient-list.component.html',
   styleUrl: './patient-list.component.css'
@@ -70,8 +72,10 @@ export class PatientListComponent implements OnInit, AfterViewInit {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
 
-      this.dataSource.filterPredicate = (data, filter) =>
-        data.name.toLowerCase().includes(filter);
+      this.dataSource.filterPredicate = (data, filter) => {
+        const fullName = `${data.firstName} ${data.lastName}`.toLowerCase();
+        return fullName.includes(filter);
+      };
     });
   }
 
@@ -115,16 +119,16 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   }
 
   openEhrDialog(id: string) {
-    this.router.navigate([`/view-ehr`]);
+    this.router.navigate([`/view-ehr`, id]);
   }
 
   openMedicationsDialog(id:string) {
-      this.router.navigate([`/view-medication`]);
+      this.router.navigate([`/view-medication`, id]);
 
   }
 
   openAllergiesDialog(id:string) {
-    this.router.navigate([`/view-allergie`]);
+    this.router.navigate([`/view-allergie`, id]);
   }
 
   getDiseaseNames(diseases: any[]): string {
@@ -140,7 +144,12 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   }
 
   goToAlertDetail(id: string) {
-    this.router.navigate([`/view-alert`]);
+    this.router.navigate([`/view-alert`, id]);
+  }
+
+  openReferralsDialog(id:string) {
+    this.router.navigate([`/view-referrals`, id]);
+
   }
 }
 

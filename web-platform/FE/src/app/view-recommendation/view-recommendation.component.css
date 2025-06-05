@@ -23,7 +23,6 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Form layout */
 .field-group {
   display: flex;
   flex-wrap: wrap;
@@ -36,6 +35,12 @@
   font-weight: bold;
   margin-bottom: 5px;
   color: #333;
+}
+
+.section label{
+  font-weight: normal;
+  color: #555;
+  font-size: 14px;
 }
 
 input, select, textarea {
@@ -59,7 +64,7 @@ input:invalid, select:invalid, textarea:invalid {
   padding: 10px 20px;
   font-size: 14px;
   cursor: pointer;
-  margin: 4rem auto;
+  margin: 0.5rem auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,7 +124,7 @@ form{
 }
 
 .custom-toggle-group .mat-button-toggle-checked {
-  background-color: #3f51b5;
+  background-color: #1a1f38;
   color: white;
 }
 
@@ -134,19 +139,20 @@ form{
 h2 {
   color: #1a1f38;
   font-weight: bolder;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.center{
+.center h2{
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  color: #5e5e5e;
 
   img{
     width: 7%;
   }
 }
+
 
 .accordion-wrapper {
   width: 100%;
@@ -167,9 +173,9 @@ section {
   background: #f8f8f8;
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 255, 0.5);
-  border-left: 4px solid darkblue;
-  font-size: 1.3rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 255, 0.3);
+  border-left: 3px solid #1a1f38;
+  font-size: 1rem;
   line-height: 1.6;
   display: block;
   overflow: visible;
@@ -202,12 +208,12 @@ section {
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
-  border-left: 4px solid blue;
+  border-left: 4px solid #1a1f38;
   font-size: 2rem;
 
   h2 {
     margin-top: 0;
-    color: #1a237e;
+    color: #1a1f38;
   }
 
   p {
