@@ -31,7 +31,8 @@
   </mat-expansion-panel-header>
 
   <ng-container *ngIf="alarms.length > 0; else noCurrentAlarms">
-    <div class="alarm-card section" *ngFor="let alarm of alarms.slice(-1)">
+    <div *ngFor="let alarm of alarms.slice(-1)">
+      <section>
       <ng-container *ngIf="!isEditing">
         <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
         <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
@@ -39,6 +40,7 @@
         <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}</p>
         <p><strong>Message:</strong> {{ alarm.message }}</p>
       </ng-container>
+      </section>
 
       <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -113,20 +115,22 @@
     </mat-expansion-panel-header>
 
     <div *ngIf="alarms.length > 0; else noAlarms">
-      <div class="alarm-card section" *ngFor="let alarm of alarms">
-        <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
-        <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
-        <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
-        <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}
-        </p>
-        <p><strong>Message:</strong> {{ alarm.message }}</p>
-      </div>
+
+        <div *ngFor="let alarm of alarms">
+          <section>
+            <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
+            <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
+            <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
+            <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}
+            </p>
+            <p><strong>Message:</strong> {{ alarm.message }}</p>
+          </section>
+        </div>
     </div>
 
     <ng-template #noAlarms>
       <div class="center">
-        <img src="assets/images/no-alarms.jpg" alt="No alarms" />
-        <h3>There are no alarms yet!</h3>
+        <h2>There are no alarms yet!</h2>
       </div>
     </ng-template>
   </mat-expansion-panel>
