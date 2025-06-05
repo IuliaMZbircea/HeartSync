@@ -144,7 +144,7 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   }
 
   goToAlertDetail(id: string) {
-    this.router.navigate([`/view-alert`, id]);
+    this.router.navigate([`/view-alerts`, id]);
   }
 
   openReferralsDialog(id:string) {

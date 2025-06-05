@@ -1,1 +1,198 @@
-<p>view-alerts works!</p>
+<div class="h-24"></div>
+
+<div class="accordion-wrapper">
+
+  <div class="patient-info-card">
+    <h2>👤 Patient Information</h2>
+    <div class="patient-info">
+      <p><strong>Full Name:</strong> {{ patient.firstName }} {{ patient.lastName }}</p>
+      <p><strong>Sex:</strong> {{ patient.sex }}</p>
+      <p><strong>CNP:</strong> {{ patient.cnp }}</p>
+    </div>
+  </div>
+
+  <mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <h2>Current Alarms</h2>
+    </mat-panel-title>
+    <mat-panel-description>
+      🔔 Active alarms configuration
+      <button
+        mat-icon-button
+        aria-label="Edit"
+        (click)="enableEdit(); $event.stopPropagation()"
+        *ngIf="!isEditing && alarms.length > 0"
+        style="margin-left: 8px;"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+  <ng-container *ngIf="alarms.length > 0; else noCurrentAlarms">
+    <div class="alarm-card section" *ngFor="let alarm of alarms.slice(-1)">
+      <ng-container *ngIf="!isEditing">
+        <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
+        <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
+        <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
+        <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}</p>
+        <p><strong>Message:</strong> {{ alarm.message }}</p>
+      </ng-container>
+
+      <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label>Parameter*</label>
+            <select formControlName="parameter" class="w-full">
+              <option value="pulse">Pulse</option>
+              <option value="temperature">Temperature</option>
+              <option value="humidity">Humidity</option>
+              <option value="ecg">ECG</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Condition*</label>
+            <select formControlName="condition" class="w-full">
+              <option value=">">Greater than</option>
+              <option value="<">Less than</option>
+              <option value="=">Equal to</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Threshold*</label>
+            <input type="number" formControlName="threshold" class="w-full" />
+          </div>
+
+          <div>
+            <label>Duration (sec)*</label>
+            <input type="number" formControlName="duration" class="w-full" />
+          </div>
+
+          <div>
+            <label>After Activity?</label>
+            <select formControlName="afterActivity" class="w-full">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label>Alarm Message*</label>
+            <textarea formControlName="message" class="w-full"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-4">
+          <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">
+            💾 Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+
+  <ng-template #noCurrentAlarms>
+    <div class="center">
+      <h2>There are no active alarms!</h2>
+    </div>
+  </ng-template>
+</mat-expansion-panel>
+
+  <!-- History -->
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <h2>History</h2>
+      </mat-panel-title>
+      <mat-panel-description>
+        🗃️ All previously configured alarms
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div *ngIf="alarms.length > 0; else noAlarms">
+      <div class="alarm-card section" *ngFor="let alarm of alarms">
+        <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
+        <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
+        <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
+        <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}
+        </p>
+        <p><strong>Message:</strong> {{ alarm.message }}</p>
+      </div>
+    </div>
+
+    <ng-template #noAlarms>
+      <div class="center">
+        <img src="assets/images/no-alarms.jpg" alt="No alarms" />
+        <h3>There are no alarms yet!</h3>
+      </div>
+    </ng-template>
+  </mat-expansion-panel>
+
+  <!-- Add New -->
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <h2>Add New Alarm</h2>
+      </mat-panel-title>
+      <mat-panel-description>
+        ➕ Create a new alarm trigger
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="alarmForm" (ngSubmit)="onSubmit()" class="section">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label>Parameter*</label>
+          <select formControlName="parameter" class="w-full">
+            <option value="pulse">Pulse</option>
+            <option value="temperature">Temperature</option>
+            <option value="humidity">Humidity</option>
+            <option value="ecg">ECG</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Condition*</label>
+          <select formControlName="condition" class="w-full">
+            <option value=">">Greater than</option>
+            <option value="<">Less than</option>
+            <option value="=">Equal to</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Threshold*</label>
+          <input type="number" formControlName="threshold" placeholder="Enter threshold" class="w-full" />
+        </div>
+
+        <div>
+          <label>Duration (sec)*</label>
+          <input type="number" formControlName="duration" placeholder="e.g. 30" class="w-full" />
+        </div>
+
+        <div>
+          <label>After Activity?</label>
+          <select formControlName="afterActivity" class="w-full">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label>Alarm Message*</label>
+          <textarea formControlName="message" placeholder="Custom message shown when alarm is triggered" class="w-full"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end mt-4">
+        <button mat-flat-button color="primary" type="submit" [disabled]="alarmForm.invalid">
+          ➕ Save Alarm
+        </button>
+      </div>
+    </form>
+  </mat-expansion-panel>
+
+</div>

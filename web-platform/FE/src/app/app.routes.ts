@@ -23,7 +23,7 @@ export const routes: Routes = [
   { path: 'PatientList', component: PatientListComponent },
   { path: 'add-patient', component: AddPatientComponent },
   { path: 'add-consultation', component: AddNewConsultationComponent },
-  { path: 'view-alert/:id', component: ViewAlertsComponent },
+  { path: 'view-alerts/:id', component: ViewAlertsComponent },
   { path: 'view-medication/:id', component: ViewMedicationComponent },
   { path: 'view-recommendation/:id', component: ViewRecommendationComponent },
   { path: 'view-consultations/:id', component: ViewConsultationsComponent },
