@@ -23,7 +23,7 @@
           mat-icon-button
           aria-label="Edit"
           (click)="enableEdit(); $event.stopPropagation()"
-          *ngIf="!isEditing && medications.length > 0"
+          *ngIf="!isEditing && latestMedication"
           style="margin-left: 8px;"
         >
           <mat-icon>edit</mat-icon>
@@ -31,62 +31,69 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <ng-container *ngIf="medications.length > 0; else noCurrentMedication">
-      <div *ngFor="let med of medications.slice(-1)">
-        <section *ngIf="!isEditing">
-          <p><strong>Name:</strong> {{ med.name }}</p>
-          <p><strong>Dosage:</strong> {{ med.dose }}</p>
-          <p><strong>Frequency:</strong> {{ med.frequency }}</p>
-          <p><strong>Route:</strong> {{ med.route }}</p>
-          <p><strong>Start Date:</strong> {{ med.startDate | date }}</p>
-          <p *ngIf="med.endDate"><strong>End Date:</strong> {{ med.endDate | date }}</p>
-          <p><strong>Prescribed By:</strong> {{ med.prescribedBy }}</p>
-          <p *ngIf="med.notes"><strong>Notes:</strong> {{ med.notes }}</p>
+    <ng-container *ngIf="latestMedication; else noCurrentMedication">
+      <div class="medication-card">
+        <section #latestMedRef>
+          <p><strong>Name:</strong> {{ latestMedication.name }}</p>
+          <p><strong>Dosage:</strong> {{ latestMedication.dose }}</p>
+          <p><strong>Frequency:</strong> {{ latestMedication.frequency }}</p>
+          <p><strong>Route:</strong> {{ latestMedication.route }}</p>
+          <p><strong>Start Date:</strong> {{ latestMedication.startDate | date }}</p>
+          <p *ngIf="latestMedication.endDate"><strong>End Date:</strong> {{ latestMedication.endDate | date }}</p>
+          <p><strong>Prescribed By:</strong> {{ latestMedication.prescribedBy }}</p>
+          <p *ngIf="latestMedication.notes"><strong>Notes:</strong> {{ latestMedication.notes }}</p>
         </section>
 
-        <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label>Name*</label>
-              <input type="text" formControlName="name" class="w-full" />
-            </div>
-            <div>
-              <label>Dosage*</label>
-              <input type="text" formControlName="dose" class="w-full" />
-            </div>
-            <div>
-              <label>Frequency*</label>
-              <input type="text" formControlName="frequency" class="w-full" />
-            </div>
-            <div>
-              <label>Route*</label>
-              <input type="text" formControlName="route" class="w-full" />
-            </div>
-            <div>
-              <label>Start Date*</label>
-              <input type="date" formControlName="startDate" class="w-full" />
-            </div>
-            <div>
-              <label>End Date</label>
-              <input type="date" formControlName="endDate" class="w-full" />
-            </div>
-            <div class="md:col-span-2">
-              <label>Prescribed By*</label>
-              <input type="text" formControlName="prescribedBy" class="w-full" />
-            </div>
-            <div class="md:col-span-2">
-              <label>Notes</label>
-              <textarea formControlName="notes" class="w-full"></textarea>
-            </div>
-          </div>
-
-          <div class="flex justify-end mt-4">
-            <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">
-              💾 Save Changes
-            </button>
-          </div>
-        </form>
+        <div class="flex justify-end mt-2">
+          <button mat-stroked-button color="primary" (click)="exportSingleMedicationToPdf(latestMedRef, latestMedication)">
+            <mat-icon>picture_as_pdf</mat-icon>
+            Export PDF
+          </button>
+        </div>
       </div>
+
+      <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label>Name*</label>
+            <input type="text" formControlName="name" class="w-full" />
+          </div>
+          <div>
+            <label>Dosage*</label>
+            <input type="text" formControlName="dose" class="w-full" />
+          </div>
+          <div>
+            <label>Frequency*</label>
+            <input type="text" formControlName="frequency" class="w-full" />
+          </div>
+          <div>
+            <label>Route*</label>
+            <input type="text" formControlName="route" class="w-full" />
+          </div>
+          <div>
+            <label>Start Date*</label>
+            <input type="date" formControlName="startDate" class="w-full" />
+          </div>
+          <div>
+            <label>End Date</label>
+            <input type="date" formControlName="endDate" class="w-full" />
+          </div>
+          <div class="md:col-span-2">
+            <label>Prescribed By*</label>
+            <input type="text" formControlName="prescribedBy" class="w-full" />
+          </div>
+          <div class="md:col-span-2">
+            <label>Notes</label>
+            <textarea formControlName="notes" class="w-full"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-4">
+          <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">
+            💾 Save Changes
+          </button>
+        </div>
+      </form>
     </ng-container>
 
     <ng-template #noCurrentMedication>
@@ -108,8 +115,8 @@
     </mat-expansion-panel-header>
 
     <div *ngIf="medications.length > 0; else noMedication">
-      <div *ngFor="let med of medications">
-        <section>
+      <div class="medication-card section" *ngFor="let med of medications; let i = index">
+        <section #medRef>
           <p><strong>Name:</strong> {{ med.name }}</p>
           <p><strong>Dosage:</strong> {{ med.dose }}</p>
           <p><strong>Frequency:</strong> {{ med.frequency }}</p>
@@ -119,6 +126,13 @@
           <p><strong>Prescribed By:</strong> {{ med.prescribedBy }}</p>
           <p *ngIf="med.notes"><strong>Notes:</strong> {{ med.notes }}</p>
         </section>
+
+        <div class="flex justify-end mt-2">
+          <button mat-stroked-button color="primary" (click)="exportSingleMedicationToPdf(medRef, med)">
+            <mat-icon>picture_as_pdf</mat-icon>
+            Export PDF
+          </button>
+        </div>
       </div>
     </div>
 

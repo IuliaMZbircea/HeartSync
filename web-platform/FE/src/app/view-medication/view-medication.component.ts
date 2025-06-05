@@ -1,4 +1,4 @@
-import {Component, OnInit, signal} from '@angular/core';
+import {Component, ElementRef, OnInit, QueryList, signal, ViewChildren} from '@angular/core';
 import {
   MatExpansionPanel,
   MatExpansionPanelDescription,
@@ -13,6 +13,8 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {ActivatedRoute} from "@angular/router";
 import {PatientService} from "../services/patient.service";
 import {DatePipe, NgForOf, NgIf} from "@angular/common";
+import {jsPDF} from "jspdf";
+import html2canvas from "html2canvas";
 
 @Component({
   selector: 'app-view-medication',
@@ -40,6 +42,10 @@ export class ViewMedicationComponent implements OnInit {
   medications: Medication[] = [];
   editForm: FormGroup;
   isEditing = false;
+
+  @ViewChildren('medRef') medSections!: QueryList<ElementRef>;
+  @ViewChildren('latestMedRef') latestMedRef!: QueryList<ElementRef>;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -125,6 +131,54 @@ export class ViewMedicationComponent implements OnInit {
   private formatDate(date: string | Date): string {
     const d = new Date(date);
     return d.toISOString().split('T')[0];
+  }
+
+  exportSingleMedicationToPdf(element: HTMLElement, medication: Medication): void {
+    const originalWidth = element.style.width;
+    const originalHeight = element.style.height;
+    const originalOverflow = element.style.overflow;
+
+    element.style.width = 'auto';
+    element.style.height = 'auto';
+    element.style.overflow = 'visible';
+
+    html2canvas(element, {
+      scrollY: 0,
+      scrollX: 0,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      scale: 0.7
+    }).then(canvas => {
+      element.style.width = originalWidth;
+      element.style.height = originalHeight;
+      element.style.overflow = originalOverflow;
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.8);
+
+      const scaleFactor = 0.7;
+      const imgWidth = 210 * scaleFactor;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      const doc = new jsPDF('p', 'mm', 'a4');
+      doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        doc.addPage();
+        doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const medName = medication.name.replace(/\s+/g, '_');
+      doc.save(`medication_${medName}.pdf`);
+    }).catch(err => {
+      console.error('Eroare la capturare:', err);
+    });
   }
 
 }
