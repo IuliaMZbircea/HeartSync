@@ -32,14 +32,12 @@
 
   <ng-container *ngIf="alarms.length > 0; else noCurrentAlarms">
     <div *ngFor="let alarm of alarms.slice(-1)">
-      <section>
-      <ng-container *ngIf="!isEditing">
+      <section *ngIf="!isEditing">
         <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
         <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
         <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
         <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}</p>
         <p><strong>Message:</strong> {{ alarm.message }}</p>
-      </ng-container>
       </section>
 
       <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
