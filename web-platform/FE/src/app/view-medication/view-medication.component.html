@@ -1,1 +1,131 @@
-<p>view-medication works!</p>
+<div class="h-24"></div>
+
+<div class="accordion-wrapper">
+
+  <div class="patient-info-card">
+    <h2>🏥 Medication Overview</h2>
+    <div class="patient-info">
+      <p><strong>Full Name:</strong> {{ patient.firstName }} {{ patient.lastName }}</p>
+      <p><strong>Sex:</strong> {{ patient.sex }}</p>
+      <p><strong>CNP:</strong> {{ patient.cnp }}</p>
+    </div>
+  </div>
+
+  <!-- Current Medication -->
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <h2>Current Medication</h2>
+      </mat-panel-title>
+      <mat-panel-description>
+        💊 Most recent prescribed medication
+        <button
+          mat-icon-button
+          aria-label="Edit"
+          (click)="enableEdit(); $event.stopPropagation()"
+          *ngIf="!isEditing && medications.length > 0"
+          style="margin-left: 8px;"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <ng-container *ngIf="medications.length > 0; else noCurrentMedication">
+      <div *ngFor="let med of medications.slice(-1)">
+        <section *ngIf="!isEditing">
+          <p><strong>Name:</strong> {{ med.name }}</p>
+          <p><strong>Dosage:</strong> {{ med.dose }}</p>
+          <p><strong>Frequency:</strong> {{ med.frequency }}</p>
+          <p><strong>Route:</strong> {{ med.route }}</p>
+          <p><strong>Start Date:</strong> {{ med.startDate | date }}</p>
+          <p *ngIf="med.endDate"><strong>End Date:</strong> {{ med.endDate | date }}</p>
+          <p><strong>Prescribed By:</strong> {{ med.prescribedBy }}</p>
+          <p *ngIf="med.notes"><strong>Notes:</strong> {{ med.notes }}</p>
+        </section>
+
+        <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label>Name*</label>
+              <input type="text" formControlName="name" class="w-full" />
+            </div>
+            <div>
+              <label>Dosage*</label>
+              <input type="text" formControlName="dose" class="w-full" />
+            </div>
+            <div>
+              <label>Frequency*</label>
+              <input type="text" formControlName="frequency" class="w-full" />
+            </div>
+            <div>
+              <label>Route*</label>
+              <input type="text" formControlName="route" class="w-full" />
+            </div>
+            <div>
+              <label>Start Date*</label>
+              <input type="date" formControlName="startDate" class="w-full" />
+            </div>
+            <div>
+              <label>End Date</label>
+              <input type="date" formControlName="endDate" class="w-full" />
+            </div>
+            <div class="md:col-span-2">
+              <label>Prescribed By*</label>
+              <input type="text" formControlName="prescribedBy" class="w-full" />
+            </div>
+            <div class="md:col-span-2">
+              <label>Notes</label>
+              <textarea formControlName="notes" class="w-full"></textarea>
+            </div>
+          </div>
+
+          <div class="flex justify-end mt-4">
+            <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">
+              💾 Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </ng-container>
+
+    <ng-template #noCurrentMedication>
+      <div class="center">
+        <h2>No active medication registered!</h2>
+      </div>
+    </ng-template>
+  </mat-expansion-panel>
+
+  <!-- Medication History -->
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <h2>Medication History</h2>
+      </mat-panel-title>
+      <mat-panel-description>
+        📚 Previously prescribed medications
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div *ngIf="medications.length > 0; else noMedication">
+      <div *ngFor="let med of medications">
+        <section>
+          <p><strong>Name:</strong> {{ med.name }}</p>
+          <p><strong>Dosage:</strong> {{ med.dose }}</p>
+          <p><strong>Frequency:</strong> {{ med.frequency }}</p>
+          <p><strong>Route:</strong> {{ med.route }}</p>
+          <p><strong>Start Date:</strong> {{ med.startDate | date }}</p>
+          <p *ngIf="med.endDate"><strong>End Date:</strong> {{ med.endDate | date }}</p>
+          <p><strong>Prescribed By:</strong> {{ med.prescribedBy }}</p>
+          <p *ngIf="med.notes"><strong>Notes:</strong> {{ med.notes }}</p>
+        </section>
+      </div>
+    </div>
+
+    <ng-template #noMedication>
+      <div class="center">
+        <h2>No medications found!</h2>
+      </div>
+    </ng-template>
+  </mat-expansion-panel>
+</div>

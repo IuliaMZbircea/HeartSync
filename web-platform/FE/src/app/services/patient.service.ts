@@ -198,6 +198,36 @@ export class PatientService {
           afterActivity: false,
           message: 'Semnal ECG pierdut. Verifică senzorul.'
         }
+      ],
+      medications:[
+        {
+          name: "Perindopril",
+          dose: "5 mg",
+          frequency: "1 tabletă dimineața",
+          route: "oral",
+          startDate: new Date("2024-04-10"),
+          prescribedBy: "Dr. Ionescu Gheorghe",
+          notes: "Se administrează pe nemâncate."
+        },
+        {
+          name: "Metoprolol",
+          dose: "50 mg",
+          frequency: "2 ori pe zi",
+          route: "oral",
+          startDate: new Date("2024-03-15"),
+          endDate: new Date("2024-06-15"),
+          prescribedBy: "Dr. Popescu Andrei",
+          notes: "Monitorizare puls. Se evită întreruperea bruscă."
+        },
+        {
+          name: "Xarelto",
+          dose: "20 mg",
+          frequency: "1 dată pe zi seara",
+          route: "oral",
+          startDate: new Date("2024-01-01"),
+          prescribedBy: "Dr. Vasilescu Irina",
+          notes: "Se ia cu mâncare."
+        }
       ]
     },
     {
@@ -246,6 +276,36 @@ export class PatientService {
           duration: 120,
           afterActivity: false,
           message: 'Nivel hemoglobină scăzut, necesară evaluare.'
+        }
+      ],
+      medications:[
+        {
+          name: "Perindopril",
+          dose: "5 mg",
+          frequency: "1 tabletă dimineața",
+          route: "oral",
+          startDate: new Date("2024-04-10"),
+          prescribedBy: "Dr. Ionescu Gheorghe",
+          notes: "Se administrează pe nemâncate."
+        },
+        {
+          name: "Metoprolol",
+          dose: "50 mg",
+          frequency: "2 ori pe zi",
+          route: "oral",
+          startDate: new Date("2024-03-15"),
+          endDate: new Date("2024-06-15"),
+          prescribedBy: "Dr. Popescu Andrei",
+          notes: "Monitorizare puls. Se evită întreruperea bruscă."
+        },
+        {
+          name: "Xarelto",
+          dose: "20 mg",
+          frequency: "1 dată pe zi seara",
+          route: "oral",
+          startDate: new Date("2024-01-01"),
+          prescribedBy: "Dr. Vasilescu Irina",
+          notes: "Se ia cu mâncare."
         }
       ]
     },
@@ -311,7 +371,37 @@ export class PatientService {
           additionalNotes: 'Fără activitate fizică în timpul tratamentului'
         }
       ],
-      alarms: []
+      alarms: [],
+      medications:[
+        {
+          name: "Perindopril",
+          dose: "5 mg",
+          frequency: "1 tabletă dimineața",
+          route: "oral",
+          startDate: new Date("2024-04-10"),
+          prescribedBy: "Dr. Ionescu Gheorghe",
+          notes: "Se administrează pe nemâncate."
+        },
+        {
+          name: "Metoprolol",
+          dose: "50 mg",
+          frequency: "2 ori pe zi",
+          route: "oral",
+          startDate: new Date("2024-03-15"),
+          endDate: new Date("2024-06-15"),
+          prescribedBy: "Dr. Popescu Andrei",
+          notes: "Monitorizare puls. Se evită întreruperea bruscă."
+        },
+        {
+          name: "Xarelto",
+          dose: "20 mg",
+          frequency: "1 dată pe zi seara",
+          route: "oral",
+          startDate: new Date("2024-01-01"),
+          prescribedBy: "Dr. Vasilescu Irina",
+          notes: "Se ia cu mâncare."
+        }
+      ]
     }
   ]
 
