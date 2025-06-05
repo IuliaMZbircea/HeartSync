@@ -1,7 +1,7 @@
 import {Consultation} from "./consultation";
 import {Recommendation} from "./recommendation";
 import {Alarm} from "./alarm";
-import {Medication} from "./medication";
+import {Allergy} from "./allergies";
 
 export interface Disease {
   name: string;
@@ -28,7 +28,7 @@ export interface Patient {
   rh: string;
   weight: number;
   height: number;
-  allergies?: string;
+  allergies?: Allergy;
   validAccount:Boolean;
   diseases: Disease[];
   birthDate?: Date;
@@ -36,5 +36,4 @@ export interface Patient {
   consultations?: Consultation[];
   recommendations?: Recommendation[];
   alarms?: Alarm[];
-  medications?: Medication[];
 }

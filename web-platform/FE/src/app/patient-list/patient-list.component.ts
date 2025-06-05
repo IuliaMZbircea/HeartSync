@@ -128,7 +128,7 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   }
 
   openAllergiesDialog(id:string) {
-    this.router.navigate([`/view-allergie`, id]);
+    this.router.navigate([`/view-allergies`, id]);
   }
 
   getDiseaseNames(diseases: any[]): string {
