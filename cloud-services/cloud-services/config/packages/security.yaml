@@ -1,34 +1,32 @@
-# config/packages/security.yaml
 security:
     password_hashers:
-        App\Entity\Doctori:
-            algorithm: bcrypt
+        App\Entity\Doctors:
+            algorithm: auto
 
     providers:
         doctor_provider:
             entity:
-                class: App\Entity\Doctori
+                class: App\Entity\Doctors
                 property: email
 
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
         login:
-            pattern: ^/api/doctor/login
+            pattern: ^/api/login
             stateless: true
             json_login:
-                check_path: /api/doctor/login
+                check_path: /api/login
                 username_path: email
                 password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
         api:
-            pattern: ^/api/
+            pattern: ^/api
             stateless: true
-            jwt: ~
+
 
     access_control:
-        - { path: ^/api/doctor/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: ROLE_DOCTOR }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: PUBLIC_ACCESS }

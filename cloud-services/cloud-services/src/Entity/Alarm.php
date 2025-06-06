@@ -3,37 +3,47 @@
 namespace App\Entity;
 
 use App\Repository\AlarmRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
 
+#[ApiResource]
 #[ORM\Entity(repositoryClass: AlarmRepository::class)]
 class Alarm
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $parameter = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $state = null;
+    private ?string $conditionType = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'float')]
     private ?float $threshold = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $duration = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'boolean')]
     private ?bool $afterActivity = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): static
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getParameter(): ?string
@@ -48,14 +58,14 @@ class Alarm
         return $this;
     }
 
-    public function getState(): ?string
+    public function getConditionType(): ?string
     {
-        return $this->state;
+        return $this->conditionType;
     }
 
-    public function setState(string $state): static
+    public function setConditionType(string $conditionType): static
     {
-        $this->state = $state;
+        $this->conditionType = $conditionType;
 
         return $this;
     }
@@ -89,7 +99,7 @@ class Alarm
         return $this->afterActivity;
     }
 
-    public function setAfterActivity(?bool $afterActivity): static
+    public function setAfterActivity(bool $afterActivity): static
     {
         $this->afterActivity = $afterActivity;
 
@@ -101,7 +111,7 @@ class Alarm
         return $this->message;
     }
 
-    public function setMessage(string $message): static
+    public function setMessage(?string $message): static
     {
         $this->message = $message;
 
