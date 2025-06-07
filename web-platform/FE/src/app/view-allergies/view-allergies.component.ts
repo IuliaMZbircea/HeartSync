@@ -68,7 +68,7 @@ export class ViewAllergiesComponent implements  OnInit {
             if (Array.isArray(found.allergies)) {
               this.allergies = found.allergies;
             } else if (found.allergies) {
-              this.allergies = [found.allergies];
+              // this.allergies = [found.allergies];
             } else {
               this.allergies = [];
             }

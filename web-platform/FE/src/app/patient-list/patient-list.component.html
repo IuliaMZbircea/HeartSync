@@ -18,12 +18,10 @@
         />
         <img src="assets/images/search.png" alt="search icon" class="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 opacity-60" />
       </div>
-
     </div>
 
     <div class="overflow-x-auto rounded-lg">
       <table mat-table matSort [dataSource]="dataSource" class="mat-elevation-z8 w-full table-fixed bg-white text-xs">
-
         <ng-container matColumnDef="id">
           <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-left px-2 py-2 text-indigo-700 border-r border-gray-200">
             ID
@@ -65,19 +63,16 @@
                   <path stroke-linecap="round" stroke-linejoin="round"
                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                 </svg>
-                <span class="absolute -top-1 -right-1">
-        <div
-          class="h-4 w-4 flex items-center justify-center rounded-full text-[10px] font-bold text-white"
-          [ngClass]="element.alert === 0 ? 'bg-green-600' : 'bg-red-600'">
-          {{ element.alert || 0 }}
-        </div>
-      </span>
+                <span class="absolute -top-1 -right-1" *ngIf="element.alert > 0">
+                  <div
+                    class="h-4 w-4 flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-red-600">
+                    {{ element.alert }}
+                  </div>
+                </span>
               </button>
             </div>
           </td>
-
         </ng-container>
-
 
         <ng-container matColumnDef="risk">
           <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-center px-4 py-3 text-indigo-700 border-r border-gray-200">Clinical Risk</th>
@@ -109,8 +104,8 @@
 
                 <i class="fa-solid fa-file-medical cursor-pointer"
                    style="color: #2563eb;"
-                   (click)="openEhrDialog(element.id)"
-                   matTooltip="EHR"></i>
+                   (click)="openEmrDialog(element.id)"
+                   matTooltip="EMR"></i>
 
                 <i class="fa-solid fa-user-doctor cursor-pointer"
                    style="color: #10b981;"
@@ -131,8 +126,7 @@
 
           </td>
         </ng-container>
-
-
+        
         <tr mat-header-row *matHeaderRowDef="displayedColumns" class="min-h-12"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="min-h-12"></tr>
       </table>
