@@ -63,7 +63,6 @@ mat-form-field img[matPrefix] {
   cursor:pointer
 }
 
-
 a{
   text-decoration: none;
   color: inherit;
@@ -81,4 +80,8 @@ a{
 input[matInput] {
   animation: pulseGlow 2s infinite;
   border-color: #4f46e5;
+}
+
+.table{
+  width: 80%;
 }

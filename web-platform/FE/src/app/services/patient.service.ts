@@ -28,7 +28,12 @@ export class PatientService {
       rh: '+',
       weight: 58.5,
       height: 165,
-      allergies: 'Polen, penicilină',
+      allergies:
+        { name: "Polen",
+        severity: "medium",
+        reaction: "Strănut, ochi înlăcrimați, congestie nazală",
+        notes: "Se manifestă mai ales primăvara și toamna"
+        },
       validAccount: true,
       diseases: [
         {
@@ -46,17 +51,49 @@ export class PatientService {
       sex: 'F',
       consultations: [
         {
-          date: new Date('2024-12-10'),
-          doctorName: 'Dr. Ionescu',
-          notes: 'Control de rutină, recomandare pentru analize'
+          id: 2,
+          date: new Date('2025-06-02'),
+          reason: 'Chest pain during physical activity',
+          symptoms: 'Pressure in chest, shortness of breath, anxiety',
+          diagnosisICD10: 'I20.0', // Unstable angina
+          doctorName: 'Dr. Elena Radu',
+          notes: 'Referred for cardiac stress test. ECG showed mild ST depression.'
         },
         {
-          date: new Date('2025-03-15'),
-          doctorName: 'Dr. Marinescu',
-          notes: 'Tensiune crescută, început tratament'
+          id: 3,
+          date: new Date('2025-06-06'),
+          reason: 'Follow-up after myocardial infarction',
+          symptoms: 'Fatigue, minor palpitations',
+          diagnosisICD10: 'I25.2', // Old myocardial infarction
+          doctorName: 'Dr. Andrei Popescu',
+          notes: 'Patient recovering well. Continue medication. Recommended mild physical activity.'
         }
       ],
-      recommendations: []
+      recommendations: [],
+      referrals: [
+        {
+          id: 101,
+          type: 'FAMILY_TO_SPECIALIST',
+          patientId: 1,
+          fromDoctorId: 10,
+          toDoctorId: 20,
+          reason: 'Suspicion of diabetes',
+          date: new Date('2025-05-01'),
+          isResolved: false
+        },
+        {
+          id: 102,
+          type: 'SPECIALIST_TO_ANALYSIS',
+          patientId: 1,
+          fromDoctorId: 20,
+          toDoctorId: 30,
+          reason: 'Blood sugar test',
+          date: new Date('2025-05-10'),
+          isResolved: true,
+          hl7Payload: 'some-hl7-payload',
+          fhirResponseId: 555
+        }
+      ]
     },
     {
       id: 2,
@@ -78,7 +115,12 @@ export class PatientService {
       weight: 75.2,
       height: 180,
       validAccount: true,
-      allergies: 'Lactoză',
+      allergies:  {
+        name: "Arahide",
+        severity: "high",
+        reaction: "Umflare a buzelor, dificultăți de respirație, șoc anafilactic",
+        notes: "Necesită epipen"
+      },
       diseases: [
         {
           name: 'Diabet tip 2',
@@ -90,14 +132,22 @@ export class PatientService {
       sex: 'M',
       consultations: [
         {
-          date: new Date('2024-10-05'),
-          doctorName: 'Dr. Pavelescu',
-          notes: 'Valori glicemie instabile, ajustare tratament'
+          id: 3,
+          date: new Date('2025-06-06'),
+          reason: 'Follow-up after myocardial infarction',
+          symptoms: 'Fatigue, minor palpitations',
+          diagnosisICD10: 'I25.2', // Old myocardial infarction
+          doctorName: 'Dr. Andrei Popescu',
+          notes: 'Patient recovering well. Continue medication. Recommended mild physical activity.'
         },
         {
-          date: new Date('2025-01-20'),
-          doctorName: 'Dr. Pavelescu',
-          notes: 'Răspunde bine la tratament, recomandare activitate fizică'
+          id: 1,
+          date: new Date('2025-05-20'),
+          reason: 'High blood pressure detected by family doctor',
+          symptoms: 'Headache, dizziness, fatigue',
+          diagnosisICD10: 'I10', // Essential (primary) hypertension
+          doctorName: 'Dr. Andrei Popescu',
+          notes: 'Patient advised to reduce salt intake and start beta blockers.'
         }
       ],
       recommendations: [
@@ -132,7 +182,7 @@ export class PatientService {
           afterActivity: true,
           message: 'Puls crescut semnificativ după efort.'
         }
-      ]
+      ],
     },
     {
       id: 3,
@@ -153,7 +203,12 @@ export class PatientService {
       rh: '+',
       weight: 80.7,
       height: 183,
-      allergies: '',
+      allergies:   {
+        name: "Lapte",
+        severity: "low",
+        reaction: "Balonare, dureri abdominale",
+        notes: "Toleranță scăzută, dar nu este alergie severă"
+      },
       validAccount: true,
       diseases: [
         {
@@ -228,7 +283,7 @@ export class PatientService {
           prescribedBy: "Dr. Vasilescu Irina",
           notes: "Se ia cu mâncare."
         }
-      ]
+      ],
     },
     {
       id: 4,
@@ -249,7 +304,12 @@ export class PatientService {
       rh: '+',
       weight: 62.3,
       height: 170,
-      allergies: 'Nuci',
+      allergies: {
+        name: "Mușcătură de albină",
+        severity: "high",
+        reaction: "Umflare severă, erupții, dificultăți respiratorii",
+        notes: "Reacție anafilactică posibilă, necesită tratament imediat"
+      },
       validAccount: true,
       diseases: [
         {
@@ -262,9 +322,13 @@ export class PatientService {
       sex: 'F',
       consultations: [
         {
-          date: new Date('2025-04-11'),
-          doctorName: 'Dr. Georgescu',
-          notes: 'Verificare hemoglobină, necesar transfuzie lunară'
+          id: 1,
+          date: new Date('2025-05-20'),
+          reason: 'High blood pressure detected by family doctor',
+          symptoms: 'Headache, dizziness, fatigue',
+          diagnosisICD10: 'I10',
+          doctorName: 'Dr. Andrei Popescu',
+          notes: 'Patient advised to reduce salt intake and start beta blockers.'
         }
       ],
       recommendations: [],
@@ -328,7 +392,12 @@ export class PatientService {
       rh: '-',
       weight: 68.9,
       height: 178,
-      allergies: '',
+      allergies:   {
+        name: "Lapte",
+        severity: "low",
+        reaction: "Balonare, dureri abdominale",
+        notes: "Toleranță scăzută, dar nu este alergie severă"
+      },
       validAccount: true,
       diseases: [
         {
@@ -346,9 +415,13 @@ export class PatientService {
       sex: 'M',
       consultations: [
         {
-          date: new Date('2025-05-20'),
-          doctorName: 'Dr. Nistor',
-          notes: 'Prescris antibiotic și repaus alimentar'
+          id: 2,
+          date: new Date('2025-06-02'),
+          reason: 'Chest pain during physical activity',
+          symptoms: 'Pressure in chest, shortness of breath, anxiety',
+          diagnosisICD10: 'I20.0',
+          doctorName: 'Dr. Elena Radu',
+          notes: 'Referred for cardiac stress test. ECG showed mild ST depression.'
         }
       ],
       recommendations: [
@@ -401,7 +474,7 @@ export class PatientService {
           prescribedBy: "Dr. Vasilescu Irina",
           notes: "Se ia cu mâncare."
         }
-      ]
+      ],
     }
   ]
 

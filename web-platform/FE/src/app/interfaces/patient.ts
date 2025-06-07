@@ -2,6 +2,9 @@ import {Consultation} from "./consultation";
 import {Recommendation} from "./recommendation";
 import {Alarm} from "./alarm";
 import {Allergy} from "./allergies";
+import {Medication} from "./medication";
+import {MedicalLetter} from "./medicalLetter";
+import {Referral} from "./referral";
 
 export interface Disease {
   name: string;
@@ -33,7 +36,10 @@ export interface Patient {
   diseases: Disease[];
   birthDate?: Date;
   sex?: 'M' | 'F';
+
   consultations?: Consultation[];
   recommendations?: Recommendation[];
   alarms?: Alarm[];
+  medications?: Medication[];
+  referrals?: Referral[];
 }
