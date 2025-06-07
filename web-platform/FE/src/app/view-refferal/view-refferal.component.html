@@ -11,6 +11,7 @@
     </div>
   </div>
 
+  <ng-container *ngIf="referrals.length > 0; else noReferral">
   <mat-expansion-panel *ngFor="let referral of referrals">
     <mat-expansion-panel-header>
       <mat-panel-title>
@@ -100,4 +101,18 @@
       </div>
     </form>
   </mat-expansion-panel>
+  </ng-container>
+
+  <ng-template #noReferral>
+    <mat-expansion-panel disabled>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          No Referrals Available
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="p-4 text-center">
+        <p>There are currently no referrals for this patient.</p>
+      </div>
+    </mat-expansion-panel>
+  </ng-template>
 </div>
