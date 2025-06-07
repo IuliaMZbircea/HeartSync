@@ -41,4 +41,5 @@ export interface Patient {
   alarms?: Alarm[];
   medications?: Medication[];
   referrals?: Referral[];
+  patientHistory:Object
 }

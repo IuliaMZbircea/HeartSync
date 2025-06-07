@@ -14,6 +14,7 @@ import {ViewConsultationsComponent} from "./view-consultations/view-consultation
 import {AddNewConsultationComponent} from "./dialogs/add-new-consultation/add-new-consultation.component";
 import {ViewRefferalComponent} from "./view-refferal/view-refferal.component";
 import {authGuard} from "./guards/auth.guard";
+import {ViewChartsComponent} from "./view-charts/view-charts.component";
 
 export const routes: Routes = [
   { path: '', component: PresentationPageComponent },
@@ -35,5 +36,6 @@ export const routes: Routes = [
   { path: 'view-allergies/:id', component: ViewAllergiesComponent },
   { path: 'view-emr/:id', component: ViewEMRComponent },
   { path: 'view-referrals/:id', component: ViewRefferalComponent },
+  { path: 'view-charts/:id', component: ViewChartsComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

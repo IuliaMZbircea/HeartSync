@@ -121,7 +121,8 @@ export class PatientService {
           hl7Payload: 'some-hl7-payload',
           fhirResponseId: 555
         }
-      ]
+      ],
+      patientHistory:{},
     },
     {
       id: 2,
@@ -211,6 +212,121 @@ export class PatientService {
           message: 'Puls crescut semnificativ după efort.'
         }
       ],
+      patientHistory : {
+        pulse: [
+          {
+            date: '2025-06-08',
+            value: 78,
+            hourly: [65, 68, 70, 72, 75, 78, 80, 82, 84, 83, 82, 80, 78, 76, 75, 74, 73, 72, 70, 69, 68, 67, 66, 65],
+          },
+          {
+            date: '2025-06-07',
+            value: 81,
+            hourly: [68, 70, 73, 75, 78, 80, 82, 84, 85, 83, 81, 80, 78, 77, 75, 74, 72, 71, 70, 69, 68, 67, 66, 65],
+          },
+          {
+            date: '2025-06-06',
+            value: 76,
+            hourly: [66, 68, 70, 72, 74, 76, 78, 80, 81, 80, 78, 76, 74, 72, 70, 68, 66, 65, 67, 69, 70, 72, 73, 74],
+          },
+        ],
+
+        bodyTemperature: [
+          {
+            date: '2025-06-08',
+            value: 36.2,
+            hourly: new Array(24).fill(0).map(() => (Math.random() * 0.4 + 36).toFixed(1)),
+          },
+          {
+            date: '2025-06-07',
+            value: 36.3,
+            hourly: new Array(24).fill(0).map(() => (Math.random() * 0.4 + 36).toFixed(1)),
+          },
+          {
+            date: '2025-06-06',
+            value: 36.1,
+            hourly: new Array(24).fill(0).map(() => (Math.random() * 0.4 + 36).toFixed(1)),
+          },
+        ],
+
+        bloodPressure: [
+          {
+            date: '2025-06-08',
+            systolic: 122,
+            diastolic: 78,
+            hourly: [
+              { systolic: 120, diastolic: 76 },
+              { systolic: 121, diastolic: 77 },
+              { systolic: 122, diastolic: 78 },
+              { systolic: 123, diastolic: 79 },
+              { systolic: 124, diastolic: 80 },
+              { systolic: 122, diastolic: 78 },
+            ],
+          },
+          {
+            date: '2025-06-07',
+            systolic: 124,
+            diastolic: 80,
+            hourly: [
+              { systolic: 121, diastolic: 77 },
+              { systolic: 122, diastolic: 78 },
+              { systolic: 123, diastolic: 79 },
+              { systolic: 124, diastolic: 80 },
+              { systolic: 125, diastolic: 81 },
+              { systolic: 124, diastolic: 80 },
+            ],
+          },
+          {
+            date: '2025-06-06',
+            systolic: 126,
+            diastolic: 82,
+            hourly: [
+              { systolic: 123, diastolic: 79 },
+              { systolic: 124, diastolic: 80 },
+              { systolic: 125, diastolic: 81 },
+              { systolic: 126, diastolic: 82 },
+              { systolic: 127, diastolic: 83 },
+              { systolic: 126, diastolic: 82 },
+            ],
+          },
+        ],
+
+        spo2: [
+          {
+            date: '2025-06-08',
+            value: 98,
+            hourly: Array(24).fill(0).map(() => 97 + Math.round(Math.random())),
+          },
+          {
+            date: '2025-06-07',
+            value: 97,
+            hourly: Array(24).fill(0).map(() => 97 + Math.round(Math.random())),
+          },
+          {
+            date: '2025-06-06',
+            value: 96,
+            hourly: Array(24).fill(0).map(() => 96 + Math.round(Math.random())),
+          },
+        ],
+
+        respiratoryRate: [
+          {
+            date: '2025-06-08',
+            value: 16,
+            hourly: Array(24).fill(0).map(() => 15 + Math.round(Math.random())),
+          },
+          {
+            date: '2025-06-07',
+            value: 17,
+            hourly: Array(24).fill(0).map(() => 15 + Math.round(Math.random())),
+          },
+          {
+            date: '2025-06-06',
+            value: 16,
+            hourly: Array(24).fill(0).map(() => 15 + Math.round(Math.random())),
+          },
+        ]
+      }
     },
     {
       id: 3,
@@ -312,6 +428,7 @@ export class PatientService {
           notes: "Se ia cu mâncare."
         }
       ],
+      patientHistory:{},
     },
     {
       id: 4,
@@ -399,7 +516,8 @@ export class PatientService {
           prescribedBy: "Dr. Vasilescu Irina",
           notes: "Se ia cu mâncare."
         }
-      ]
+      ],
+      patientHistory:{},
     },
     {
       id: 6,
@@ -503,6 +621,7 @@ export class PatientService {
           notes: "Se ia cu mâncare."
         }
       ],
+      patientHistory:{},
     }
   ]
 

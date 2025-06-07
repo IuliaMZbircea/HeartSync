@@ -150,7 +150,10 @@ export class PatientListComponent implements OnInit, AfterViewInit {
 
   openReferralsDialog(id:string) {
     this.router.navigate([`/view-referrals`, id]);
+  }
 
+  openChartsDialog(id:string){
+    this.router.navigate([`/view-charts`, id]);
   }
 }
 

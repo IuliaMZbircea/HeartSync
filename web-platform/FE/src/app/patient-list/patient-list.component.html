@@ -121,12 +121,18 @@
                    style="color: #dc2626;"
                    (click)="openReferralsDialog(element.id)"
                    matTooltip="Investigations"></i>
+
+                <i class="fa-solid fa-chart-line cursor-pointer"
+                   style="color: #2563eb;"
+                   (click)="openChartsDialog(element.id)"
+                   matTooltip="Charts"></i>
+
               </div>
             </div>
 
           </td>
         </ng-container>
-        
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns" class="min-h-12"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="min-h-12"></tr>
       </table>
