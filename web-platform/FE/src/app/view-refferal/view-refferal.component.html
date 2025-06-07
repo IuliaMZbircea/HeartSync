@@ -24,6 +24,9 @@
         <button mat-icon-button color="warn" (click)="cancelEdit(referral.id); $event.stopPropagation()" *ngIf="editingReferrals[referral.id]">
           <mat-icon>close</mat-icon>
         </button>
+        <button mat-icon-button color="primary" (click)="exportReferralToPdf(referral); $event.stopPropagation()" title="Export as PDF">
+          <mat-icon>picture_as_pdf</mat-icon>
+        </button>
       </mat-panel-description>
     </mat-expansion-panel-header>
 

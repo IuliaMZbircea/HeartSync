@@ -44,8 +44,6 @@ export class ViewRefferalComponent implements OnInit{
   patient!: Patient;
   referrals: Referral[] = [];
   editForm: FormGroup;
-  isEditing = false;
-  selectedReferral: Referral | null = null;
 
   @ViewChildren('referralRef') referralSections!: QueryList<ElementRef>;
 
@@ -137,60 +135,27 @@ export class ViewRefferalComponent implements OnInit{
 
   getReferralTypeLabel(type: ReferralType): string {
     switch (type) {
-      case 'FAMILY_TO_SPECIALIST': return 'Family → Specialist';
-      case 'SPECIALIST_TO_ANALYSIS': return 'Specialist → Analysis';
-      case 'SPECIALIST_TO_HOSPITAL': return 'Specialist → Hospital';
-      case 'SPECIALIST_TO_TREATMENT': return 'Specialist → Treatment';
-      case 'SPECIALIST_TO_PROCEDURE': return 'Specialist → Procedure';
+      case 'FAMILY_TO_SPECIALIST': return 'Family - Specialist';
+      case 'SPECIALIST_TO_ANALYSIS': return 'Specialist -Analysis';
+      case 'SPECIALIST_TO_HOSPITAL': return 'Specialist - Hospital';
+      case 'SPECIALIST_TO_TREATMENT': return 'Specialist - Treatment';
+      case 'SPECIALIST_TO_PROCEDURE': return 'Specialist - Procedure';
       default: return type;
     }
   }
+  exportReferralToPdf(referral: Referral): void {
+    const doc = new jsPDF();
 
-  exportReferralToPdf(element: HTMLElement, referral: Referral): void {
-    const originalWidth = element.style.width;
-    const originalHeight = element.style.height;
-    const originalOverflow = element.style.overflow;
+    doc.setFontSize(16);
+    doc.text(`Referral #${referral.id}`, 10, 10);
+    doc.setFontSize(12);
+    doc.text(`From Doctor: ${referral.fromDoctor.firstName} ${referral.fromDoctor.lastName}`, 10, 20);
+    doc.text(`To Doctor: ${referral.toDoctor?.firstName} ${referral.toDoctor?.lastName}`, 10, 30);
+    doc.text(`Type: ${this.getReferralTypeLabel(referral.type)}`, 10, 40);
+    doc.text(`Reason: ${referral.reason}`, 10, 50);
+    doc.text(`Date: ${referral.date ? new Date(referral.date).toLocaleDateString() : ''}`, 10, 60);
+    doc.text(`Status: ${referral.isResolved ? 'Resolved' : 'Pending'}`, 10, 70);
 
-    element.style.width = 'auto';
-    element.style.height = 'auto';
-    element.style.overflow = 'visible';
-
-    html2canvas(element, {
-      scrollY: 0,
-      scrollX: 0,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      scale: 0.7
-    }).then(canvas => {
-      element.style.width = originalWidth;
-      element.style.height = originalHeight;
-      element.style.overflow = originalOverflow;
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.8);
-
-      const scaleFactor = 0.7;
-      const imgWidth = 210 * scaleFactor;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      const doc = new jsPDF('p', 'mm', 'a4');
-      doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        doc.addPage();
-        doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      const filename = `referral_${referral.id}.pdf`;
-      doc.save(filename);
-    }).catch(err => {
-      console.error('Eroare la capturare PDF:', err);
-    });
+    doc.save(`referral_${referral.id}.pdf`);
   }
 }
