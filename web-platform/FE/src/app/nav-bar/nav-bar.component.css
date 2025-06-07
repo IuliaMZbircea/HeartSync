@@ -12,6 +12,12 @@
   border-bottom: 1px solid #9ca1c4;
 }
 
+.navbar-left{
+  display: flex
+;
+  align-items: center;
+}
+
 .navbar-left .logo {
   height: 70px;
   object-fit: cover;
@@ -54,4 +60,9 @@ mat-icon {
 
 body {
   padding-top: 70px;
+}
+
+span{
+  font-size: 1rem;
+  color: white;
 }

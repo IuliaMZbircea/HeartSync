@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "email": "dr.magda@example.com",
+    "password": "test123",
+    "firstName": "Magda",
+    "lastName": "Paicu",
+    "specialization": "Cardiology"
+  },
+  {
+    "id": 2,
+    "email": "dr.luyza@example.com",
+    "password": "test123",
+    "firstName": "Luyza",
+    "lastName": "Nica",
+    "specialization": "Neurology"
+  }
+]

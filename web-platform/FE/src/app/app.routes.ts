@@ -13,6 +13,7 @@ import {ViewEMRComponent} from "./view-emr/view-emr.component";
 import {ViewConsultationsComponent} from "./view-consultations/view-consultations.component";
 import {AddNewConsultationComponent} from "./dialogs/add-new-consultation/add-new-consultation.component";
 import {ViewRefferalComponent} from "./view-refferal/view-refferal.component";
+import {authGuard} from "./guards/auth.guard";
 
 export const routes: Routes = [
   { path: '', component: PresentationPageComponent },
@@ -20,7 +21,11 @@ export const routes: Routes = [
   { path: 'Help', component: HelpSectionComponent },
   { path: 'Login', component: LoginComponent },
   { path: 'Register', component: RegisterComponent },
-  { path: 'PatientList', component: PatientListComponent },
+  {
+    path: 'PatientList',
+    loadComponent: () => import('./patient-list/patient-list.component').then(m => m.PatientListComponent),
+    canActivate: [authGuard]
+  },
   { path: 'add-patient', component: AddPatientComponent },
   { path: 'add-consultation', component: AddNewConsultationComponent },
   { path: 'view-alerts/:id', component: ViewAlertsComponent },
