@@ -10,11 +10,13 @@ import {
 import {MatIcon} from "@angular/material/icon";
 import {ActivatedRoute} from "@angular/router";
 import {PatientService} from "../services/patient.service";
-import {DatePipe, NgForOf, NgIf} from "@angular/common";
+import {DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {Patient} from "../interfaces/patient";
 import html2canvas from "html2canvas";
 import {jsPDF} from "jspdf";
 import {MatButton, MatIconButton} from "@angular/material/button";
+import {Doctor} from "../interfaces/doctor";
+import {DoctorService} from "../services/doctor.service";
 
 @Component({
   selector: 'app-view-refferal',
@@ -30,7 +32,8 @@ import {MatButton, MatIconButton} from "@angular/material/button";
     MatIconButton,
     MatButton,
     NgIf,
-    NgForOf
+    NgForOf,
+    NgClass
   ],
   templateUrl: './view-refferal.component.html',
   styleUrl: './view-refferal.component.css'
@@ -49,17 +52,28 @@ export class ViewRefferalComponent implements OnInit{
   constructor(
     private route: ActivatedRoute,
     private patientService: PatientService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private doctorsService:DoctorService
   ) {
     this.editForm = this.fb.group({
       reason: ['', Validators.required],
-      isResolved: [false]
+      isResolved: [false],
+      type: ['', Validators.required],
+      toDoctorId: ['', Validators.required],
+      date: ['', Validators.required]
     });
   }
+
+  availableDoctors: Doctor[] = [];
+  editingReferrals: Record<number, boolean> = {};
+  editForms: Record<number, FormGroup> = {};
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     const id = idParam && !isNaN(+idParam) ? Number(idParam) : null;
+    this.doctorsService.getDoctors().subscribe(doctors => {
+      this.availableDoctors = doctors;
+    })
 
     if (id !== null) {
       this.patientService.getPatients().subscribe((patients: Patient[]) => {
@@ -77,31 +91,59 @@ export class ViewRefferalComponent implements OnInit{
   }
 
   enableEdit(referral: Referral): void {
-    this.selectedReferral = referral;
-    this.editForm.setValue({
-      reason: referral.reason,
-      isResolved: referral.isResolved
+    this.editingReferrals[referral.id] = true;
+
+    this.editForms[referral.id] = this.fb.group({
+      reason: [referral.reason || '', Validators.required],
+      isResolved: [referral.isResolved || false],
+      type: [referral.type || '', Validators.required],
+      toDoctorId: [referral.toDoctor?.id || '', Validators.required],
+      date: [referral.date ? new Date(referral.date).toISOString().substring(0,10) : '', Validators.required]
     });
-    this.isEditing = true;
   }
 
-  saveEdit(): void {
-    if (this.editForm.invalid || !this.selectedReferral) return;
+  saveEdit(referral: Referral): void {
+    const form = this.editForms[referral.id];
+    if (!form || form.invalid) return;
 
     const updatedReferral: Referral = {
-      ...this.selectedReferral,
-      ...this.editForm.value
+      ...referral,
+      ...form.value
     };
 
-    const index = this.referrals.findIndex(r => r.id === this.selectedReferral!.id);
+    const index = this.referrals.findIndex(r => r.id === referral.id);
     if (index !== -1) {
       this.referrals[index] = updatedReferral;
       this.patient.referrals = this.referrals;
       this.patientService.updatePatient(this.patient);
     }
 
-    this.isEditing = false;
-    this.selectedReferral = null;
+    this.editingReferrals[referral.id] = false;
+    delete this.editForms[referral.id];
+  }
+
+  cancelEdit(referralId: number): void {
+    this.editingReferrals[referralId] = false;
+    delete this.editForms[referralId];
+  }
+
+  referralTypes: ReferralType[] = [
+    'FAMILY_TO_SPECIALIST',
+    'SPECIALIST_TO_ANALYSIS',
+    'SPECIALIST_TO_HOSPITAL',
+    'SPECIALIST_TO_TREATMENT',
+    'SPECIALIST_TO_PROCEDURE'
+  ];
+
+  getReferralTypeLabel(type: ReferralType): string {
+    switch (type) {
+      case 'FAMILY_TO_SPECIALIST': return 'Family → Specialist';
+      case 'SPECIALIST_TO_ANALYSIS': return 'Specialist → Analysis';
+      case 'SPECIALIST_TO_HOSPITAL': return 'Specialist → Hospital';
+      case 'SPECIALIST_TO_TREATMENT': return 'Specialist → Treatment';
+      case 'SPECIALIST_TO_PROCEDURE': return 'Specialist → Procedure';
+      default: return type;
+    }
   }
 
   exportReferralToPdf(element: HTMLElement, referral: Referral): void {

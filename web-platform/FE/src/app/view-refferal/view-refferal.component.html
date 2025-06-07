@@ -14,43 +14,87 @@
   <mat-expansion-panel *ngFor="let referral of referrals">
     <mat-expansion-panel-header>
       <mat-panel-title>
-        Referral #{{ referral.id }} - {{ referral.type }}
+        <span class="referral-id-badge">#{{ referral.id }}</span>
+        <span class="referral-type-label">{{ getReferralTypeLabel(referral.type) }}</span>
       </mat-panel-title>
       <mat-panel-description>
-        <button mat-icon-button (click)="enableEdit(referral); $event.stopPropagation()" *ngIf="!isEditing">
+        <button mat-icon-button (click)="enableEdit(referral); $event.stopPropagation()" *ngIf="!editingReferrals[referral.id]">
           <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="cancelEdit(referral.id); $event.stopPropagation()" *ngIf="editingReferrals[referral.id]">
+          <mat-icon>close</mat-icon>
         </button>
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <section #referralRef>
-      <p><strong>Patient ID:</strong> {{ referral.patientId }}</p>
-      <p><strong>From Doctor ID:</strong> {{ referral.fromDoctorId }}</p>
-      <p><strong>To Doctor ID:</strong> {{ referral.toDoctorId }}</p>
-      <p><strong>Type:</strong> {{ referral.type }}</p>
+    <section #referralRef *ngIf="!editingReferrals[referral.id]">
+      <p><strong>From Doctor:</strong> {{ referral.fromDoctor.firstName }} {{ referral.fromDoctor.lastName }}</p>
+      <p><strong>To Doctor:</strong> {{ referral.toDoctor?.firstName }} {{ referral.toDoctor?.lastName }}</p>
+      <p><strong>Type:</strong> {{ getReferralTypeLabel(referral.type) }}</p>
       <p><strong>Reason:</strong> {{ referral.reason }}</p>
       <p><strong>Date:</strong> {{ referral.date | date }}</p>
-      <p><strong>Status:</strong> {{ referral.isResolved ? 'Resolved' : 'Pending' }}</p>
+      <mat-expansion-panel-header>
+        <mat-panel-description class="panel-description-right">
+          <div class="status-badge" [ngClass]="referral.isResolved ? 'resolved' : 'pending'">
+            <mat-icon class="status-icon">
+              {{ referral.isResolved ? 'check_circle' : 'schedule' }}
+            </mat-icon>
+            <span>{{ referral.isResolved ? 'Resolved' : 'Pending' }}</span>
+          </div>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
     </section>
 
-    <div class="flex justify-end mt-2">
+    <form *ngIf="editingReferrals[referral.id]"
+          [formGroup]="editForms[referral.id]"
+          (ngSubmit)="saveEdit(referral)"
+          class="section grid-form">
 
-    </div>
+      <div class="form-group full-width from-doctor">
+        <p><strong>From Doctor:</strong> {{ referral.fromDoctor.firstName }} {{ referral.fromDoctor.lastName }}</p>
+      </div>
 
-    <form *ngIf="isEditing && selectedReferral?.id === referral.id" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
-      <label>Reason</label>
-      <textarea formControlName="reason" rows="3"></textarea>
+      <div class="form-group">
+        <label>To Doctor*</label>
+        <select formControlName="toDoctorId" class="w-full">
+          <option *ngFor="let doc of availableDoctors" [value]="doc.id">
+            {{ doc.firstName }} {{ doc.lastName }}
+          </option>
+        </select>
+      </div>
 
-      <label>
-        <input type="checkbox" formControlName="isResolved" />
-        Mark as Resolved
-      </label>
+      <div class="form-group">
+        <label>Type*</label>
+        <select formControlName="type" class="w-full">
+          <option *ngFor="let type of referralTypes" [value]="type">
+            {{ getReferralTypeLabel(type) }}
+          </option>
+        </select>
+      </div>
 
-      <div class="flex justify-end mt-4">
-        <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">Save Changes</button>
+      <div class="form-group full-width">
+        <label>Reason*</label>
+        <textarea formControlName="reason" rows="3" class="w-full"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Date*</label>
+        <input type="date" formControlName="date" class="w-full" />
+      </div>
+
+      <div class="form-group resolved-checkbox full-width">
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="isResolved" />
+          <span class="slider"></span>
+          Mark as Resolved
+        </label>
+      </div>
+
+      <div class="flex justify-end mt-4 full-width">
+        <button mat-flat-button color="primary" type="submit" [disabled]="editForms[referral.id].invalid">
+          💾 Save Changes
+        </button>
       </div>
     </form>
-
   </mat-expansion-panel>
-
 </div>

@@ -75,8 +75,22 @@ export class PatientService {
           id: 101,
           type: 'FAMILY_TO_SPECIALIST',
           patientId: 1,
-          fromDoctorId: 10,
-          toDoctorId: 20,
+          fromDoctor:   {
+            "id": 1,
+            "email": "dr.magda@example.com",
+            "password": "test123",
+            "firstName": "Magda",
+            "lastName": "Paicu",
+            "specialization": "Cardiology"
+          },
+          toDoctor: {
+            "id": 2,
+            "email": "dr.luyza@example.com",
+            "password": "test123",
+            "firstName": "Luyza",
+            "lastName": "Nica",
+            "specialization": "Neurology"
+          },
           reason: 'Suspicion of diabetes',
           date: new Date('2025-05-01'),
           isResolved: false
@@ -85,8 +99,22 @@ export class PatientService {
           id: 102,
           type: 'SPECIALIST_TO_ANALYSIS',
           patientId: 1,
-          fromDoctorId: 20,
-          toDoctorId: 30,
+          fromDoctor: {
+            "id": 1,
+            "email": "dr.magda@example.com",
+            "password": "test123",
+            "firstName": "Magda",
+            "lastName": "Paicu",
+            "specialization": "Cardiology"
+          },
+          toDoctor: {
+            "id": 2,
+            "email": "dr.luyza@example.com",
+            "password": "test123",
+            "firstName": "Luyza",
+            "lastName": "Nica",
+            "specialization": "Neurology"
+          },
           reason: 'Blood sugar test',
           date: new Date('2025-05-10'),
           isResolved: true,

@@ -1,3 +1,5 @@
+import {Doctor} from "./doctor";
+
 export type ReferralType =
   | 'FAMILY_TO_SPECIALIST'
   | 'SPECIALIST_TO_ANALYSIS'
@@ -11,8 +13,8 @@ export interface Referral {
 
   patientId: number;
 
-  fromDoctorId: number;
-  toDoctorId: number;
+  fromDoctor: Doctor;
+  toDoctor?: Doctor;
 
   reason: string;
   date: Date;
