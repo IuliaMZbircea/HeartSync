@@ -14,7 +14,7 @@ const mockPatientData = (() => {
     hrv: 52,
     steps: 7342,
     sleep: {
-      duration: 7.2, // hours
+      duration: 7.2,
       quality: 'Good',
     },
     sex: 'M',
