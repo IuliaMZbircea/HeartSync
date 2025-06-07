@@ -5,7 +5,7 @@ import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MatSort, MatSortModule} from "@angular/material/sort";
 import {MatInput} from "@angular/material/input";
 import calculateRiskScore from "../utils/calculate-risk-score";
-import {NgClass} from "@angular/common";
+import {NgClass, NgIf} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
 import calculateAge from "../utils/calculate-age";
 import {MatTooltip} from "@angular/material/tooltip";
@@ -20,7 +20,8 @@ import {MatTooltip} from "@angular/material/tooltip";
     MatInput,
     NgClass,
     RouterLink,
-    MatTooltip
+    MatTooltip,
+    NgIf
   ],
   templateUrl: './patient-list.component.html',
   styleUrl: './patient-list.component.css'
@@ -118,8 +119,8 @@ export class PatientListComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  openEhrDialog(id: string) {
-    this.router.navigate([`/view-ehr`, id]);
+  openEmrDialog(id: string) {
+    this.router.navigate([`/view-emr`, id]);
   }
 
   openMedicationsDialog(id:string) {

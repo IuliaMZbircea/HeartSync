@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ViewEMRComponent} from "./view-emr.component";
 
-import { ViewEHRComponent } from './view-ehr.component';
 
-describe('ViewEHRComponent', () => {
-  let component: ViewEHRComponent;
-  let fixture: ComponentFixture<ViewEHRComponent>;
+describe('ViewEMRComponent', () => {
+  let component: ViewEMRComponent;
+  let fixture: ComponentFixture<ViewEMRComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ViewEHRComponent]
+      imports: [ViewEMRComponent]
     })
     .compileComponents();
-    
-    fixture = TestBed.createComponent(ViewEHRComponent);
+
+    fixture = TestBed.createComponent(ViewEMRComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

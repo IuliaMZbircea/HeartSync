@@ -1,10 +1,42 @@
-
-###> symfony/framework-bundle ###
+### Symfony ###
+/.env
 /.env.local
-/.env.local.php
+/.env.dev
+/.env.test
 /.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
+/.env.local.php
+
+/config/secrets/*/decrypt.private.php
+/config/jwt/*.pem
+
 /var/
 /vendor/
-###< symfony/framework-bundle ###
+/node_modules/
+/public/bundles/
+/public/assets/
+/public/build/
+
+/phpunit.xml
+/phpunit.xml.dist
+.phpunit.result.cache
+/.phpunit.result.cache
+
+# Symfony Profiler logs (optional)
+/.web-profiler/
+
+# Composer PHAR și fișiere temporare
+composer.phar
+*.log
+
+# VS Code / IDE config files
+.vscode/
+.idea/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Docker (dacă folosești)
+docker-compose.override.yml
+docker-compose.yml
+.env.docker

@@ -36,7 +36,6 @@ export interface Patient {
   diseases: Disease[];
   birthDate?: Date;
   sex?: 'M' | 'F';
-
   consultations?: Consultation[];
   recommendations?: Recommendation[];
   alarms?: Alarm[];

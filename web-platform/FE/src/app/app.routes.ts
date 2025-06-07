@@ -9,7 +9,7 @@ import {ViewAlertsComponent} from "./view-alerts/view-alerts.component";
 import {ViewMedicationComponent} from "./view-medication/view-medication.component";
 import {ViewRecommendationComponent} from "./view-recommendation/view-recommendation.component";
 import {ViewAllergiesComponent} from "./view-allergies/view-allergies.component";
-import {ViewEHRComponent} from "./view-ehr/view-ehr.component";
+import {ViewEMRComponent} from "./view-emr/view-emr.component";
 import {ViewConsultationsComponent} from "./view-consultations/view-consultations.component";
 import {AddNewConsultationComponent} from "./dialogs/add-new-consultation/add-new-consultation.component";
 import {ViewRefferalComponent} from "./view-refferal/view-refferal.component";
@@ -28,7 +28,7 @@ export const routes: Routes = [
   { path: 'view-recommendation/:id', component: ViewRecommendationComponent },
   { path: 'view-consultations/:id', component: ViewConsultationsComponent },
   { path: 'view-allergies/:id', component: ViewAllergiesComponent },
-  { path: 'view-ehr/:id', component: ViewEHRComponent },
+  { path: 'view-emr/:id', component: ViewEMRComponent },
   { path: 'view-referrals/:id', component: ViewRefferalComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
