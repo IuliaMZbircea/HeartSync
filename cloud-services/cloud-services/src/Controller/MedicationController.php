@@ -34,10 +34,14 @@ class MedicationController extends AbstractController
         }
 
         $medication = new Medication();
-        $medication->setAtcCode($data['atcCode'] ?? '');
         $medication->setName($data['name'] ?? '');
-        $medication->setConcentration($data['concentration'] ?? '');
-        $medication->setPharmaceuticalForm($data['pharmaceuticalForm'] ?? '');
+        $medication->setDose($data['dose'] ?? '');
+        $medication->setFrequency($data['frequency'] ?? '');
+        $medication->setRoute($data['route'] ?? '');
+        $medication->setStartDate(isset($data['start_date']) ? new \DateTime($data['start_date']) : null);
+        $medication->setEndDate(isset($data['end_date']) ? new \DateTime($data['end_date']) : null);
+        $medication->setPrescribedBy($data['prescribed_by'] ?? '');
+        $medication->setNotes($data['notes'] ?? null);
         $medication->setStatus($data['status'] ?? 'active');
         $medication->setCreatedAt(new \DateTime());
 
@@ -52,7 +56,7 @@ class MedicationController extends AbstractController
     {
         $medication = $this->medicationRepository->find($id);
         if (!$medication) {
-            return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
+            return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
         return $this->json($medication);
@@ -63,18 +67,22 @@ class MedicationController extends AbstractController
     {
         $medication = $this->medicationRepository->find($id);
         if (!$medication) {
-            return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
+            return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
-        if (isset($data['atcCode'])) $medication->setAtcCode($data['atcCode']);
+
         if (isset($data['name'])) $medication->setName($data['name']);
-        if (isset($data['concentration'])) $medication->setConcentration($data['concentration']);
-        if (isset($data['pharmaceuticalForm'])) $medication->setPharmaceuticalForm($data['pharmaceuticalForm']);
+        if (isset($data['dose'])) $medication->setDose($data['dose']);
+        if (isset($data['frequency'])) $medication->setFrequency($data['frequency']);
+        if (isset($data['route'])) $medication->setRoute($data['route']);
+        if (isset($data['start_date'])) $medication->setStartDate(new \DateTime($data['start_date']));
+        if (isset($data['end_date'])) $medication->setEndDate(new \DateTime($data['end_date']));
+        if (isset($data['prescribed_by'])) $medication->setPrescribedBy($data['prescribed_by']);
+        if (array_key_exists('notes', $data)) $medication->setNotes($data['notes']);
         if (isset($data['status'])) $medication->setStatus($data['status']);
 
         $this->em->flush();
-
         return $this->json($medication);
     }
 
@@ -83,12 +91,12 @@ class MedicationController extends AbstractController
     {
         $medication = $this->medicationRepository->find($id);
         if (!$medication) {
-            return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
+            return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
         $this->em->remove($medication);
         $this->em->flush();
 
-        return $this->json(['message' => 'Medication deleted']);
+        return $this->json(['message' => 'Deleted']);
     }
 }
