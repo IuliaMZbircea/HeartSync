@@ -1,0 +1,107 @@
+:root {
+  --primary: #4a90e2;
+  --secondary: #7b61ff;
+  --success: #28c76f;
+  --danger: #ea5455;
+  --info: #00cfe8;
+  --light-bg: #f4f7fc;
+}
+
+.patient-info-card {
+  background: linear-gradient(145deg, #e3ecfc, #f4f7fc);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+  margin-bottom: 2rem;
+  border-left: 6px solid var(--primary);
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.patient-info-card:hover {
+  transform: translateY(-3px);
+}
+
+.patient-info-card h2 {
+  margin-top: 0;
+  color: var(--primary);
+  font-size: 1.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.patient-info-card p {
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.patient-info-card strong {
+  color: #1a1f38;
+}
+
+.accordion-wrapper {
+  width: 100%;
+  max-width: 60vw;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (max-width: 800px) {
+  .accordion-wrapper {
+    width: 95%;
+    padding: 0.5rem;
+  }
+}
+
+section {
+  margin-bottom: 1.5rem;
+  background: var(--light-bg);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  border-left: 5px solid var(--secondary);
+  transition: background 0.3s ease;
+}
+
+section:hover {
+  background: #eef3fb;
+}
+
+section h3 {
+  margin-top: 0;
+  font-size: 1.3rem;
+  color: var(--secondary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+section p {
+  margin: 6px 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.item {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-left: 3px solid var(--info);
+  background-color: #f0fbff;
+  border-radius: 8px;
+}
+
+i {
+  color: var(--primary);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  border-radius: 0.5rem;
+  background-color: var(--primary);
+  color: #fff;
+  margin-left: 0.5rem;
+}
