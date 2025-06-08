@@ -20,60 +20,83 @@
         </mat-panel-title>
         <mat-panel-description>
           🤧 Overview of active allergies
-          <button
-            mat-icon-button
-            aria-label="Edit"
-            (click)="enableEditAllergies(); $event.stopPropagation()"
-            *ngIf="!isEditingAllergies && allergies?.length"
-            style="margin-left: 8px;"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <section *ngIf="allergies?.length && allergies.length > 0; else noAllergies">
+      <section *ngIf="activeAllergies.length > 0; else noAllergies">
         <div *ngIf="!isEditingAllergies">
-          <div *ngFor="let allergy of allergies" class="allergy-card">
+          <div *ngFor="let allergy of activeAllergies" class="allergy-card">
             <p><strong>Name:</strong> {{ allergy.name }}</p>
             <p><strong>Severity:</strong> {{ allergy.severity | titlecase }}</p>
+            <p><strong>Active:</strong> {{ (allergy.active ? 'Yes' : 'No') }}</p>
+            <p><strong>Recorded date:</strong> {{ allergy.recordedDate | date:'mediumDate' }}</p>
             <p *ngIf="allergy.reaction"><strong>Reaction:</strong> {{ allergy.reaction }}</p>
             <p *ngIf="allergy.notes"><strong>Notes:</strong> {{ allergy.notes }}</p>
+
+            <div class="buttons">
+              <button
+                mat-icon-button
+                aria-label="Edit"
+                (click)="enableEditAllergies(allergy)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <hr class="pb-10">
+            </div>
           </div>
         </div>
 
-        <form *ngIf="isEditingAllergies" [formGroup]="allergiesForm" (ngSubmit)="saveAllergies()" class="section">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div *ngFor="let allergyCtrl of allergiesArray.controls; let i = index" [formGroupName]="i" class="allergy-edit-card">
-              <label>Name*</label>
-              <input formControlName="name" placeholder="Allergen name" class="w-full" required />
+        <form *ngIf="isEditingAllergies"
+              [formGroup]="allergiesForm"
+              (ngSubmit)="saveAllergies()"
+              class="section">
 
-              <label>Severity</label>
-              <select formControlName="severity" class="w-full">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label>Name*</label>
+              <input formControlName="name" placeholder="Allergen name" required />
+              <div *ngIf="allergiesForm.get('name')?.invalid && (allergiesForm.get('name')?.touched || allergiesForm.get('name')?.dirty)" class="error">
+                Name is required.
+              </div>
+            </div>
+
+
+            <div>
+              <label>Severity*</label>
+              <select formControlName="severity">
                 <option value="">Select severity</option>
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
               </select>
+              <div *ngIf="allergiesForm.get('severity')?.invalid && (allergiesForm.get('severity')?.touched || allergiesForm.get('severity')?.dirty)" class="error">
+                Please select a severity.
+              </div>
+            </div>
 
+
+            <div class="md:col-span-2">
               <label>Reaction</label>
-              <input formControlName="reaction" placeholder="Describe reaction" class="w-full" />
+              <input formControlName="reaction" placeholder="Describe reaction" />
+            </div>
 
+            <div class="md:col-span-2">
               <label>Notes</label>
-              <textarea formControlName="notes" placeholder="Optional notes" class="w-full"></textarea>
+              <textarea formControlName="notes" placeholder="Optional notes"></textarea>
+            </div>
 
-              <button type="button" mat-mini-button color="warn" (click)="removeAllergy(i)">Remove</button>
-              <hr/>
+            <div class="md:col-span-2">
+              <label>
+                <input type="checkbox" formControlName="active" />
+                Active Allergy
+              </label>
             </div>
           </div>
 
-          <div class="mt-4">
-            <button type="button" mat-flat-button color="primary" (click)="addAllergy()">➕ Add Allergy</button>
-          </div>
-
           <div class="flex justify-end mt-4">
-            <button mat-flat-button color="primary" type="submit" [disabled]="allergiesForm.invalid">💾 Save Allergies</button>
-            <button mat-flat-button color="warn" type="button" (click)="cancelEditAllergies()">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="allergiesForm.invalid">
+              💾 Save
+            </button>
           </div>
         </form>
       </section>
@@ -81,10 +104,8 @@
       <ng-template #noAllergies>
         <div class="center">
           <h3>No allergies recorded yet!</h3>
-          <button mat-flat-button color="primary" (click)="enableEditAllergies()">Add Allergy</button>
         </div>
       </ng-template>
-
     </mat-expansion-panel>
 
     <mat-expansion-panel>
@@ -93,73 +114,74 @@
           <h2>Allergies History</h2>
         </mat-panel-title>
         <mat-panel-description>
-          📜 Overview of previous allergies records
+          📜 Overview of previous allergy records
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <div *ngIf="allergiesHistory?.length > 0; else noHistory">
-        <div *ngFor="let allergy of allergiesHistory" class="allergy-card">
+      <div *ngIf="allergies.length > 0; else noHistory">
+        <div *ngFor="let allergy of allergies" class="allergy-card">
           <section>
             <p><strong>Name:</strong> {{ allergy.name }}</p>
             <p><strong>Severity:</strong> {{ allergy.severity | titlecase }}</p>
+            <p><strong>Recorded on:</strong> {{ allergy.recordedDate | date }}</p>
+            <p><strong>Active:</strong> {{ (allergy.active ? 'Yes' : 'No') }}</p>
             <p *ngIf="allergy.reaction"><strong>Reaction:</strong> {{ allergy.reaction }}</p>
             <p *ngIf="allergy.notes"><strong>Notes:</strong> {{ allergy.notes }}</p>
-            <p><strong>Recorded on:</strong> {{ allergy.recordedDate | date }}</p>
           </section>
-          <hr/>
         </div>
       </div>
 
       <ng-template #noHistory>
-        <div class="center">
-          <h3>No allergy history available!</h3>
-        </div>
+        <p>No allergy history available.</p>
       </ng-template>
     </mat-expansion-panel>
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title>
-          <h2>Add New Allergy</h2>
-        </mat-panel-title>
-        <mat-panel-description>
-          🌿 Add a new allergy to the patient's profile
-        </mat-panel-description>
+        <mat-panel-title>Add New Allergy</mat-panel-title>
+        <mat-panel-description>➕ Add a new allergy entry</mat-panel-description>
       </mat-expansion-panel-header>
 
-      <form [formGroup]="newAllergyForm" (ngSubmit)="addNewAllergy()" class="section">
+      <form [formGroup]="newAllergyForm" (ngSubmit)="submitNewAllergy()" class="section">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label>Name*</label>
-            <input formControlName="name" placeholder="Allergen name" class="w-full" required />
-            <div class="error-message" *ngIf="newAllergyForm.get('name')?.invalid && newAllergyForm.get('name')?.touched">
+            <input formControlName="name" placeholder="Allergen name" required />
+            <div *ngIf="newAllergyForm.get('name')?.invalid && (newAllergyForm.get('name')?.touched || newAllergyForm.get('name')?.dirty)" class="error-message">
               Name is required.
             </div>
           </div>
 
+
           <div>
-            <label>Severity</label>
-            <select formControlName="severity" class="w-full">
+            <label>Severity*</label>
+            <select formControlName="severity">
               <option value="">Select severity</option>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
             </select>
+            <div *ngIf="newAllergyForm.get('severity')?.invalid && (newAllergyForm.get('severity')?.touched || newAllergyForm.get('severity')?.dirty)" class="error-message">
+              Please select a severity.
+            </div>
           </div>
 
-          <div>
+
+          <div class="md:col-span-2">
             <label>Reaction</label>
-            <input formControlName="reaction" placeholder="Describe reaction" class="w-full" />
+            <input formControlName="reaction" />
           </div>
 
           <div class="md:col-span-2">
             <label>Notes</label>
-            <textarea formControlName="notes" placeholder="Optional notes" class="w-full"></textarea>
+            <textarea formControlName="notes"></textarea>
           </div>
         </div>
 
         <div class="mt-4">
-          <button mat-flat-button color="primary" type="submit" [disabled]="newAllergyForm.invalid">➕ Save Allergy</button>
+          <button class="button-add-allergy" type="submit" [disabled]="newAllergyForm.invalid">
+            ➕ Save allergy
+          </button>
         </div>
       </form>
     </mat-expansion-panel>

@@ -6,14 +6,15 @@ import {
   MatExpansionPanelTitle
 } from "@angular/material/expansion";
 import {DatePipe, NgForOf, NgIf, TitleCasePipe} from "@angular/common";
-import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MatButton} from "@angular/material/button";
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {MatButton, MatIconButton} from "@angular/material/button";
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import {Patient} from "../interfaces/patient";
 import {ActivatedRoute} from "@angular/router";
 import {PatientService} from "../services/patient.service";
 import {Allergy} from "../interfaces/allergies";
+import {AlertService} from "../services/alert.service";
 
 @Component({
   selector: 'app-view-allergies',
@@ -30,28 +31,34 @@ import {Allergy} from "../interfaces/allergies";
     MatIconModule,
     MatExpansionModule,
     TitleCasePipe,
-    DatePipe
+    DatePipe,
+    MatIconButton
   ],
+  providers: [AlertService],
   templateUrl: './view-allergies.component.html',
   styleUrl: './view-allergies.component.css'
 })
 export class ViewAllergiesComponent implements  OnInit {
-
-
   allergies :Allergy [] = [];
   isEditingAllergies = false;
+  patient!: Patient;
+  editAllergy!: Allergy;
 
   allergiesForm: FormGroup = this.fb.group({
-    allergies: this.fb.array([])
+    name: ['', Validators.required],
+    severity: ['', Validators.required],
+    reaction: ['', Validators.maxLength(200)],
+    notes: ['', Validators.maxLength(500)]
   });
-  newAllergyForm: FormGroup = this.fb.group({
-    allergies: this.fb.array([])
-  });
-  allergiesHistory: any;
-  patient!: Patient;
 
-  constructor(private fb: FormBuilder, private route: ActivatedRoute, private patientService: PatientService,) {
-    this.initAllergiesForm();
+  newAllergyForm: FormGroup = this.fb.group({
+    name: ['', Validators.required],
+    severity: ['', Validators.required],
+    reaction: ['', Validators.maxLength(200)],
+    notes: ['', Validators.maxLength(500)]
+  });
+
+  constructor(private fb: FormBuilder, private route: ActivatedRoute, private patientService: PatientService,  private alertService: AlertService  ) {
   }
 
   ngOnInit(): void {
@@ -63,16 +70,7 @@ export class ViewAllergiesComponent implements  OnInit {
         const found = patients.find((p) => p.id === id);
         if (found) {
           this.patient = found;
-          if (found) {
-            this.patient = found;
-            if (Array.isArray(found.allergies)) {
-              this.allergies = found.allergies;
-            } else if (found.allergies) {
-              // this.allergies = [found.allergies];
-            } else {
-              this.allergies = [];
-            }
-          }        } else {
+        } else {
           console.warn(`Patient with ID ${id} not found.`);
         }
       });
@@ -80,51 +78,63 @@ export class ViewAllergiesComponent implements  OnInit {
       console.error('Invalid or missing patient ID in route.');
     }
   }
-  initAllergiesForm() {
+
+  enableEditAllergies(allergy: Allergy) {
+    this.isEditingAllergies = true;
+    this.editAllergy = allergy;
+
     this.allergiesForm = this.fb.group({
-      allergies: this.fb.array(this.allergies.map(allergy => this.fb.group({
-        name: [allergy.name, Validators.required],
-        severity: [allergy.severity || ''],
-        reaction: [allergy.reaction || ''],
-        notes: [allergy.notes || '']
-      })))
+      name: [allergy.name, Validators.required],
+      severity: [allergy.severity || ''],
+      reaction: [allergy.reaction || ''],
+      notes: [allergy.notes || ''],
+      recordedDate: [allergy.recordedDate || new Date()],
+      active: [allergy.active ?? true]
     });
   }
 
-  get allergiesArray() {
-    return this.allergiesForm.get('allergies') as FormArray;
-  }
-
-  enableEditAllergies() {
-    this.isEditingAllergies = true;
-    this.initAllergiesForm();
-  }
-
-  addAllergy() {
-    this.allergiesArray.push(this.fb.group({
-      name: ['', Validators.required],
-      severity: [''],
-      reaction: [''],
-      notes: ['']
-    }));
-  }
-
-  removeAllergy(index: number) {
-    this.allergiesArray.removeAt(index);
+  get activeAllergies(): Allergy[] {
+    return this.allergies.filter(a => a.active);
   }
 
   saveAllergies() {
-    if (this.allergiesForm.valid) {
-      this.allergies = this.allergiesForm.value.allergies;
+    if (this.allergiesForm.valid && this.editAllergy) {
+      const index = this.allergies.findIndex(a => a === this.editAllergy);
+
+      if (index !== -1) {
+        this.allergies[index] = {
+          ...this.editAllergy,
+          ...this.allergiesForm.value
+        };
+      }
+      this.alertService.success('Allergy updated successfully!');
+
       this.isEditingAllergies = false;
+      this.editAllergy = undefined!;
+      this.allergiesForm.reset();
+    }
+    else {
+      this.alertService.error('Please fill in the required fields correctly.');
     }
   }
 
-  cancelEditAllergies() {
-    this.isEditingAllergies = false;
+  submitNewAllergy() {
+    if (this.newAllergyForm.valid) {
+      const newAllergy = {
+        ...this.newAllergyForm.value,
+        active: true,
+        recordedDate: new Date()
+      };
+
+      this.allergies.push(newAllergy);
+      this.patientService.updatePatient(this.patient);
+      this.alertService.success('New allergy added successfully!');
+
+      this.newAllergyForm.reset();
+    }
+    else {
+      this.alertService.error('Please fill in the required fields correctly.');
+    }
   }
 
-  addNewAllergy() {
-
-  }
 }

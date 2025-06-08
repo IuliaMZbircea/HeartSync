@@ -60,7 +60,7 @@ input:invalid, select:invalid, textarea:invalid {
   border-color: #e53935;
 }
 
-.button-add-recommendation {
+.button-add-allergy{
   padding: 10px 20px;
   font-size: 14px;
   cursor: pointer;
@@ -76,12 +76,12 @@ input:invalid, select:invalid, textarea:invalid {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.button-add-recommendation:disabled {
+.button-add-allergy:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.button-add-recommendation:hover:not(:disabled) {
+.button-add-allergy:hover:not(:disabled) {
   background-color: transparent;
   color: #1a1f38;
   border: 1px solid #9ca1c4;
@@ -232,4 +232,8 @@ section {
 
 .buttons{
   margin-top: 3%;
+}
+
+.allergy-card{
+
 }

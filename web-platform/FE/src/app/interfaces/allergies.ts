@@ -3,4 +3,6 @@ export interface Allergy {
   severity?: 'low' | 'medium' | 'high';
   reaction?: string;
   notes?: string;
+  recordedDate ?: Date;
+  active?: true;
 }
