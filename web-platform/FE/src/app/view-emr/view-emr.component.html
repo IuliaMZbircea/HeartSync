@@ -1,1 +1,72 @@
-<p>view-emr works!</p>
+<div class="h-24"></div>
+
+<div class="accordion-wrapper">
+
+  <div class="patient-info-card">
+    <h2><i class="fas fa-file-medical"></i> Patient's File</h2>
+    <div class="patient-info">
+      <p><strong>Full Name:</strong> {{ patient.firstName }} {{ patient.lastName }}</p>
+      <p><strong>Sex:</strong> {{ patient.sex }}</p>
+      <p><strong>CNP:</strong> {{ patient.cnp }}</p>
+    </div>
+  </div>
+
+  <section>
+    <h3><i class="fas fa-info-circle"></i> Personal Information</h3>
+    <p><strong>Name:</strong> {{ patient.firstName }} {{patient.lastName}}</p>
+    <p><strong>CNP:</strong> {{ patient.cnp }}</p>
+    <p><strong>Sex:</strong> {{ patient.sex }}</p>
+    <p><strong>Birth Date:</strong> {{ patient.birthDate | date }}</p>
+    <p><strong>Occupation:</strong> {{ patient.occupation }}</p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-envelope"></i> Contact</h3>
+    <p><strong>Email:</strong> {{ patient.email }}</p>
+    <p><strong>Phone:</strong> {{ patient.phone }}</p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-map-marker-alt"></i> Address</h3>
+    <p>{{ patient.street }} Nr. {{ patient.number }}, Bl. {{ patient.block }}, Sc. {{ patient.staircase }}, Ap. {{ patient.apartment }}, Et. {{ patient.floor }}, {{ patient.locality }}</p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-heartbeat"></i> Medical Info</h3>
+    <p><strong>Blood Group:</strong> {{ patient.bloodGroup }}</p>
+    <p><strong>Rh:</strong> {{ patient.rh }}</p>
+    <p><strong>Height:</strong> {{ patient.height }} cm</p>
+    <p><strong>Weight:</strong> {{ patient.weight }} kg</p>
+    <p><strong>Allergies:</strong> {{ patient.allergies }}</p>
+  </section>
+
+  <section *ngIf="patient.consultations?.length">
+    <h3><i class="fas fa-user-md"></i> Consultations</h3>
+    <div *ngFor="let cons of patient.consultations" class="item">
+      <p><strong>Date:</strong> {{ cons.date | date }}</p>
+      <p><strong>Doctor:</strong> {{ cons.doctorName }}</p>
+      <p><strong>Notes:</strong> {{ cons.notes }}</p>
+    </div>
+  </section>
+
+  <section *ngIf="patient.alarms?.length">
+    <h3><i class="fas fa-exclamation-triangle"></i> Alarms</h3>
+    <div *ngFor="let alarm of patient.alarms" class="item">
+      <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
+      <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
+      <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
+      <p><strong>Message:</strong> {{ alarm.message }}</p>
+    </div>
+  </section>
+
+  <section *ngIf="patient.recommendations?.length">
+    <h3><i class="fas fa-notes-medical"></i> Recommendations</h3>
+    <div *ngFor="let rec of patient.recommendations" class="item">
+      <p><strong>Activity:</strong> {{ rec.activityType }}</p>
+      <p><strong>Duration:</strong> {{ rec.dailyDuration }} min/day</p>
+      <p><strong>From:</strong> {{ rec.startDate | date }} to {{ rec.endDate ? (rec.endDate | date) : 'N/A' }}</p>
+      <p *ngIf="rec.additionalNotes"><strong>Notes:</strong> {{ rec.additionalNotes }}</p>
+    </div>
+  </section>
+
+</div>
