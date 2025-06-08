@@ -28,13 +28,14 @@ export class PatientService {
       rh: '+',
       weight: 58.5,
       height: 165,
-      allergies:
+      allergies: [
         {
           name: "Polen",
-        severity: "medium",
-        reaction: "Strănut, ochi înlăcrimați, congestie nazală",
-        notes: "Se manifestă mai ales primăvara și toamna"
+          severity: "medium",
+          reaction: "Strănut, ochi înlăcrimați, congestie nazală",
+          notes: "Se manifestă mai ales primăvara și toamna"
         },
+      ],
       validAccount: true,
       diseases: [
         {
@@ -222,12 +223,12 @@ export class PatientService {
       weight: 75.2,
       height: 180,
       validAccount: true,
-      allergies:  {
+      allergies: [{
         name: "Arahide",
         severity: "high",
         reaction: "Umflare a buzelor, dificultăți de respirație, șoc anafilactic",
         notes: "Necesită epipen"
-      },
+      }],
       diseases: [
         {
           name: 'Diabet tip 2',
@@ -503,12 +504,12 @@ export class PatientService {
       rh: '+',
       weight: 80.7,
       height: 183,
-      allergies:   {
+      allergies:  [ {
         name: "Lapte",
         severity: "low",
         reaction: "Balonare, dureri abdominale",
         notes: "Toleranță scăzută, dar nu este alergie severă"
-      },
+      }],
       validAccount: true,
       diseases: [
         {
@@ -605,12 +606,12 @@ export class PatientService {
       rh: '+',
       weight: 62.3,
       height: 170,
-      allergies: {
+      allergies: [{
         name: "Mușcătură de albină",
         severity: "high",
         reaction: "Umflare severă, erupții, dificultăți respiratorii",
         notes: "Reacție anafilactică posibilă, necesită tratament imediat"
-      },
+      }],
       validAccount: true,
       diseases: [
         {
@@ -733,12 +734,12 @@ export class PatientService {
       rh: '-',
       weight: 68.9,
       height: 178,
-      allergies:   {
+      allergies:   [{
         name: "Lapte",
         severity: "low",
         reaction: "Balonare, dureri abdominale",
         notes: "Toleranță scăzută, dar nu este alergie severă"
-      },
+      }],
       validAccount: true,
       diseases: [
         {

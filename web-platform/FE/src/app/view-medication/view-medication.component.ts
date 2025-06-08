@@ -180,5 +180,4 @@ export class ViewMedicationComponent implements OnInit {
       console.error('Eroare la capturare:', err);
     });
   }
-
 }

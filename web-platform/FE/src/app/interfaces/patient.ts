@@ -3,7 +3,6 @@ import {Recommendation} from "./recommendation";
 import {Alarm} from "./alarm";
 import {Allergy} from "./allergies";
 import {Medication} from "./medication";
-import {MedicalLetter} from "./medicalLetter";
 import {Referral} from "./referral";
 
 export interface Disease {
@@ -31,7 +30,7 @@ export interface Patient {
   rh: string;
   weight: number;
   height: number;
-  allergies?: Allergy;
+  allergies?: Allergy[];
   validAccount:Boolean;
   diseases: Disease[];
   birthDate?: Date;

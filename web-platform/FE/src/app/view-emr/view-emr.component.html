@@ -4,12 +4,19 @@
 
   <div class="patient-info-card">
     <h2><i class="fas fa-file-medical"></i> Patient's File</h2>
+
+    <button class="export-button" (click)="exportPatientFileToPdf(patientFileRef)">
+      <i class="fas fa-file-export"></i> Export to PDF
+    </button>
+
     <div class="patient-info">
       <p><strong>Full Name:</strong> {{ patient.firstName }} {{ patient.lastName }}</p>
       <p><strong>Sex:</strong> {{ patient.sex }}</p>
       <p><strong>CNP:</strong> {{ patient.cnp }}</p>
     </div>
   </div>
+
+  <div #patientFileRef>
 
   <section>
     <h3><i class="fas fa-info-circle"></i> Personal Information</h3>
@@ -68,5 +75,43 @@
       <p *ngIf="rec.additionalNotes"><strong>Notes:</strong> {{ rec.additionalNotes }}</p>
     </div>
   </section>
+
+  <section *ngIf="patient.medications?.length">
+    <h3><i class="fas fa-pills"></i> Medications</h3>
+    <div *ngFor="let med of patient.medications" class="item">
+      <p><strong>Name:</strong> {{ med.name }}</p>
+      <p><strong>Dose:</strong> {{ med.dose }}</p>
+      <p><strong>Frequency:</strong> {{ med.frequency }}</p>
+      <p><strong>Route:</strong> {{ med.route }}</p>
+      <p><strong>Start Date:</strong> {{ med.startDate | date }}</p>
+      <p *ngIf="med.endDate"><strong>End Date:</strong> {{ med.endDate | date }}</p>
+      <p><strong>Prescribed By:</strong> {{ med.prescribedBy }}</p>
+      <p *ngIf="med.notes"><strong>Notes:</strong> {{ med.notes }}</p>
+    </div>
+  </section>
+
+  <section *ngIf="patient.allergies?.length">
+    <h3><i class="fas fa-allergies"></i> Allergies</h3>
+    <div *ngFor="let allergy of patient.allergies" class="item">
+      <p><strong>Name:</strong> {{ allergy.name }}</p>
+      <p *ngIf="allergy.severity"><strong>Severity:</strong> {{ allergy.severity }}</p>
+      <p *ngIf="allergy.reaction"><strong>Reaction:</strong> {{ allergy.reaction }}</p>
+      <p *ngIf="allergy.notes"><strong>Notes:</strong> {{ allergy.notes }}</p>
+      <p *ngIf="allergy.recordedDate"><strong>Recorded Date:</strong> {{ allergy.recordedDate | date }}</p>
+    </div>
+  </section>
+
+  <section *ngIf="patient.referrals?.length">
+    <h3><i class="fas fa-share-square"></i> Referrals</h3>
+    <div *ngFor="let ref of patient.referrals" class="item">
+      <p><strong>Type:</strong> {{ ref.type }}</p>
+      <p><strong>From Doctor:</strong> {{ ref.fromDoctor.firstName }} {{ ref.fromDoctor.lastName }}</p>
+      <p *ngIf="ref.toDoctor"><strong>To Doctor:</strong> {{ ref.toDoctor.firstName }} {{ ref.toDoctor.lastName }}</p>
+      <p><strong>Reason:</strong> {{ ref.reason }}</p>
+      <p><strong>Date:</strong> {{ ref.date | date }}</p>
+      <p><strong>Status:</strong> {{ ref.isResolved ? 'Resolved' : 'Pending' }}</p>
+    </div>
+  </section>
+  </div>
 
 </div>
