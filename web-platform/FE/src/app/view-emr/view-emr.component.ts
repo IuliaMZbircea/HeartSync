@@ -45,7 +45,6 @@ export class ViewEMRComponent implements OnInit {
   exportPatientFileToPdf(element: HTMLElement): void {
     const originalBodyOverflow = document.body.style.overflow;
 
-    // Clonăm elementul
     const clone = element.cloneNode(true) as HTMLElement;
     clone.style.position = 'fixed';
     clone.style.top = '0';
@@ -55,11 +54,11 @@ export class ViewEMRComponent implements OnInit {
     clone.style.overflow = 'visible';
     clone.style.backgroundColor = '#ffffff';
     clone.style.zIndex = '9999';
-    clone.style.boxShadow = 'none';  // Scoatem umbre dacă există
+    clone.style.boxShadow = 'none';
 
     document.body.appendChild(clone);
 
-    document.body.style.overflow = 'hidden'; // Ascundem scrollbar
+    document.body.style.overflow = 'hidden';
 
     html2canvas(clone, {
       scrollY: 0,
@@ -68,9 +67,9 @@ export class ViewEMRComponent implements OnInit {
       backgroundColor: '#ffffff',
       scale: 1
     }).then(canvas => {
-      // Restaurăm overflow
+
       document.body.style.overflow = originalBodyOverflow;
-      // Scoatem clonele din DOM
+
       clone.remove();
 
       const imgData = canvas.toDataURL('image/jpeg', 0.9);
