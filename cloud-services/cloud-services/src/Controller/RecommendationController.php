@@ -22,29 +22,28 @@ class RecommendationController extends AbstractController
     #[Route('', name: 'recommendation_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $recommendations = $this->recommendationRepository->findAll();
-        return $this->json($recommendations);
+        return $this->json($this->recommendationRepository->findAll());
     }
 
     #[Route('', name: 'recommendation_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
         if (!$data) {
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
         $recommendation = new Recommendation();
-        $recommendation->setActivityType($data['activity_type'] ?? '');
-        $recommendation->setDailyDuration((int)($data['daily_duration'] ?? 0));
-        $recommendation->setStartDate(new \DateTime($data['start_date'] ?? 'now'));
+        $recommendation->setActivityType($data['activityType'] ?? '');
+        $recommendation->setDailyDuration((int)($data['dailyDuration'] ?? 0));
+        $recommendation->setStartDate(new \DateTime($data['startDate'] ?? 'now'));
 
-        if (!empty($data['end_date'])) {
-            $recommendation->setEndDate(new \DateTime($data['end_date']));
+        if (!empty($data['endDate'])) {
+            $recommendation->setEndDate(new \DateTime($data['endDate']));
         }
 
-        $recommendation->setAdditionalNotes($data['additional_notes'] ?? null);
+        $recommendation->setAdditionalNotes($data['additionalNotes'] ?? null);
+        $recommendation->setStatus($data['status'] ?? 'active');
         $recommendation->setCreatedAt(new \DateTime());
 
         $this->em->persist($recommendation);
@@ -57,7 +56,6 @@ class RecommendationController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $recommendation = $this->recommendationRepository->find($id);
-
         if (!$recommendation) {
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }
@@ -69,27 +67,29 @@ class RecommendationController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $recommendation = $this->recommendationRepository->find($id);
-
         if (!$recommendation) {
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
 
-        if (isset($data['activity_type'])) {
-            $recommendation->setActivityType($data['activity_type']);
+        if (isset($data['activityType'])) {
+            $recommendation->setActivityType($data['activityType']);
         }
-        if (isset($data['daily_duration'])) {
-            $recommendation->setDailyDuration((int)$data['daily_duration']);
+        if (isset($data['dailyDuration'])) {
+            $recommendation->setDailyDuration((int)$data['dailyDuration']);
         }
-        if (isset($data['start_date'])) {
-            $recommendation->setStartDate(new \DateTime($data['start_date']));
+        if (isset($data['startDate'])) {
+            $recommendation->setStartDate(new \DateTime($data['startDate']));
         }
-        if (isset($data['end_date'])) {
-            $recommendation->setEndDate(new \DateTime($data['end_date']));
+        if (isset($data['endDate'])) {
+            $recommendation->setEndDate(new \DateTime($data['endDate']));
         }
-        if (array_key_exists('additional_notes', $data)) {
-            $recommendation->setAdditionalNotes($data['additional_notes']);
+        if (array_key_exists('additionalNotes', $data)) {
+            $recommendation->setAdditionalNotes($data['additionalNotes']);
+        }
+        if (isset($data['status'])) {
+            $recommendation->setStatus($data['status']);
         }
 
         $this->em->flush();
@@ -101,7 +101,6 @@ class RecommendationController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $recommendation = $this->recommendationRepository->find($id);
-
         if (!$recommendation) {
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }

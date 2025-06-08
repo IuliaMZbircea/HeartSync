@@ -29,15 +29,14 @@ class DiseaseController extends AbstractController
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
         if (!$data) {
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
         $disease = new Disease();
         $disease->setName($data['name'] ?? '');
-        $disease->setCategory($data['category'] ?? '');
-        $disease->setDescription($data['description'] ?? '');
+        $disease->setType($data['type'] ?? '');
+        $disease->setDescription($data['description'] ?? null);
 
         $this->em->persist($disease);
         $this->em->flush();
@@ -49,7 +48,6 @@ class DiseaseController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $disease = $this->diseaseRepository->find($id);
-
         if (!$disease) {
             return $this->json(['error' => 'Disease not found'], Response::HTTP_NOT_FOUND);
         }
@@ -61,15 +59,13 @@ class DiseaseController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $disease = $this->diseaseRepository->find($id);
-
         if (!$disease) {
             return $this->json(['error' => 'Disease not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
-
         if (isset($data['name'])) $disease->setName($data['name']);
-        if (isset($data['category'])) $disease->setCategory($data['category']);
+        if (isset($data['type'])) $disease->setType($data['type']);
         if (isset($data['description'])) $disease->setDescription($data['description']);
 
         $this->em->flush();
@@ -81,7 +77,6 @@ class DiseaseController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $disease = $this->diseaseRepository->find($id);
-
         if (!$disease) {
             return $this->json(['error' => 'Disease not found'], Response::HTTP_NOT_FOUND);
         }

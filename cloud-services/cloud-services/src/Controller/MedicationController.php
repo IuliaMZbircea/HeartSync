@@ -29,24 +29,17 @@ class MedicationController extends AbstractController
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
         if (!$data) {
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
         $medication = new Medication();
+        $medication->setAtcCode($data['atcCode'] ?? '');
         $medication->setName($data['name'] ?? '');
-        $medication->setDose($data['dose'] ?? '');
-        $medication->setFrequency($data['frequency'] ?? '');
-        $medication->setRoute($data['route'] ?? '');
-        $medication->setStartDate(new \DateTime($data['startDate'] ?? 'now'));
-
-        if (!empty($data['endDate'])) {
-            $medication->setEndDate(new \DateTime($data['endDate']));
-        }
-
-        $medication->setPrescribedBy($data['prescribedBy'] ?? '');
-        $medication->setNotes($data['notes'] ?? null);
+        $medication->setConcentration($data['concentration'] ?? '');
+        $medication->setPharmaceuticalForm($data['pharmaceuticalForm'] ?? '');
+        $medication->setStatus($data['status'] ?? 'active');
+        $medication->setCreatedAt(new \DateTime());
 
         $this->em->persist($medication);
         $this->em->flush();
@@ -58,7 +51,6 @@ class MedicationController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-
         if (!$medication) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }
@@ -70,21 +62,16 @@ class MedicationController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-
         if (!$medication) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
-
+        if (isset($data['atcCode'])) $medication->setAtcCode($data['atcCode']);
         if (isset($data['name'])) $medication->setName($data['name']);
-        if (isset($data['dose'])) $medication->setDose($data['dose']);
-        if (isset($data['frequency'])) $medication->setFrequency($data['frequency']);
-        if (isset($data['route'])) $medication->setRoute($data['route']);
-        if (isset($data['startDate'])) $medication->setStartDate(new \DateTime($data['startDate']));
-        if (isset($data['endDate'])) $medication->setEndDate(new \DateTime($data['endDate']));
-        if (isset($data['prescribedBy'])) $medication->setPrescribedBy($data['prescribedBy']);
-        if (array_key_exists('notes', $data)) $medication->setNotes($data['notes']);
+        if (isset($data['concentration'])) $medication->setConcentration($data['concentration']);
+        if (isset($data['pharmaceuticalForm'])) $medication->setPharmaceuticalForm($data['pharmaceuticalForm']);
+        if (isset($data['status'])) $medication->setStatus($data['status']);
 
         $this->em->flush();
 
@@ -95,7 +82,6 @@ class MedicationController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-
         if (!$medication) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }

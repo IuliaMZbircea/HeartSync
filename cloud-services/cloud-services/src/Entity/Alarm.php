@@ -34,15 +34,20 @@ class Alarm
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
 
+    #[ORM\Column(length: 50, options: ['default' => 'active'])]
+    private ?string $status = 'active';
+
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private ?\DateTimeInterface $createdAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id): static
+    public function setParameter(string $parameter): static
     {
-        $this->id = $id;
-
+        $this->parameter = $parameter;
         return $this;
     }
 
@@ -51,10 +56,9 @@ class Alarm
         return $this->parameter;
     }
 
-    public function setParameter(string $parameter): static
+    public function setConditionType(string $conditionType): static
     {
-        $this->parameter = $parameter;
-
+        $this->conditionType = $conditionType;
         return $this;
     }
 
@@ -63,10 +67,9 @@ class Alarm
         return $this->conditionType;
     }
 
-    public function setConditionType(string $conditionType): static
+    public function setThreshold(float $threshold): static
     {
-        $this->conditionType = $conditionType;
-
+        $this->threshold = $threshold;
         return $this;
     }
 
@@ -75,10 +78,9 @@ class Alarm
         return $this->threshold;
     }
 
-    public function setThreshold(float $threshold): static
+    public function setDuration(int $duration): static
     {
-        $this->threshold = $threshold;
-
+        $this->duration = $duration;
         return $this;
     }
 
@@ -87,10 +89,9 @@ class Alarm
         return $this->duration;
     }
 
-    public function setDuration(int $duration): static
+    public function setAfterActivity(bool $afterActivity): static
     {
-        $this->duration = $duration;
-
+        $this->afterActivity = $afterActivity;
         return $this;
     }
 
@@ -99,10 +100,9 @@ class Alarm
         return $this->afterActivity;
     }
 
-    public function setAfterActivity(bool $afterActivity): static
+    public function setMessage(?string $message): static
     {
-        $this->afterActivity = $afterActivity;
-
+        $this->message = $message;
         return $this;
     }
 
@@ -111,10 +111,25 @@ class Alarm
         return $this->message;
     }
 
-    public function setMessage(?string $message): static
+    public function setStatus(string $status): static
     {
-        $this->message = $message;
-
+        $this->status = $status;
         return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
     }
 }

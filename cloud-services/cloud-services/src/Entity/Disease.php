@@ -19,8 +19,8 @@ class Disease
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $category = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $type = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -38,26 +38,17 @@ class Disease
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
-    public function setId(int $id): static
+    public function getType(): ?string
     {
-        $this->id = $id;
-
-        return $this;
+        return $this->type;
     }
 
-    public function getCategory(): ?string
+    public function setType(?string $type): static
     {
-        return $this->category;
-    }
-
-    public function setCategory(string $category): static
-    {
-        $this->category = $category;
-
+        $this->type = $type;
         return $this;
     }
 
@@ -69,7 +60,6 @@ class Disease
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 }

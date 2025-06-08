@@ -13,108 +13,109 @@ class Recommendation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-     #[ORM\Column(name: "activity_type", type: "string", length: 255)]
-    private ?string $activity_type = null;
+    #[ORM\Column(length: 255)]
+    private ?string $activityType = null;
 
-    #[ORM\Column(name: "daily_duration", type: "integer")]
-    private ?int $daily_duration = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $dailyDuration = null;
 
-    #[ORM\Column(name: "start_date", type: "date")]
-    private ?\DateTime $start_date = null;
+    #[ORM\Column(type: 'date')]
+    private ?\DateTimeInterface $startDate = null;
 
-    #[ORM\Column(name: "end_date", type: "date", nullable: true)]
-    private ?\DateTime $end_date = null;
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $endDate = null;
 
-     #[ORM\Column(name: "additional_notes", type: "text", nullable: true)]
-    private ?string $additional_notes = null;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $additionalNotes = null;
 
-    #[ORM\Column(name: "created_at", type: "datetime", nullable: true, options: ["default" => "CURRENT_TIMESTAMP"])]
-    private ?\DateTime $created_at = null;
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(length: 50, options: ['default' => 'active'])]
+    private ?string $status = 'active';
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
     public function getActivityType(): ?string
     {
-        return $this->activity_type;
+        return $this->activityType;
     }
 
-    public function setActivityType(string $activity_type): static
+    public function setActivityType(string $activityType): static
     {
-        $this->activity_type = $activity_type;
-
+        $this->activityType = $activityType;
         return $this;
     }
 
     public function getDailyDuration(): ?int
     {
-        return $this->daily_duration;
+        return $this->dailyDuration;
     }
 
-    public function setDailyDuration(int $daily_duration): static
+    public function setDailyDuration(int $dailyDuration): static
     {
-        $this->daily_duration = $daily_duration;
-
+        $this->dailyDuration = $dailyDuration;
         return $this;
     }
 
-    public function getStartDate(): ?\DateTime
+    public function getStartDate(): ?\DateTimeInterface
     {
-        return $this->start_date;
+        return $this->startDate;
     }
 
-    public function setStartDate(\DateTime $start_date): static
+    public function setStartDate(\DateTimeInterface $startDate): static
     {
-        $this->start_date = $start_date;
-
+        $this->startDate = $startDate;
         return $this;
     }
 
-    public function getEndDate(): ?\DateTime
+    public function getEndDate(): ?\DateTimeInterface
     {
-        return $this->end_date;
+        return $this->endDate;
     }
 
-    public function setEndDate(?\DateTime $end_date): static
+    public function setEndDate(?\DateTimeInterface $endDate): static
     {
-        $this->end_date = $end_date;
-
+        $this->endDate = $endDate;
         return $this;
     }
 
     public function getAdditionalNotes(): ?string
     {
-        return $this->additional_notes;
+        return $this->additionalNotes;
     }
 
-    public function setAdditionalNotes(?string $additional_notes): static
+    public function setAdditionalNotes(?string $additionalNotes): static
     {
-        $this->additional_notes = $additional_notes;
-
+        $this->additionalNotes = $additionalNotes;
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTime $created_at): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
+        return $this;
+    }
 
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
         return $this;
     }
 }

@@ -29,18 +29,19 @@ class AlarmController extends AbstractController
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
         if (!$data) {
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
         $alarm = new Alarm();
         $alarm->setParameter($data['parameter'] ?? '');
-        $alarm->setConditionType($data['condition'] ?? '');
+        $alarm->setConditionType($data['conditionType'] ?? '');
         $alarm->setThreshold((float)($data['threshold'] ?? 0));
         $alarm->setDuration((int)($data['duration'] ?? 0));
         $alarm->setAfterActivity((bool)($data['afterActivity'] ?? false));
-        $alarm->setMessage($data['message'] ?? '');
+        $alarm->setMessage($data['message'] ?? null);
+        $alarm->setStatus($data['status'] ?? 'active');
+        $alarm->setCreatedAt(new \DateTime());
 
         $this->em->persist($alarm);
         $this->em->flush();
@@ -52,7 +53,6 @@ class AlarmController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $alarm = $this->alarmRepository->find($id);
-
         if (!$alarm) {
             return $this->json(['error' => 'Alarm not found'], Response::HTTP_NOT_FOUND);
         }
@@ -64,19 +64,19 @@ class AlarmController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $alarm = $this->alarmRepository->find($id);
-
         if (!$alarm) {
             return $this->json(['error' => 'Alarm not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
 
-        if (isset($data['parameter']))      $alarm->setParameter($data['parameter']);
-        if (isset($data['condition']))      $alarm->setCondition($data['condition']);
-        if (isset($data['threshold']))      $alarm->setThreshold((float)$data['threshold']);
-        if (isset($data['duration']))       $alarm->setDuration((int)$data['duration']);
-        if (isset($data['afterActivity']))  $alarm->setAfterActivity((bool)$data['afterActivity']);
-        if (isset($data['message']))        $alarm->setMessage($data['message']);
+        if (isset($data['parameter'])) $alarm->setParameter($data['parameter']);
+        if (isset($data['conditionType'])) $alarm->setConditionType($data['conditionType']);
+        if (isset($data['threshold'])) $alarm->setThreshold((float)$data['threshold']);
+        if (isset($data['duration'])) $alarm->setDuration((int)$data['duration']);
+        if (isset($data['afterActivity'])) $alarm->setAfterActivity((bool)$data['afterActivity']);
+        if (isset($data['message'])) $alarm->setMessage($data['message']);
+        if (isset($data['status'])) $alarm->setStatus($data['status']);
 
         $this->em->flush();
 
@@ -87,7 +87,6 @@ class AlarmController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $alarm = $this->alarmRepository->find($id);
-
         if (!$alarm) {
             return $this->json(['error' => 'Alarm not found'], Response::HTTP_NOT_FOUND);
         }

@@ -22,129 +22,53 @@ class Medication
     #[ORM\Column(length: 255)]
     private ?string $dose = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
     private ?string $frequency = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
     private ?string $route = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $startDate = null;
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $startDate = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTime $endDate = null;
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $endDate = null;
 
     #[ORM\Column(length: 255)]
     private ?string $prescribedBy = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[ORM\Column(length: 50, options: ['default' => 'active'])]
+    private ?string $status = 'active';
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
+    public function getId(): ?int { return $this->id; }
 
-        return $this;
-    }
+    public function getName(): ?string { return $this->name; }
+    public function setName(string $name): self { $this->name = $name; return $this; }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
+    public function getDose(): ?string { return $this->dose; }
+    public function setDose(string $dose): self { $this->dose = $dose; return $this; }
 
-    public function setName(string $name): static
-    {
-        $this->name = $name;
+    public function getFrequency(): ?string { return $this->frequency; }
+    public function setFrequency(string $frequency): self { $this->frequency = $frequency; return $this; }
 
-        return $this;
-    }
+    public function getRoute(): ?string { return $this->route; }
+    public function setRoute(string $route): self { $this->route = $route; return $this; }
 
-    public function getDose(): ?string
-    {
-        return $this->dose;
-    }
+    public function getStartDate(): ?\DateTimeInterface { return $this->startDate; }
+    public function setStartDate(?\DateTimeInterface $startDate): self { $this->startDate = $startDate; return $this; }
 
-    public function setDose(string $dose): static
-    {
-        $this->dose = $dose;
+    public function getEndDate(): ?\DateTimeInterface { return $this->endDate; }
+    public function setEndDate(?\DateTimeInterface $endDate): self { $this->endDate = $endDate; return $this; }
 
-        return $this;
-    }
+    public function getPrescribedBy(): ?string { return $this->prescribedBy; }
+    public function setPrescribedBy(string $prescribedBy): self { $this->prescribedBy = $prescribedBy; return $this; }
 
-    public function getFrequency(): ?string
-    {
-        return $this->frequency;
-    }
+    public function getNotes(): ?string { return $this->notes; }
+    public function setNotes(?string $notes): self { $this->notes = $notes; return $this; }
 
-    public function setFrequency(?string $frequency): static
-    {
-        $this->frequency = $frequency;
-
-        return $this;
-    }
-
-    public function getRoute(): ?string
-    {
-        return $this->route;
-    }
-
-    public function setRoute(?string $route): static
-    {
-        $this->route = $route;
-
-        return $this;
-    }
-
-    public function getStartDate(): ?\DateTime
-    {
-        return $this->startDate;
-    }
-
-    public function setStartDate(\DateTime $startDate): static
-    {
-        $this->startDate = $startDate;
-
-        return $this;
-    }
-
-    public function getEndDate(): ?\DateTime
-    {
-        return $this->endDate;
-    }
-
-    public function setEndDate(?\DateTime $endDate): static
-    {
-        $this->endDate = $endDate;
-
-        return $this;
-    }
-
-    public function getPrescribedBy(): ?string
-    {
-        return $this->prescribedBy;
-    }
-
-    public function setPrescribedBy(string $prescribedBy): static
-    {
-        $this->prescribedBy = $prescribedBy;
-
-        return $this;
-    }
-
-    public function getNotes(): ?string
-    {
-        return $this->notes;
-    }
-
-    public function setNotes(?string $notes): static
-    {
-        $this->notes = $notes;
-
-        return $this;
-    }
+    public function getStatus(): ?string { return $this->status; }
+    public function setStatus(string $status): self { $this->status = $status; return $this; }
 }
