@@ -43,7 +43,7 @@
   <section *ngIf="patient.consultations?.length">
     <h3><i class="fas fa-user-md"></i> Consultations</h3>
     <div *ngFor="let cons of patient.consultations" class="item">
-      <p><strong>Date:</strong> {{ cons.date | date }}</p>
+      <p><strong>Date:</strong> {{ cons.dateTime | date }}</p>
       <p><strong>Doctor:</strong> {{ cons.doctorName }}</p>
       <p><strong>Notes:</strong> {{ cons.notes }}</p>
     </div>

@@ -29,7 +29,8 @@ export class PatientService {
       weight: 58.5,
       height: 165,
       allergies:
-        { name: "Polen",
+        {
+          name: "Polen",
         severity: "medium",
         reaction: "Strănut, ochi înlăcrimați, congestie nazală",
         notes: "Se manifestă mai ales primăvara și toamna"
@@ -52,21 +53,98 @@ export class PatientService {
       consultations: [
         {
           id: 2,
-          date: new Date('2025-06-02'),
-          reason: 'Chest pain during physical activity',
-          symptoms: 'Pressure in chest, shortness of breath, anxiety',
-          diagnosisICD10: 'I20.0', // Unstable angina
+          dateTime: new Date('2025-06-02'),
           doctorName: 'Dr. Elena Radu',
-          notes: 'Referred for cardiac stress test. ECG showed mild ST depression.'
+          durationMinutes: 30,
+
+          symptoms: 'Pressure in chest, shortness of breath, anxiety',
+          currentMedication: [
+            {
+              name: 'Aspirin',
+              dose: '75mg',
+              frequency: 'Once daily',
+              route: 'Oral',
+              startDate: new Date('2025-06-01'),
+              prescribedBy: 'Dr. Elena Radu',
+              notes: 'Used to reduce clot risk'
+            }
+          ],
+          medicalHistory: [
+         {    code: 'I10',
+              name: 'Essential Hypertension',
+              category: 'Cardiovascular',
+              description: 'Chronic high blood pressure without identifiable cause'
+            }
+          ],
+          familyHistory: 'Father had coronary artery disease.',
+
+          pulse: 88,
+          bloodPressure: '140/90',
+          temperature: 36.8,
+          weightKg: 78,
+          heightCm: 175,
+          respiratoryRate: 18,
+          notes: 'Referred for cardiac stress test. ECG showed mild ST depression.',
+
+          diagnosis: [
+            {
+              code: 'I10',
+              name: 'Unstable Angina',
+              category: 'Cardiovascular',
+              description: 'A condition in which the heart doesn’t get enough blood flow and oxygen.'
+            }
+          ],
+
+          referralIds: [101],
+          prescriptionIds: [201]
         },
         {
           id: 3,
-          date: new Date('2025-06-06'),
-          reason: 'Follow-up after myocardial infarction',
-          symptoms: 'Fatigue, minor palpitations',
-          diagnosisICD10: 'I25.2', // Old myocardial infarction
+          dateTime: new Date('2025-06-06'),
           doctorName: 'Dr. Andrei Popescu',
-          notes: 'Patient recovering well. Continue medication. Recommended mild physical activity.'
+          durationMinutes: 25,
+
+          symptoms: 'Fatigue, minor palpitations',
+          currentMedication: [
+            {
+              name: 'Metoprolol',
+              dose: '50mg',
+              frequency: 'Once daily',
+              route: 'Oral',
+              startDate: new Date('2025-05-15'),
+              prescribedBy: 'Dr. Andrei Popescu',
+              notes: 'Beta-blocker to manage heart rhythm and reduce workload on the heart.'
+            }
+          ],
+          medicalHistory: [
+            {
+              code: 'I10',
+              name: 'Acute Myocardial Infarction',
+              category: 'Cardiovascular',
+              description: 'A heart attack occurring due to complete blockage of a coronary artery.'
+            }
+          ],
+          familyHistory: 'Mother had hypertension.',
+
+          pulse: 76,
+          bloodPressure: '130/85',
+          temperature: 36.6,
+          weightKg: 80,
+          heightCm: 178,
+          respiratoryRate: 17,
+          notes: 'Patient recovering well. Continue medication. Recommended mild physical activity.',
+
+          diagnosis: [
+            {
+              code: 'I10',
+              name: 'Old Myocardial Infarction',
+              category: 'Cardiovascular',
+              description: 'Evidence of previous heart attack; patient not in acute phase.'
+            }
+          ],
+
+          referralIds: [],
+          prescriptionIds: [202]
         }
       ],
       recommendations: [],
@@ -162,21 +240,99 @@ export class PatientService {
       consultations: [
         {
           id: 3,
-          date: new Date('2025-06-06'),
-          reason: 'Follow-up after myocardial infarction',
-          symptoms: 'Fatigue, minor palpitations',
-          diagnosisICD10: 'I25.2', // Old myocardial infarction
+          dateTime: new Date('2025-06-06'),
           doctorName: 'Dr. Andrei Popescu',
-          notes: 'Patient recovering well. Continue medication. Recommended mild physical activity.'
+          durationMinutes: 25,
+
+          symptoms: 'Fatigue, minor palpitations',
+          currentMedication: [
+            {
+              name: 'Metoprolol',
+              dose: '50mg',
+              frequency: 'Once daily',
+              route: 'Oral',
+              startDate: new Date('2025-05-15'),
+              prescribedBy: 'Dr. Andrei Popescu',
+              notes: 'Beta-blocker to manage heart rhythm and reduce workload on the heart.'
+            }
+          ],
+          medicalHistory: [
+            {
+              code: 'I10',
+              name: 'Acute Myocardial Infarction',
+              category: 'Cardiovascular',
+              description: 'A heart attack occurring due to complete blockage of a coronary artery.'
+            }
+          ],
+          familyHistory: 'Mother had hypertension.',
+
+          pulse: 76,
+          bloodPressure: '130/85',
+          temperature: 36.6,
+          weightKg: 80,
+          heightCm: 178,
+          respiratoryRate: 17,
+          notes: 'Patient recovering well. Continue medication. Recommended mild physical activity.',
+
+          diagnosis: [
+            {
+              code: 'I10',
+              name: 'Old Myocardial Infarction',
+              category: 'Cardiovascular',
+              description: 'Evidence of previous heart attack; patient not in acute phase.'
+            }
+          ],
+
+          referralIds: [],
+          prescriptionIds: [202]
         },
         {
-          id: 1,
-          date: new Date('2025-05-20'),
-          reason: 'High blood pressure detected by family doctor',
-          symptoms: 'Headache, dizziness, fatigue',
-          diagnosisICD10: 'I10', // Essential (primary) hypertension
+          id: 6,
+          dateTime: new Date('2025-06-06'),
           doctorName: 'Dr. Andrei Popescu',
-          notes: 'Patient advised to reduce salt intake and start beta blockers.'
+          durationMinutes: 25,
+
+          symptoms: 'Fatigue, minor palpitations',
+          currentMedication: [
+            {
+              name: 'Metoprolol',
+              dose: '50mg',
+              frequency: 'Once daily',
+              route: 'Oral',
+              startDate: new Date('2025-05-15'),
+              prescribedBy: 'Dr. Andrei Popescu',
+              notes: 'Beta-blocker to manage heart rhythm and reduce workload on the heart.'
+            }
+          ],
+          medicalHistory: [
+            {
+              code: 'I10',
+              name: 'Acute Myocardial Infarction',
+              category: 'Cardiovascular',
+              description: 'A heart attack occurring due to complete blockage of a coronary artery.'
+            }
+          ],
+          familyHistory: 'Mother had hypertension.',
+
+          pulse: 76,
+          bloodPressure: '130/85',
+          temperature: 36.6,
+          weightKg: 80,
+          heightCm: 178,
+          respiratoryRate: 17,
+          notes: 'Patient recovering well. Continue medication. Recommended mild physical activity.',
+
+          diagnosis: [
+            {
+              code: 'I10',
+              name: 'Old Myocardial Infarction',
+              category: 'Cardiovascular',
+              description: 'Evidence of previous heart attack; patient not in acute phase.'
+            }
+          ],
+
+          referralIds: [],
+          prescriptionIds: [202]
         }
       ],
       recommendations: [
@@ -467,13 +623,52 @@ export class PatientService {
       sex: 'F',
       consultations: [
         {
-          id: 1,
-          date: new Date('2025-05-20'),
-          reason: 'High blood pressure detected by family doctor',
-          symptoms: 'Headache, dizziness, fatigue',
-          diagnosisICD10: 'I10',
+          id: 3,
+          dateTime: new Date('2025-06-06'),
           doctorName: 'Dr. Andrei Popescu',
-          notes: 'Patient advised to reduce salt intake and start beta blockers.'
+          durationMinutes: 25,
+
+          symptoms: 'Fatigue, minor palpitations',
+          currentMedication: [
+            {
+              name: 'Metoprolol',
+              dose: '50mg',
+              frequency: 'Once daily',
+              route: 'Oral',
+              startDate: new Date('2025-05-15'),
+              prescribedBy: 'Dr. Andrei Popescu',
+              notes: 'Beta-blocker to manage heart rhythm and reduce workload on the heart.'
+            }
+          ],
+          medicalHistory: [
+            {
+              code: 'I10',
+              name: 'Acute Myocardial Infarction',
+              category: 'Cardiovascular',
+              description: 'A heart attack occurring due to complete blockage of a coronary artery.'
+            }
+          ],
+          familyHistory: 'Mother had hypertension.',
+
+          pulse: 76,
+          bloodPressure: '130/85',
+          temperature: 36.6,
+          weightKg: 80,
+          heightCm: 178,
+          respiratoryRate: 17,
+          notes: 'Patient recovering well. Continue medication. Recommended mild physical activity.',
+
+          diagnosis: [
+            {
+              code: 'I10',
+              name: 'Old Myocardial Infarction',
+              category: 'Cardiovascular',
+              description: 'Evidence of previous heart attack; patient not in acute phase.'
+            }
+          ],
+
+          referralIds: [],
+          prescriptionIds: [202]
         }
       ],
       recommendations: [],
@@ -562,13 +757,52 @@ export class PatientService {
       consultations: [
         {
           id: 2,
-          date: new Date('2025-06-02'),
-          reason: 'Chest pain during physical activity',
-          symptoms: 'Pressure in chest, shortness of breath, anxiety',
-          diagnosisICD10: 'I20.0',
+          dateTime: new Date('2025-06-02'),
           doctorName: 'Dr. Elena Radu',
-          notes: 'Referred for cardiac stress test. ECG showed mild ST depression.'
-        }
+          durationMinutes: 30,
+
+          symptoms: 'Pressure in chest, shortness of breath, anxiety',
+          currentMedication: [
+            {
+              name: 'Aspirin',
+              dose: '75mg',
+              frequency: 'Once daily',
+              route: 'Oral',
+              startDate: new Date('2025-06-01'),
+              prescribedBy: 'Dr. Elena Radu',
+              notes: 'Used to reduce clot risk'
+            }
+          ],
+          medicalHistory: [
+            {
+              code: 'I10',
+              name: 'Essential Hypertension',
+              category: 'Cardiovascular',
+              description: 'Chronic high blood pressure without identifiable cause'
+            }
+          ],
+          familyHistory: 'Father had coronary artery disease.',
+
+          pulse: 88,
+          bloodPressure: '140/90',
+          temperature: 36.8,
+          weightKg: 78,
+          heightCm: 175,
+          respiratoryRate: 18,
+          notes: 'Referred for cardiac stress test. ECG showed mild ST depression.',
+
+          diagnosis: [
+            {
+              code: 'I10',
+              name: 'Unstable Angina',
+              category: 'Cardiovascular',
+              description: 'A condition in which the heart doesn’t get enough blood flow and oxygen.'
+            }
+          ],
+
+          referralIds: [101],
+          prescriptionIds: [201]
+        },
       ],
       recommendations: [
         {
