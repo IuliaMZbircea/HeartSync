@@ -29,6 +29,12 @@ export const routes: Routes = [
      canActivate: [RoleGuard],
      data: {expectedRole: 'ROLE_DOCTOR'}
    },
+  {
+    path: 'add-patient',
+    component: AddPatientComponent,
+    canActivate: [RoleGuard],
+    data: {expectedRole: 'ROLE_DOCTOR'}
+  },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [RoleGuard], data: { expectedRole: 'ROLE_ADMIN' } },
   { path: 'add-patient', component: AddPatientComponent },
   { path: 'add-consultation', component: AddNewConsultationComponent },
