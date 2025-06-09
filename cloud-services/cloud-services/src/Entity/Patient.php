@@ -6,11 +6,17 @@ use App\Repository\PatientRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\Alarm;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
 class Patient
 {
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Alarm::class, orphanRemoval: true)]
+    private Collection $alarms;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -165,4 +171,14 @@ public function isActive(): ?bool
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->created_at; }
     public function setCreatedAt(\DateTimeInterface $created_at): self { $this->created_at = $created_at; return $this; }
+
+    public function __construct()
+{
+    $this->alarms = new ArrayCollection();
+}
+
+public function getAlarms(): Collection
+{
+    return $this->alarms;
+}
 }

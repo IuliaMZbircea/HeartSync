@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
+
 #[ApiResource]
 #[ORM\Entity(repositoryClass: AlarmRepository::class)]
 class Alarm
@@ -15,6 +16,10 @@ class Alarm
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\ManyToOne(targetEntity: Patient::class)]
+    #[ORM\JoinColumn(name: "patient_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
+    private ?Patient $patient = null;
 
     #[ORM\Column(length: 255)]
     private ?string $parameter = null;
@@ -43,6 +48,17 @@ class Alarm
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+     public function getPatient(): ?Patient
+    {
+        return $this->patient;
+    }
+
+    public function setPatient(?Patient $patient): self
+    {
+        $this->patient = $patient;
+        return $this;
     }
 
     public function setParameter(string $parameter): static
