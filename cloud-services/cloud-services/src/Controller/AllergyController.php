@@ -155,4 +155,35 @@ class AllergyController extends AbstractController
 
         return $this->json(['message' => 'Allergy deactivated']);
     }
+
+#[Route('/patient/{patientId}', name: 'allergy_by_patient', methods: ['GET'])]
+public function getAllergiesByPatient(int $patientId): JsonResponse
+{
+    $patient = $this->patientRepository->find($patientId);
+
+    if (!$patient) {
+        return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+    }
+
+    $allergies = $this->allergyRepository->findBy([
+        'patient' => $patient,
+        'isActive' => true,
+    ]);
+
+    $response = array_map(function (Allergy $allergy) {
+        return [
+            'id' => $allergy->getId(),
+            'name' => $allergy->getName(),
+            'severity' => $allergy->getSeverity(),
+            'reaction' => $allergy->getReaction(),
+            'notes' => $allergy->getNotes(),
+            'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
+            'createdAt' => $allergy->getCreatedAt()?->format('Y-m-d H:i:s'),
+        ];
+    }, $allergies);
+
+    return $this->json($response);
+}
+
+
 }
