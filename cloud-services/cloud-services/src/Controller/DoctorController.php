@@ -11,14 +11,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-#[Route('/api/doctors')]
+#[Route('/doctors')]
 class DoctorController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
         private DoctorRepository $doctorRepository,
-        private UserPasswordHasherInterface $passwordHasher
+        private UserPasswordHasherInterface $passwordHasher,
+        private JWTTokenManagerInterface $jwtManager
+
     ) {}
 
     #[Route('', name: 'doctor_index', methods: ['GET'])]
@@ -77,29 +80,18 @@ class DoctorController extends AbstractController
         $this->em->persist($doctor);
         $this->em->flush();
 
+        $token = $this->jwtManager->create($doctor);
+
         return $this->json([
-            '@id' => '/api/doctors/' . $doctor->getId(),
-            '@type' => 'Doctor',
-            'id' => $doctor->getId(),
-            'email' => $doctor->getEmail(),
-            'firstName' => $doctor->getFirstName(),
-            'lastName' => $doctor->getLastName(),
-            'specialization' => $doctor->getSpecialization(),
-            'roles' => $doctor->getRoles(),
-            'status' => $doctor->getStatus(),
-            'createdAt' => $doctor->getCreatedAt()?->format(DATE_ATOM),
-            'hl7' => [
-                'resourceType' => 'Practitioner',
+            'token' => $token,
+            'doctor' => [
                 'id' => $doctor->getId(),
-                'name' => [[
-                    'family' => $doctor->getLastName(),
-                    'given' => [$doctor->getFirstName()]
-                ]],
-                'qualification' => [[
-                    'code' => ['text' => $doctor->getSpecialization()]
-                ]]
+                'email' => $doctor->getEmail(),
+                'firstName' => $doctor->getFirstName(),
+                'lastName' => $doctor->getLastName(),
+                'roles' => $doctor->getRoles(),
             ]
-        ], Response::HTTP_CREATED);
+        ]);
     }
 
     #[Route('/{id}', name: 'doctor_show', methods: ['GET'])]

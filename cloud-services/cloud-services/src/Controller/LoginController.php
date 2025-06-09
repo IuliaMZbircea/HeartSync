@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-#[Route('/api')]
 class LoginController extends AbstractController
 {
     public function __construct(
@@ -22,7 +21,7 @@ class LoginController extends AbstractController
 
     #[Route('/login', name: 'api_login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
-    {
+    { 
         $data = json_decode($request->getContent(), true);
         if (!$data || empty($data['email']) || empty($data['password'])) {
             return $this->json(['error' => 'Email and password are required'], 400);
