@@ -4,6 +4,7 @@ import {Router, RouterModule} from "@angular/router";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {AuthService} from "../../../services/auth.service";
+import {AlertService} from "../../../services/alert.service";
 
 @Component({
   selector: 'app-register',
@@ -19,18 +20,16 @@ export class RegisterComponent  implements AfterViewInit{
   firstName: string = '';
   lastName: string = '';
 
-  validatePassword(password: string): boolean {
-    const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-    return pattern.test(password);
-  }
+
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private alertService: AlertService,
   ) {}
 
   register(): void {
     if (!this.email || !this.password || !this.firstName || !this.lastName) {
-      alert('All fields are required.');
+      this.alertService.error('All fields are required.');
       return;
     }
 
@@ -43,14 +42,16 @@ export class RegisterComponent  implements AfterViewInit{
 
     this.authService.registerUser(userPayload).subscribe({
       next: (user) => {
+        this.alertService.success('User registered successfully!');
         this.router.navigate(['/PatientList']);
       },
       error: (err) => {
         console.error('Registration error:', err);
+        this.alertService.error('Registration failed.');
       }
     });
-
   }
+
 
   togglePasswordVisibility(): void {
     this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
