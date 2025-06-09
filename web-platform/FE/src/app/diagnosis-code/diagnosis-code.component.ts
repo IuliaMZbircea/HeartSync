@@ -1,8 +1,9 @@
 import {Component, EventEmitter, Output} from '@angular/core';
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
-import {IcdService} from "../../services/diagnosis.code.service";
 import {debounceTime, of, switchMap} from "rxjs";
 import {NgForOf, NgIf} from "@angular/common";
+import {IcdService} from "../../services/diagnosis.code.service";
+import {HttpClientModule} from "@angular/common/http";
 
 @Component({
   selector: 'app-diagnosis-code',
@@ -10,7 +11,8 @@ import {NgForOf, NgIf} from "@angular/common";
   imports: [
     ReactiveFormsModule,
     NgIf,
-    NgForOf
+    NgForOf,
+    HttpClientModule
   ],
   templateUrl: './diagnosis-code.component.html',
   styleUrl: './diagnosis-code.component.css'
@@ -20,9 +22,8 @@ export class DiagnosisCodeComponent {
   diseaseControl = new FormControl('');
   icdCode: string = '';
   suggestions: any[] = [];
-  token='eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE3NDk0OTg0MDcsImV4cCI6MTc0OTUwMjAwNywiaXNzIjoiaHR0cHM6Ly9pY2RhY2Nlc3NtYW5hZ2VtZW50Lndoby5pbnQiLCJhdWQiOlsiaHR0cHM6Ly9pY2RhY2Nlc3NtYW5hZ2VtZW50Lndoby5pbnQvcmVzb3VyY2VzIiwiaWNkYXBpIl0sImNsaWVudF9pZCI6IjQwMDYxMDkyLTZhYjktNGI5OC04ZWI3LWJmMGM1YzU0MWE2Zl81NGIzZmZiNC1jMjc3LTQ0NDItYTUyZi0yMDY3YmRkNTM3NzQiLCJzY29wZSI6WyJpY2RhcGlfYWNjZXNzIl19.unzqcmtrMK6QEvmqiBaVmik4JUHE1wfTdCG0pIy1A_mt-lbLrceWLEqwojEVS_Q785A1__BXkZHu6P9TQxZ1x5C6UR8F4UPzf59Qo4Djk0Jj43An8bbJGniVttdz_S4wPGM65n7TEkLNmQIwpcVFBeyfT3ePtlkpBXpq17exGJ04FTQg9_RxtYWFz1FlH9gqyXTVK_FeM5IVbtQV9bKwvXykeG-FC1f_CPjmGT3oMSSotaixA-j9iC6I_i_rSR4t6sPoy4Kc2KoShZrJuLQt2RWaYisAHQBcYnTQNrAjuzFjbIYdfAe2w_d639khkaw_rvaAzGyS2JdmG_kQDVmiTA'
-  @Output() diseaseSelected = new EventEmitter<{title: string, code: string}>();
-
+  token='eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE3NDk1MDk2NzEsImV4cCI6MTc0OTUxMzI3MSwiaXNzIjoiaHR0cHM6Ly9pY2RhY2Nlc3NtYW5hZ2VtZW50Lndoby5pbnQiLCJhdWQiOlsiaHR0cHM6Ly9pY2RhY2Nlc3NtYW5hZ2VtZW50Lndoby5pbnQvcmVzb3VyY2VzIiwiaWNkYXBpIl0sImNsaWVudF9pZCI6IjQwMDYxMDkyLTZhYjktNGI5OC04ZWI3LWJmMGM1YzU0MWE2Zl9mZjlkOTVmZS04MGEyLTQ5NmMtYjI0YS1jMDVkNzE0YTY1NTUiLCJzY29wZSI6WyJpY2RhcGlfYWNjZXNzIl19.H-oYxiwm5AGZxtsAdB-KAiuiA3aLnheAy_kDJGSZM8XH6hegiFUijL4Yfwg4BHLaJRH87O8E9_DZi62WTrYLiDowpJMMLkldNuvEnv8jpYxig93JjSs3qihky2orGv0BdT5V58sNmxkMCol-PohzotKRMtDLQqX2EXE745deB9JwUY71gxlN17PsP163GWxmaXyy5vVrtYZ6BjQ1MNmAhEgelVcO5kyr3sMtvVniYtbKRbz5hXazKjb6JdqhutFgLYm0WJlWM2qu2aG2PzP3xRyR_lgQPFDHVObgpkYdX-qt5c9eAJQPxj4rgm0AjV6ycT-XUPVJzopP3lDvPtymlQ'
+  @Output() diseaseSelected = new EventEmitter<{ title: string; code: string }>();
 
   constructor(private icdService: IcdService) {
 
@@ -37,7 +38,6 @@ export class DiagnosisCodeComponent {
         return this.icdService.searchDisease(value, this.token);
       })
     ).subscribe((res: any) => {
-      console.log('Received result:', res);
       if (res?.destinationEntities?.length > 0) {
         this.suggestions = res.destinationEntities.map((item: any) => ({
           title: this.stripHtmlTags(item.title),
@@ -49,16 +49,14 @@ export class DiagnosisCodeComponent {
     });
   }
 
-    onSelect(item: any)
-    {
-      this.diseaseControl.setValue(item.title, { emitEvent: false });
-      this.diseaseSelected.emit({ title: item.title, code: item.code });
-      this.suggestions = [];
-
-    }
-
-    stripHtmlTags(text: string): string {
-      return text.replace(/<\/?[^>]+(>|$)/g, "");
-    }
-
+  onSelect(item: any) {
+    this.diseaseControl.setValue(item.title, { emitEvent: false });
+    this.icdCode = item.code;
+    this.suggestions = [];
+    this.diseaseSelected.emit({ title: item.title, code: item.code });  // <-- Emit object here
   }
+
+  stripHtmlTags(text: string): string {
+    return text.replace(/<\/?[^>]+(>|$)/g, "");
+  }
+}
