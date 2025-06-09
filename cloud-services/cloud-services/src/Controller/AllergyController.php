@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/api/allergies')]
+#[Route('/api/custom-allergies')]
 class AllergyController extends AbstractController
 {
     public function __construct(

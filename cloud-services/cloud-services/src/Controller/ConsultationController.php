@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/api/consultations')]
+#[Route('/api/custom-consultations')]
 class ConsultationController extends AbstractController
 {
     public function __construct(

@@ -22,7 +22,7 @@ class DoctorController extends AbstractController
         private JWTTokenManagerInterface $jwtManager
     ) {}
 
-    #[Route('/doctors', name: 'doctor_index', methods: ['GET'])]
+    #[Route('/custom-doctors', name: 'doctor_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
         $doctors = $this->doctorRepository->findBy(['isActive' => true]);
