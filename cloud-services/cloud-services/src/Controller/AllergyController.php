@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Allergy;
+use App\Entity\Patient;
 use App\Repository\AllergyRepository;
+use App\Repository\PatientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +18,8 @@ class AllergyController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private AllergyRepository $allergyRepository
+        private AllergyRepository $allergyRepository,
+        private PatientRepository $patientRepository
     ) {}
 
     #[Route('', name: 'allergy_index', methods: ['GET'])]
@@ -28,22 +31,12 @@ class AllergyController extends AbstractController
             return [
                 'id' => $allergy->getId(),
                 'name' => $allergy->getName(),
-                'reaction' => $allergy->getReaction(),
                 'severity' => $allergy->getSeverity(),
+                'reaction' => $allergy->getReaction(),
                 'notes' => $allergy->getNotes(),
                 'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
-                'isActive' => $allergy->isActive(),
-                'hl7' => [
-                    'resourceType' => 'AllergyIntolerance',
-                    'id' => $allergy->getId(),
-                    'code' => ['text' => $allergy->getName()],
-                    'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
-                    'reaction' => [[
-                        'description' => $allergy->getReaction(),
-                        'severity' => $allergy->getSeverity(),
-                        'note' => [['text' => $allergy->getNotes()]]
-                    ]]
-                ]
+                'createdAt' => $allergy->getCreatedAt()?->format('Y-m-d H:i:s'),
+                'patient' => $allergy->getPatient()?->getId(),
             ];
         }, $allergies);
 
@@ -54,35 +47,37 @@ class AllergyController extends AbstractController
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        if (!$data) {
-            return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+
+        if (!$data || !isset($data['patient_id'])) {
+            return $this->json(['error' => 'Missing patient_id or invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $patient = $this->patientRepository->find($data['patient_id']);
+
+        if (!$patient) {
+            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
         $allergy = new Allergy();
+        $allergy->setPatient($patient);
         $allergy->setName($data['name'] ?? null);
-        $allergy->setReaction($data['reaction'] ?? null);
         $allergy->setSeverity($data['severity'] ?? null);
+        $allergy->setReaction($data['reaction'] ?? null);
         $allergy->setNotes($data['notes'] ?? null);
-        $allergy->setRecordedDate(isset($data['recordedDate']) ? new \DateTime($data['recordedDate']) : null);
-        $allergy->setIsActive(true);
+
+        if (isset($data['recordedDate'])) {
+            $allergy->setRecordedDate(new \DateTime($data['recordedDate']));
+        }
+
         $allergy->setCreatedAt(new \DateTime());
+        $allergy->setIsActive(true);
 
         $this->em->persist($allergy);
         $this->em->flush();
 
         return $this->json([
-            'allergy' => $allergy,
-            'hl7' => [
-                'resourceType' => 'AllergyIntolerance',
-                'id' => $allergy->getId(),
-                'code' => ['text' => $allergy->getName()],
-                'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
-                'reaction' => [[
-                    'description' => $allergy->getReaction(),
-                    'severity' => $allergy->getSeverity(),
-                    'note' => [['text' => $allergy->getNotes()]]
-                ]]
-            ]
+            'message' => 'Allergy created successfully',
+            'id' => $allergy->getId()
         ], Response::HTTP_CREATED);
     }
 
@@ -90,23 +85,20 @@ class AllergyController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $allergy = $this->allergyRepository->find($id);
-        if (!$allergy || !$allergy->isActive()) {
+
+        if (!$allergy || !$allergy->isIsActive()) {
             return $this->json(['error' => 'Allergy not found'], Response::HTTP_NOT_FOUND);
         }
 
         return $this->json([
-            'allergy' => $allergy,
-            'hl7' => [
-                'resourceType' => 'AllergyIntolerance',
-                'id' => $allergy->getId(),
-                'code' => ['text' => $allergy->getName()],
-                'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
-                'reaction' => [[
-                    'description' => $allergy->getReaction(),
-                    'severity' => $allergy->getSeverity(),
-                    'note' => [['text' => $allergy->getNotes()]]
-                ]]
-            ]
+            'id' => $allergy->getId(),
+            'name' => $allergy->getName(),
+            'severity' => $allergy->getSeverity(),
+            'reaction' => $allergy->getReaction(),
+            'notes' => $allergy->getNotes(),
+            'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
+            'createdAt' => $allergy->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'patient' => $allergy->getPatient()?->getId(),
         ]);
     }
 
@@ -114,48 +106,53 @@ class AllergyController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $allergy = $this->allergyRepository->find($id);
-        if (!$allergy) {
+
+        if (!$allergy || !$allergy->isIsActive()) {
             return $this->json(['error' => 'Allergy not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
+        if (!$data) {
+            return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
 
-        if (isset($data['name'])) $allergy->setName($data['name']);
-        if (isset($data['reaction'])) $allergy->setReaction($data['reaction']);
-        if (isset($data['severity'])) $allergy->setSeverity($data['severity']);
-        if (isset($data['notes'])) $allergy->setNotes($data['notes']);
-        if (isset($data['recordedDate'])) $allergy->setRecordedDate(new \DateTime($data['recordedDate']));
-        if (isset($data['isActive'])) $allergy->setIsActive((bool)$data['isActive']);
+        if (isset($data['name'])) {
+            $allergy->setName($data['name']);
+        }
+
+        if (isset($data['severity'])) {
+            $allergy->setSeverity($data['severity']);
+        }
+
+        if (isset($data['reaction'])) {
+            $allergy->setReaction($data['reaction']);
+        }
+
+        if (isset($data['notes'])) {
+            $allergy->setNotes($data['notes']);
+        }
+
+        if (isset($data['recordedDate'])) {
+            $allergy->setRecordedDate(new \DateTime($data['recordedDate']));
+        }
 
         $this->em->flush();
 
-        return $this->json([
-            'allergy' => $allergy,
-            'hl7' => [
-                'resourceType' => 'AllergyIntolerance',
-                'id' => $allergy->getId(),
-                'code' => ['text' => $allergy->getName()],
-                'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
-                'reaction' => [[
-                    'description' => $allergy->getReaction(),
-                    'severity' => $allergy->getSeverity(),
-                    'note' => [['text' => $allergy->getNotes()]]
-                ]]
-            ]
-        ]);
+        return $this->json(['message' => 'Allergy updated successfully']);
     }
 
     #[Route('/{id}', name: 'allergy_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $allergy = $this->allergyRepository->find($id);
-        if (!$allergy) {
+
+        if (!$allergy || !$allergy->isIsActive()) {
             return $this->json(['error' => 'Allergy not found'], Response::HTTP_NOT_FOUND);
         }
 
         $allergy->setIsActive(false);
         $this->em->flush();
 
-        return $this->json(['message' => 'Allergy marked as inactive']);
+        return $this->json(['message' => 'Allergy deactivated']);
     }
 }
