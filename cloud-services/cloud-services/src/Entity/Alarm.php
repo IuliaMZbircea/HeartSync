@@ -35,7 +35,7 @@ class Alarm
     private ?string $message = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private ?bool $status = true;
+    private ?bool $isActive = true;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeInterface $createdAt = null;
@@ -111,16 +111,17 @@ class Alarm
         return $this->message;
     }
 
-    public function setStatus(bool $status): static
+    public function setIsActive(bool $isActive): static
     {
-        $this->status = $status;
+        $this->isActive = $isActive;
         return $this;
     }
 
-    public function getStatus(): ?bool
+    public function isActive(): ?bool
     {
-        return $this->status;
+        return $this->isActive;
     }
+
 
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {

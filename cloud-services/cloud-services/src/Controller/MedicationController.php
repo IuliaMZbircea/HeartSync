@@ -22,7 +22,7 @@ class MedicationController extends AbstractController
     #[Route('', name: 'medication_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $medications = $this->medicationRepository->findBy(['status' => true]);
+        $medications = $this->medicationRepository->findBy(['isActive' => true]);
         $hl7 = [];
 
         foreach ($medications as $medication) {
@@ -49,7 +49,7 @@ class MedicationController extends AbstractController
         $medication->setEndDate(isset($data['end_date']) ? new \DateTime($data['end_date']) : null);
         $medication->setPrescribedBy($data['prescribed_by'] ?? '');
         $medication->setNotes($data['notes'] ?? null);
-        $medication->setStatus(true);
+        $medication->setIsActive(true);
         $medication->setCreatedAt(new \DateTime());
 
         $this->em->persist($medication);
@@ -62,7 +62,7 @@ class MedicationController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-        if (!$medication || !$medication->isStatus()) {
+        if (!$medication || !$medication->isActive()) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -73,7 +73,7 @@ class MedicationController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-        if (!$medication || !$medication->isStatus()) {
+        if (!$medication || !$medication->isActive()) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -97,11 +97,11 @@ class MedicationController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-        if (!$medication || !$medication->isStatus()) {
+        if (!$medication || !$medication->isActive()) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $medication->setStatus(false);
+        $medication->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Medication marked as inactive']);
@@ -112,7 +112,7 @@ class MedicationController extends AbstractController
         return [
             'resourceType' => 'MedicationRequest',
             'id' => $medication->getId(),
-            'status' => $medication->isStatus() ? 'active' : 'inactive',
+            'status' => $medication->isActive() ? 'active' : 'inactive',
             'medicationCodeableConcept' => [
                 'text' => $medication->getName()
             ],

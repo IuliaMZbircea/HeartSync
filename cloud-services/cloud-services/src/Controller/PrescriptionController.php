@@ -22,7 +22,7 @@ class PrescriptionController extends AbstractController
     #[Route('', name: 'prescription_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $prescriptions = $this->prescriptionRepository->findBy(['status' => true]);
+        $prescriptions = $this->prescriptionRepository->findBy(['isActive' => true]);
 
         $fhirBundle = [
             'resourceType' => 'Bundle',
@@ -50,7 +50,7 @@ class PrescriptionController extends AbstractController
         $prescription->setFrequency($data['frequency'] ?? '');
         $prescription->setDuration($data['duration'] ?? '');
         $prescription->setIssuedDate(new \DateTime($data['issued_date'] ?? 'now'));
-        $prescription->setStatus(true);
+        $prescription->setIsActive(true);
         $prescription->setCreatedAt(new \DateTime());
 
         $this->em->persist($prescription);
@@ -64,7 +64,7 @@ class PrescriptionController extends AbstractController
     {
         $prescription = $this->prescriptionRepository->find($id);
 
-        if (!$prescription || !$prescription->isStatus()) {
+        if (!$prescription || !$prescription->isActive()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -76,7 +76,7 @@ class PrescriptionController extends AbstractController
     {
         $prescription = $this->prescriptionRepository->find($id);
 
-        if (!$prescription || !$prescription->isStatus()) {
+        if (!$prescription || !$prescription->isActive()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -98,11 +98,11 @@ class PrescriptionController extends AbstractController
     {
         $prescription = $this->prescriptionRepository->find($id);
 
-        if (!$prescription || !$prescription->isStatus()) {
+        if (!$prescription || !$prescription->isActive()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $prescription->setStatus(false);
+        $prescription->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Prescription deactivated']);
@@ -113,7 +113,7 @@ class PrescriptionController extends AbstractController
         return [
             'resourceType' => 'MedicationRequest',
             'id' => $prescription->getId(),
-            'status' => $prescription->isStatus() ? 'active' : 'inactive',
+            'status' => $prescription->isActive() ? 'active' : 'inactive',
             'medicationCodeableConcept' => ['text' => $prescription->getMedicationName()],
             'dosageInstruction' => [[
                 'text' => "{$prescription->getDose()} - {$prescription->getFrequency()} - {$prescription->getDuration()}",

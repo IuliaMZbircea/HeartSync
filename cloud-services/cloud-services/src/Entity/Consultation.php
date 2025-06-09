@@ -71,7 +71,7 @@ class Consultation
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private ?bool $status = true;
+    private ?bool $isActive = true;
 
     // Getters & Setters
 
@@ -185,9 +185,14 @@ class Consultation
         return $this;
     }
 
-    public function getStatus(): ?bool { return $this->status; }
-    public function setStatus(bool $status): self {
-        $this->status = $status;
-        return $this;
-    }
+public function setIsActive(bool $isActive): static
+{
+    $this->isActive = $isActive;
+    return $this;
+}
+
+public function isActive(): ?bool
+{
+    return $this->isActive;
+}
 }

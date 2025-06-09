@@ -30,7 +30,7 @@ class MedicalLetterController extends AbstractController
     #[Route('', name: 'medical_letter_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $letters = $this->medicalLetterRepository->findBy(['status' => true]);
+        $letters = $this->medicalLetterRepository->findBy(['isActive' => true]);
 
         $hl7 = array_map(function ($letter) {
             return $this->formatHL7($letter);
@@ -63,7 +63,7 @@ class MedicalLetterController extends AbstractController
         $medicalLetter->setConsultation($consultation);
         $medicalLetter->setDate(new \DateTime($data['date']));
         $medicalLetter->setFhirPayload($data['fhirPayload']);
-        $medicalLetter->setStatus(true);
+        $medicalLetter->setIsActive(true);
         $medicalLetter->setCreatedAt(new \DateTime());
 
         $this->em->persist($medicalLetter);
@@ -76,7 +76,7 @@ class MedicalLetterController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $medicalLetter = $this->medicalLetterRepository->find($id);
-        if (!$medicalLetter || !$medicalLetter->isStatus()) {
+        if (!$medicalLetter || !$medicalLetter->isActive()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -87,7 +87,7 @@ class MedicalLetterController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $medicalLetter = $this->medicalLetterRepository->find($id);
-        if (!$medicalLetter || !$medicalLetter->isStatus()) {
+        if (!$medicalLetter || !$medicalLetter->isActive()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -129,7 +129,7 @@ class MedicalLetterController extends AbstractController
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $medicalLetter->setStatus(false);
+        $medicalLetter->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Soft deleted']);
@@ -145,7 +145,7 @@ class MedicalLetterController extends AbstractController
         return [
             'resourceType' => 'DocumentReference',
             'id' => $ml->getId(),
-            'status' => $ml->isStatus() ? 'current' : 'inactive',
+            'status' => $ml->isActive() ? 'current' : 'inactive',
             'subject' => [
                 'reference' => '/api/patients/' . $ml->getPatient()->getId(),
             ],

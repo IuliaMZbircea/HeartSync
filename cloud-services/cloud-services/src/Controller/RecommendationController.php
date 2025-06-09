@@ -22,7 +22,7 @@ class RecommendationController extends AbstractController
     #[Route('', name: 'recommendation_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $recommendations = $this->recommendationRepository->findBy(['status' => true]);
+        $recommendations = $this->recommendationRepository->findBy(['isActive' => true]);
 
         $fhirBundle = [
             'resourceType' => 'Bundle',
@@ -55,7 +55,7 @@ class RecommendationController extends AbstractController
 
         $recommendation->setAdditionalNotes($data['additional_notes'] ?? null);
         $recommendation->setCreatedAt(new \DateTime());
-        $recommendation->setStatus(true);
+        $recommendation->setIsActive(true);
 
         $this->em->persist($recommendation);
         $this->em->flush();
@@ -68,7 +68,7 @@ class RecommendationController extends AbstractController
     {
         $recommendation = $this->recommendationRepository->find($id);
 
-        if (!$recommendation || !$recommendation->isStatus()) {
+        if (!$recommendation || !$recommendation->isActive()) {
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -80,7 +80,7 @@ class RecommendationController extends AbstractController
     {
         $recommendation = $this->recommendationRepository->find($id);
 
-        if (!$recommendation || !$recommendation->isStatus()) {
+        if (!$recommendation || !$recommendation->isActive()) {
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -112,11 +112,11 @@ class RecommendationController extends AbstractController
     {
         $recommendation = $this->recommendationRepository->find($id);
 
-        if (!$recommendation || !$recommendation->isStatus()) {
+        if (!$recommendation || !$recommendation->isActive()) {
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $recommendation->setStatus(false);
+        $recommendation->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Recommendation deactivated']);
@@ -127,7 +127,7 @@ class RecommendationController extends AbstractController
         return [
             'resourceType' => 'ActivityDefinition',
             'id' => $rec->getId(),
-            'status' => $rec->isStatus() ? 'active' : 'inactive',
+            'status' => $rec->isActive() ? 'active' : 'inactive',
             'description' => $rec->getActivityType(),
             'timingTiming' => [
                 'repeat' => [

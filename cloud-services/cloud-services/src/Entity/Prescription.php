@@ -32,7 +32,7 @@ class Prescription
     private ?\DateTimeInterface $issuedDate = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private ?bool $status = true;
+    private ?bool $isActive = true;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -56,8 +56,16 @@ class Prescription
     public function getIssuedDate(): ?\DateTimeInterface { return $this->issuedDate; }
     public function setIssuedDate(\DateTimeInterface $issuedDate): self { $this->issuedDate = $issuedDate; return $this; }
 
-    public function isStatus(): ?bool { return $this->status; }
-    public function setStatus(bool $status): self { $this->status = $status; return $this; }
+public function setIsActive(bool $isActive): static
+{
+    $this->isActive = $isActive;
+    return $this;
+}
+
+public function isActive(): ?bool
+{
+    return $this->isActive;
+}
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
     public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt; return $this; }

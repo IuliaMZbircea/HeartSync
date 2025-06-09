@@ -22,7 +22,7 @@ class DiseaseController extends AbstractController
     #[Route('', name: 'disease_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $diseases = $this->diseaseRepository->findBy(['status' => true]);
+        $diseases = $this->diseaseRepository->findBy(['isActive' => true]);
 
         $response = array_map(function (Disease $disease) {
             return [
@@ -30,7 +30,7 @@ class DiseaseController extends AbstractController
                 'name' => $disease->getName(),
                 'type' => $disease->getType(),
                 'description' => $disease->getDescription(),
-                'status' => $disease->getStatus(),
+                'isActive' => $disease->isActive(),
                 'hl7' => [
                     'resourceType' => 'Condition',
                     'id' => $disease->getId(),
@@ -56,7 +56,7 @@ class DiseaseController extends AbstractController
         $disease->setName($data['name'] ?? '');
         $disease->setType($data['type'] ?? null);
         $disease->setDescription($data['description'] ?? null);
-        $disease->setStatus(true);
+        $disease->setIsActive(true);
 
         $this->em->persist($disease);
         $this->em->flush();
@@ -77,7 +77,7 @@ class DiseaseController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $disease = $this->diseaseRepository->find($id);
-        if (!$disease || !$disease->getStatus()) {
+        if (!$disease || !$disease->isActive()) {
             return $this->json(['error' => 'Disease not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -105,7 +105,7 @@ class DiseaseController extends AbstractController
         if (isset($data['name'])) $disease->setName($data['name']);
         if (isset($data['type'])) $disease->setType($data['type']);
         if (isset($data['description'])) $disease->setDescription($data['description']);
-        if (isset($data['status'])) $disease->setStatus((bool)$data['status']);
+        if (isset($data['isActive'])) $disease->setIsActive((bool)$data['isActive']);
 
         $this->em->flush();
 
@@ -129,7 +129,7 @@ class DiseaseController extends AbstractController
             return $this->json(['error' => 'Disease not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $disease->setStatus(false);
+        $disease->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Disease marked as inactive']);

@@ -33,7 +33,7 @@ class Allergy
     private ?\DateTimeInterface $recordedDate = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private ?bool $status = true;
+    private ?bool $isActive = true;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
@@ -98,16 +98,17 @@ class Allergy
         return $this;
     }
 
-    public function getStatus(): ?bool
+    public function setIsActive(bool $isActive): static
     {
-        return $this->status;
-    }
-
-    public function setStatus(bool $status): static
-    {
-        $this->status = $status;
+        $this->isActive = $isActive;
         return $this;
     }
+
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
 
     public function getCreatedAt(): ?\DateTimeInterface
     {

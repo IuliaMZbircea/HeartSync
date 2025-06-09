@@ -22,7 +22,7 @@ class AlarmController extends AbstractController
     #[Route('', name: 'alarm_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $alarms = $this->alarmRepository->findBy(['status' => true]);
+        $alarms = $this->alarmRepository->findBy(['isActive' => true]);
 
         $response = array_map(function (Alarm $alarm) {
             return [
@@ -33,7 +33,7 @@ class AlarmController extends AbstractController
                 'duration' => $alarm->getDuration(),
                 'afterActivity' => $alarm->isAfterActivity(),
                 'message' => $alarm->getMessage(),
-                'status' => $alarm->getStatus(),
+                'isActive' => $alarm->isActive(),
                 'hl7' => [
                     'resourceType' => 'Observation',
                     'id' => $alarm->getId(),
@@ -63,7 +63,7 @@ class AlarmController extends AbstractController
         $alarm->setDuration((int)($data['duration'] ?? 0));
         $alarm->setAfterActivity((bool)($data['afterActivity'] ?? false));
         $alarm->setMessage($data['message'] ?? null);
-        $alarm->setStatus($data['status'] ?? true);
+        $alarm->setIsActive($data['isActive'] ?? true);
         $alarm->setCreatedAt(new \DateTime());
 
         $this->em->persist($alarm);
@@ -86,7 +86,7 @@ class AlarmController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $alarm = $this->alarmRepository->find($id);
-        if (!$alarm || !$alarm->getStatus()) {
+        if (!$alarm || !$alarm->isActive()) {
             return $this->json(['error' => 'Alarm not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -119,7 +119,7 @@ class AlarmController extends AbstractController
         if (isset($data['duration'])) $alarm->setDuration((int)$data['duration']);
         if (isset($data['afterActivity'])) $alarm->setAfterActivity((bool)$data['afterActivity']);
         if (isset($data['message'])) $alarm->setMessage($data['message']);
-        if (isset($data['status'])) $alarm->setStatus((bool)$data['status']);
+        if (isset($data['isActive'])) $alarm->setIsActive((bool)$data['isActive']);
 
         $this->em->flush();
 
@@ -144,7 +144,7 @@ class AlarmController extends AbstractController
             return $this->json(['error' => 'Alarm not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $alarm->setStatus(false);
+        $alarm->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Alarm marked as inactive']);

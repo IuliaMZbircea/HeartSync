@@ -22,7 +22,7 @@ class ConsultationController extends AbstractController
     #[Route('', name: 'consultation_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $consultations = $this->consultationRepository->findBy(['status' => true]);
+        $consultations = $this->consultationRepository->findBy(['isActive' => true]);
 
         $response = array_map(function (Consultation $consultation) {
             return [
@@ -44,7 +44,7 @@ class ConsultationController extends AbstractController
                 'diagnosisIds' => $consultation->getDiagnosisIds(),
                 'referralIds' => $consultation->getReferralIds(),
                 'prescriptionIds' => $consultation->getPrescriptionIds(),
-                'status' => $consultation->getStatus(),
+                'isActive' => $consultation->isActive(),
                 'hl7' => [
                     'resourceType' => 'Encounter',
                     'id' => $consultation->getId(),
@@ -87,7 +87,7 @@ class ConsultationController extends AbstractController
         $consultation->setDiagnosisIds($data['diagnosisIds'] ?? null);
         $consultation->setReferralIds($data['referralIds'] ?? null);
         $consultation->setPrescriptionIds($data['prescriptionIds'] ?? null);
-        $consultation->setStatus(true);
+        $consultation->setIsActive(true);
         $consultation->setCreatedAt(new \DateTime());
 
         $this->em->persist($consultation);
@@ -110,7 +110,7 @@ class ConsultationController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $consultation = $this->consultationRepository->find($id);
-        if (!$consultation || !$consultation->getStatus()) {
+        if (!$consultation || !$consultation->isActive()) {
             return $this->json(['error' => 'Consultation not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -153,7 +153,7 @@ class ConsultationController extends AbstractController
         if (isset($data['diagnosisIds'])) $consultation->setDiagnosisIds($data['diagnosisIds']);
         if (isset($data['referralIds'])) $consultation->setReferralIds($data['referralIds']);
         if (isset($data['prescriptionIds'])) $consultation->setPrescriptionIds($data['prescriptionIds']);
-        if (isset($data['status'])) $consultation->setStatus((bool)$data['status']);
+        if (isset($data['isActive'])) $consultation->setIsActive((bool)$data['isActive']);
 
         $this->em->flush();
 
@@ -178,7 +178,7 @@ class ConsultationController extends AbstractController
             return $this->json(['error' => 'Consultation not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $consultation->setStatus(false);
+        $consultation->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Consultation marked as inactive']);

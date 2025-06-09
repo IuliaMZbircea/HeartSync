@@ -31,7 +31,7 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastName = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private ?bool $status = true;
+    private ?bool $isActive = true;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -98,16 +98,16 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
 
 
 
-    public function getStatus(): ?bool
-    {
-        return $this->status;
-    }
+public function setIsActive(bool $isActive): static
+{
+    $this->isActive = $isActive;
+    return $this;
+}
 
-    public function setStatus(bool $status): self
-    {
-        $this->status = $status;
-        return $this;
-    }
+public function isActive(): ?bool
+{
+    return $this->isActive;
+}
 
     public function getCreatedAt(): ?\DateTimeInterface
     {

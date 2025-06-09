@@ -29,7 +29,7 @@ class LoginController extends AbstractController
 
         $doctor = $this->em->getRepository(Doctor::class)->findOneBy(['email' => $data['email']]);
 
-        if (!$doctor || !$doctor->getStatus()) {
+        if (!$doctor || !$doctor->isActive()) {
             return $this->json(['error' => 'Invalid credentials or inactive account'], 401);
         }
 

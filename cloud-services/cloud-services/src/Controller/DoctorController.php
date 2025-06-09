@@ -21,13 +21,12 @@ class DoctorController extends AbstractController
         private DoctorRepository $doctorRepository,
         private UserPasswordHasherInterface $passwordHasher,
         private JWTTokenManagerInterface $jwtManager
-
     ) {}
 
     #[Route('', name: 'doctor_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $doctors = $this->doctorRepository->findBy(['status' => true]);
+        $doctors = $this->doctorRepository->findBy(['isActive' => true]);
 
         $response = [
             '@context' => '/api/contexts/Doctor',
@@ -43,7 +42,7 @@ class DoctorController extends AbstractController
                     'firstName' => $doc->getFirstName(),
                     'lastName' => $doc->getLastName(),
                     'roles' => $doc->getRoles(),
-                    'status' => $doc->getStatus(),
+                    'isActive' => $doc->isActive(),
                     'createdAt' => $doc->getCreatedAt()?->format(DATE_ATOM),
                     'resetToken' => $doc->getResetToken(),
                     'resetTokenExpiresAt' => $doc->getResetTokenExpiresAt()?->format(DATE_ATOM)
@@ -72,7 +71,7 @@ class DoctorController extends AbstractController
         $doctor->setFirstName($data['first_name']);
         $doctor->setLastName($data['last_name']);
         $doctor->setRoles(['ROLE_DOCTOR']);
-        $doctor->setStatus(true);
+        $doctor->setIsActive(true);
         $doctor->setCreatedAt(new \DateTime());
 
         $this->em->persist($doctor);
@@ -96,7 +95,7 @@ class DoctorController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $doctor = $this->doctorRepository->find($id);
-        if (!$doctor || !$doctor->getStatus()) {
+        if (!$doctor || !$doctor->isActive()) {
             return $this->json(['error' => 'Doctor not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -108,7 +107,7 @@ class DoctorController extends AbstractController
             'firstName' => $doctor->getFirstName(),
             'lastName' => $doctor->getLastName(),
             'roles' => $doctor->getRoles(),
-            'status' => $doctor->getStatus(),
+            'isActive' => $doctor->isActive(),
             'createdAt' => $doctor->getCreatedAt()?->format(DATE_ATOM),
             'hl7' => [
                 'resourceType' => 'Practitioner',
@@ -117,7 +116,6 @@ class DoctorController extends AbstractController
                     'family' => $doctor->getLastName(),
                     'given' => [$doctor->getFirstName()]
                 ]],
-
             ]
         ]);
     }
@@ -145,7 +143,7 @@ class DoctorController extends AbstractController
         if (isset($data['roles']) && is_array($data['roles'])) {
             $doctor->setRoles($data['roles']);
         }
-        if (isset($data['status'])) $doctor->setStatus((bool)$data['status']);
+        if (isset($data['isActive'])) $doctor->setIsActive((bool)$data['isActive']);
 
         $this->em->flush();
 
@@ -157,7 +155,7 @@ class DoctorController extends AbstractController
             'firstName' => $doctor->getFirstName(),
             'lastName' => $doctor->getLastName(),
             'roles' => $doctor->getRoles(),
-            'status' => $doctor->getStatus(),
+            'isActive' => $doctor->isActive(),
             'createdAt' => $doctor->getCreatedAt()?->format(DATE_ATOM),
             'hl7' => [
                 'resourceType' => 'Practitioner',
@@ -166,7 +164,6 @@ class DoctorController extends AbstractController
                     'family' => $doctor->getLastName(),
                     'given' => [$doctor->getFirstName()]
                 ]],
-
             ]
         ]);
     }
@@ -178,13 +175,14 @@ class DoctorController extends AbstractController
         if (!$doctor) {
             return $this->json(['error' => 'Doctor not found'], Response::HTTP_NOT_FOUND);
         }
+
         $role = $doctor->getRoles();
-
         if (!in_array('ROLE-ADMIN', $role)) {
-            return new JsonResponse(['error' => 'Unauthorized - Only admins can search disease'], 403);}
-        $doctor->setStatus(false);
-        $this->em->flush();
+            return new JsonResponse(['error' => 'Unauthorized - Only admins can search disease'], 403);
+        }
 
+        $doctor->setIsActive(false);
+        $this->em->flush();
 
         return $this->json(['message' => 'Doctor marked as inactive']);
     }

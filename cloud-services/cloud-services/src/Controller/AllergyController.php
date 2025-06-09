@@ -22,7 +22,7 @@ class AllergyController extends AbstractController
     #[Route('', name: 'allergy_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $allergies = $this->allergyRepository->findBy(['status' => true]);
+        $allergies = $this->allergyRepository->findBy(['isActive' => true]);
 
         $response = array_map(function (Allergy $allergy) {
             return [
@@ -32,7 +32,7 @@ class AllergyController extends AbstractController
                 'severity' => $allergy->getSeverity(),
                 'notes' => $allergy->getNotes(),
                 'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
-                'status' => $allergy->getStatus(),
+                'isActive' => $allergy->isActive(),
                 'hl7' => [
                     'resourceType' => 'AllergyIntolerance',
                     'id' => $allergy->getId(),
@@ -64,7 +64,7 @@ class AllergyController extends AbstractController
         $allergy->setSeverity($data['severity'] ?? null);
         $allergy->setNotes($data['notes'] ?? null);
         $allergy->setRecordedDate(isset($data['recordedDate']) ? new \DateTime($data['recordedDate']) : null);
-        $allergy->setStatus(true);
+        $allergy->setIsActive(true);
         $allergy->setCreatedAt(new \DateTime());
 
         $this->em->persist($allergy);
@@ -90,7 +90,7 @@ class AllergyController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $allergy = $this->allergyRepository->find($id);
-        if (!$allergy || !$allergy->getStatus()) {
+        if (!$allergy || !$allergy->isActive()) {
             return $this->json(['error' => 'Allergy not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -125,7 +125,7 @@ class AllergyController extends AbstractController
         if (isset($data['severity'])) $allergy->setSeverity($data['severity']);
         if (isset($data['notes'])) $allergy->setNotes($data['notes']);
         if (isset($data['recordedDate'])) $allergy->setRecordedDate(new \DateTime($data['recordedDate']));
-        if (isset($data['status'])) $allergy->setStatus((bool)$data['status']);
+        if (isset($data['isActive'])) $allergy->setIsActive((bool)$data['isActive']);
 
         $this->em->flush();
 
@@ -153,7 +153,7 @@ class AllergyController extends AbstractController
             return $this->json(['error' => 'Allergy not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $allergy->setStatus(false);
+        $allergy->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Allergy marked as inactive']);

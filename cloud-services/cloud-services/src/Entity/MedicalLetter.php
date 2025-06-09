@@ -47,7 +47,7 @@ class MedicalLetter
     private ?string $fhirPayload = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private bool $status = true;
+    private ?bool $isActive = true;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -76,8 +76,16 @@ class MedicalLetter
     public function getFhirPayload(): ?string { return $this->fhirPayload; }
     public function setFhirPayload(string $fhirPayload): self { $this->fhirPayload = $fhirPayload; return $this; }
 
-    public function isStatus(): bool { return $this->status; }
-    public function setStatus(bool $status): self { $this->status = $status; return $this; }
+public function setIsActive(bool $isActive): static
+{
+    $this->isActive = $isActive;
+    return $this;
+}
+
+public function isActive(): ?bool
+{
+    return $this->isActive;
+}
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
     public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt; return $this; }

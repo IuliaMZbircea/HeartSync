@@ -26,7 +26,7 @@ class Disease
     private ?string $description = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private ?bool $status = true;
+    private ?bool $isActive = true;
 
     public function getId(): ?int
     {
@@ -66,14 +66,14 @@ class Disease
         return $this;
     }
 
-    public function getStatus(): ?bool
-    {
-        return $this->status;
-    }
+public function setIsActive(bool $isActive): static
+{
+    $this->isActive = $isActive;
+    return $this;
+}
 
-    public function setStatus(bool $status): static
-    {
-        $this->status = $status;
-        return $this;
-    }
+public function isActive(): ?bool
+{
+    return $this->isActive;
+}
 }

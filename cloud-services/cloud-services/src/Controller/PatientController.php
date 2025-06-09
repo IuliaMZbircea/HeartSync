@@ -22,7 +22,7 @@ class PatientController extends AbstractController
     #[Route('', name: 'patient_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $patients = $this->patientRepository->findBy(['status' => true]);
+        $patients = $this->patientRepository->findBy(['isActive' => true]);
         $hl7 = array_map(fn(Patient $p) => $this->buildHl7($p), $patients);
 
         return $this->json($hl7);
@@ -58,7 +58,7 @@ class PatientController extends AbstractController
         $patient->setBirthDate(isset($data['birth_date']) ? new \DateTime($data['birth_date']) : null);
         $patient->setSex($data['sex'] ?? null);
         $patient->setPatientHistory($data['patient_history'] ?? []);
-        $patient->setStatus(true);
+        $patient->setIsActive(true);
         $patient->setCreatedAt(new \DateTime());
 
         $this->em->persist($patient);
@@ -71,7 +71,7 @@ class PatientController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $patient = $this->patientRepository->find($id);
-        if (!$patient || !$patient->isStatus()) {
+        if (!$patient || !$patient->isActive()) {
             return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -82,7 +82,7 @@ class PatientController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $patient = $this->patientRepository->find($id);
-        if (!$patient || !$patient->isStatus()) {
+        if (!$patient || !$patient->isActive()) {
             return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -106,11 +106,11 @@ class PatientController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $patient = $this->patientRepository->find($id);
-        if (!$patient || !$patient->isStatus()) {
+        if (!$patient || !$patient->isActive()) {
             return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $patient->setStatus(false);
+        $patient->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Patient deactivated']);
@@ -125,7 +125,7 @@ class PatientController extends AbstractController
                 'versionId' => '1',
                 'lastUpdated' => $patient->getCreatedAt()?->format(\DateTime::ATOM),
             ],
-            'active' => $patient->isStatus(),
+            'active' => $patient->isActive(),
             'name' => [[
                 'family' => $patient->getLastName(),
                 'given' => [$patient->getFirstName()]

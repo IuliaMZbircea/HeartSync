@@ -24,7 +24,7 @@ class ReferralController extends AbstractController
     #[Route('', name: 'referral_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $referrals = $this->referralRepository->findBy(['status' => true]);
+        $referrals = $this->referralRepository->findBy(['isActive' => true]);
 
         $fhirBundle = [
             'resourceType' => 'Bundle',
@@ -61,7 +61,7 @@ class ReferralController extends AbstractController
         $referral->setHl7Payload($data['hl7_payload'] ?? null);
         $referral->setFhirResponseId($data['fhir_response_id'] ?? null);
         $referral->setIsResolved($data['is_resolved'] ?? false);
-        $referral->setStatus(true);
+        $referral->setIsActive(true);
         $referral->setCreatedAt(new \DateTime());
 
         $this->em->persist($referral);
@@ -74,7 +74,7 @@ class ReferralController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $referral = $this->referralRepository->find($id);
-        if (!$referral || !$referral->isStatus()) {
+        if (!$referral || !$referral->isActive()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -85,7 +85,7 @@ class ReferralController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $referral = $this->referralRepository->find($id);
-        if (!$referral || !$referral->isStatus()) {
+        if (!$referral || !$referral->isActive()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -121,11 +121,11 @@ class ReferralController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $referral = $this->referralRepository->find($id);
-        if (!$referral || !$referral->isStatus()) {
+        if (!$referral || !$referral->isActive()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $referral->setStatus(false);
+        $referral->setIsActive(false);
         $this->em->flush();
 
         return $this->json(['message' => 'Referral marked as inactive']);
@@ -136,7 +136,7 @@ class ReferralController extends AbstractController
         return [
             'resourceType' => 'ServiceRequest',
             'id' => $ref->getId(),
-            'status' => $ref->isStatus() ? 'active' : 'inactive',
+            'status' => $ref->isActive() ? 'active' : 'inactive',
             'intent' => 'order',
             'code' => ['text' => $ref->getType()],
             'subject' => ['reference' => 'Patient/' . $ref->getPatient()->getId()],
