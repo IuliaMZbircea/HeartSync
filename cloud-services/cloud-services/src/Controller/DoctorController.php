@@ -201,7 +201,6 @@ class DoctorController extends AbstractController
             'roles' => $user->getRoles(),
             'firstName' => $user->getFirstName(),
             'lastName' => $user->getLastName(),
-            'specialization' => $user->getSpecialization()->getName(),
         ]);
     }else  {
             return new JsonResponse([
