@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Medication;
+use App\Entity\Patient;
 use App\Repository\MedicationRepository;
+use App\Repository\PatientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,18 +18,16 @@ class MedicationController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private MedicationRepository $medicationRepository
+        private MedicationRepository $medicationRepository,
+        private PatientRepository $patientRepository
     ) {}
 
     #[Route('', name: 'medication_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
         $medications = $this->medicationRepository->findBy(['isActive' => true]);
-        $hl7 = [];
 
-        foreach ($medications as $medication) {
-            $hl7[] = $this->toHL7($medication);
-        }
+        $hl7 = array_map(fn(Medication $m) => $this->toHL7($m), $medications);
 
         return $this->json($hl7);
     }
@@ -36,8 +36,13 @@ class MedicationController extends AbstractController
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        if (!$data) {
-            return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        if (!$data || !isset($data['patient_id'])) {
+            return $this->json(['error' => 'Invalid JSON or missing patient_id'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $patient = $this->patientRepository->find($data['patient_id']);
+        if (!$patient) {
+            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
         $medication = new Medication();
@@ -51,6 +56,7 @@ class MedicationController extends AbstractController
         $medication->setNotes($data['notes'] ?? null);
         $medication->setIsActive(true);
         $medication->setCreatedAt(new \DateTime());
+        $medication->setPatient($patient);
 
         $this->em->persist($medication);
         $this->em->flush();
@@ -62,7 +68,7 @@ class MedicationController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-        if (!$medication || !$medication->isActive()) {
+        if (!$medication || !$medication->isIsActive()) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -73,7 +79,7 @@ class MedicationController extends AbstractController
     public function update(Request $request, int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-        if (!$medication || !$medication->isActive()) {
+        if (!$medication || !$medication->isIsActive()) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -87,6 +93,12 @@ class MedicationController extends AbstractController
         if (isset($data['end_date'])) $medication->setEndDate(new \DateTime($data['end_date']));
         if (isset($data['prescribed_by'])) $medication->setPrescribedBy($data['prescribed_by']);
         if (array_key_exists('notes', $data)) $medication->setNotes($data['notes']);
+        if (isset($data['patient_id'])) {
+            $patient = $this->patientRepository->find($data['patient_id']);
+            if ($patient) {
+                $medication->setPatient($patient);
+            }
+        }
 
         $this->em->flush();
 
@@ -97,7 +109,7 @@ class MedicationController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $medication = $this->medicationRepository->find($id);
-        if (!$medication || !$medication->isActive()) {
+        if (!$medication || !$medication->isIsActive()) {
             return $this->json(['error' => 'Medication not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -112,7 +124,10 @@ class MedicationController extends AbstractController
         return [
             'resourceType' => 'MedicationRequest',
             'id' => $medication->getId(),
-            'status' => $medication->isActive() ? 'active' : 'inactive',
+            'status' => $medication->isIsActive() ? 'active' : 'inactive',
+            'subject' => [
+                'reference' => '/api/patients/' . $medication->getPatient()?->getId()
+            ],
             'medicationCodeableConcept' => [
                 'text' => $medication->getName()
             ],
