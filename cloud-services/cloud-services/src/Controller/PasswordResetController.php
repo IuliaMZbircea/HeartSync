@@ -32,7 +32,8 @@ class PasswordResetController extends AbstractController
         }
 
         $token = bin2hex(random_bytes(32));
-        $expiresAt = new \DateTime('+1 hour');
+        $timezone = new \DateTimeZone('Europe/Bucharest');
+        $expiresAt = new \DateTime('+1 hour', $timezone);
 
         $doctor->setResetToken($token);
         $doctor->setResetTokenExpiresAt($expiresAt);
