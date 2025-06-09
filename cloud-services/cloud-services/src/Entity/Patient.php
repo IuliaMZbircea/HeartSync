@@ -3,30 +3,20 @@
 namespace App\Entity;
 
 use App\Repository\PatientRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
-use App\Entity\Alarm;
 use App\Entity\Allergy;
-use App\Entity\Recommendation;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-
+use App\Entity\Alarm;
+use App\Entity\Disease;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
 #[ORM\Table(name: 'patient')]
 class Patient
 {
-    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Recommendation::class)]
-    private Collection $recommendations;
-
-    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Allergy::class)]
-    private Collection $allergies;
-
-    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Alarm::class, orphanRemoval: true)]
-    private Collection $alarms;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
@@ -101,122 +91,134 @@ class Patient
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private ?bool $isActive = true;
 
-    // Getters & Setters
-    public function getId(): ?int { return $this->id; }
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Allergy::class, cascade: ['persist', 'remove'])]
+    private Collection $allergies;
 
-    public function getEmail(): ?string { return $this->email; }
-    public function setEmail(string $email): self { $this->email = $email; return $this; }
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Alarm::class, cascade: ['persist', 'remove'])]
+    private Collection $alarms;
 
-    public function getPhone(): ?string { return $this->phone; }
-    public function setPhone(string $phone): self { $this->phone = $phone; return $this; }
-
-    public function getFirstName(): ?string { return $this->firstName; }
-    public function setFirstName(string $first_name): self { $this->firstName = $first_name; return $this; }
-
-    public function getLastName(): ?string { return $this->lastName; }
-    public function setLastName(string $last_name): self { $this->lastName = $last_name; return $this; }
-
-    public function getCnp(): ?string { return $this->cnp; }
-    public function setCnp(string $cnp): self { $this->cnp = $cnp; return $this; }
-
-    public function getOccupation(): ?string { return $this->occupation; }
-    public function setOccupation(string $occupation): self { $this->occupation = $occupation; return $this; }
-
-    public function getLocality(): ?string { return $this->locality; }
-    public function setLocality(string $locality): self { $this->locality = $locality; return $this; }
-
-    public function getStreet(): ?string { return $this->street; }
-    public function setStreet(string $street): self { $this->street = $street; return $this; }
-
-    public function getNumber(): ?string { return $this->number; }
-    public function setNumber(string $number): self { $this->number = $number; return $this; }
-
-    public function getBlock(): ?string { return $this->block; }
-    public function setBlock(?string $block): self { $this->block = $block; return $this; }
-
-    public function getStaircase(): ?string { return $this->staircase; }
-    public function setStaircase(?string $staircase): self { $this->staircase = $staircase; return $this; }
-
-    public function getApartment(): ?int { return $this->apartment; }
-    public function setApartment(?int $apartment): self { $this->apartment = $apartment; return $this; }
-
-    public function getFloor(): ?int { return $this->floor; }
-    public function setFloor(?int $floor): self { $this->floor = $floor; return $this; }
-
-    public function getBloodGroup(): ?string { return $this->bloodGroup; }
-    public function setBloodGroup(string $blood_group): self { $this->bloodGroup = $blood_group; return $this; }
-
-    public function getRh(): ?string { return $this->rh; }
-    public function setRh(string $rh): self { $this->rh = $rh; return $this; }
-
-    public function getWeight(): ?float { return $this->weight; }
-    public function setWeight(float $weight): self { $this->weight = $weight; return $this; }
-
-    public function getHeight(): ?float { return $this->height; }
-    public function setHeight(float $height): self { $this->height = $height; return $this; }
-
-    public function isValidAccount(): ?bool { return $this->validAccount; }
-    public function setValidAccount(bool $valid_account): self { $this->validAccount = $valid_account; return $this; }
-
-    public function getBirthDate(): ?\DateTimeInterface { return $this->birthDate; }
-    public function setBirthDate(?\DateTimeInterface $birth_date): self { $this->birthDate = $birth_date; return $this; }
-
-    public function getSex(): ?string { return $this->sex; }
-    public function setSex(?string $sex): self { $this->sex = $sex; return $this; }
-
-    public function getPatientHistory(): ?array { return $this->patientHistory; }
-    public function setPatientHistory(?array $patient_history): self { $this->patientHistory = $patient_history; return $this; }
-
-public function setIsActive(bool $isActive): static
-{
-    $this->isActive = $isActive;
-    return $this;
-}
-
-public function isActive(): ?bool
-{
-    return $this->isActive;
-}
-
-    public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeInterface $created_at): self { $this->createdAt = $created_at; return $this; }
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Disease::class, cascade: ['persist'], orphanRemoval: false)]
+    private Collection $diseases;
 
     public function __construct()
-{
-    $this->alarms = new ArrayCollection();
-     $this->recommendations = new ArrayCollection();
-}
-
-public function getAlarms(): Collection
-{
-    return $this->alarms;
-    $this->allergies = new ArrayCollection();
-}
-
-public function getAllergies(): Collection { return $this->allergies; }
-
-public function getRecommendations(): Collection
-{
-    return $this->recommendations;
-}
-
-public function addRecommendation(Recommendation $recommendation): self
-{
-    if (!$this->recommendations->contains($recommendation)) {
-        $this->recommendations[] = $recommendation;
-        $recommendation->setPatient($this);
+    {
+        $this->allergies = new ArrayCollection();
+        $this->alarms = new ArrayCollection();
+        $this->diseases = new ArrayCollection();
     }
-    return $this;
-}
 
-public function removeRecommendation(Recommendation $recommendation): self
-{
-    if ($this->recommendations->removeElement($recommendation)) {
-        if ($recommendation->getPatient() === $this) {
-            $recommendation->setPatient(null);
+    public function getId(): ?int { return $this->id; }
+    public function getEmail(): ?string { return $this->email; }
+    public function setEmail(string $email): self { $this->email = $email; return $this; }
+    public function getPhone(): ?string { return $this->phone; }
+    public function setPhone(string $phone): self { $this->phone = $phone; return $this; }
+    public function getFirstName(): ?string { return $this->firstName; }
+    public function setFirstName(string $firstName): self { $this->firstName = $firstName; return $this; }
+    public function getLastName(): ?string { return $this->lastName; }
+    public function setLastName(string $lastName): self { $this->lastName = $lastName; return $this; }
+    public function getCnp(): ?string { return $this->cnp; }
+    public function setCnp(string $cnp): self { $this->cnp = $cnp; return $this; }
+    public function getOccupation(): ?string { return $this->occupation; }
+    public function setOccupation(string $occupation): self { $this->occupation = $occupation; return $this; }
+    public function getLocality(): ?string { return $this->locality; }
+    public function setLocality(string $locality): self { $this->locality = $locality; return $this; }
+    public function getStreet(): ?string { return $this->street; }
+    public function setStreet(string $street): self { $this->street = $street; return $this; }
+    public function getNumber(): ?string { return $this->number; }
+    public function setNumber(string $number): self { $this->number = $number; return $this; }
+    public function getBlock(): ?string { return $this->block; }
+    public function setBlock(?string $block): self { $this->block = $block; return $this; }
+    public function getStaircase(): ?string { return $this->staircase; }
+    public function setStaircase(?string $staircase): self { $this->staircase = $staircase; return $this; }
+    public function getApartment(): ?int { return $this->apartment; }
+    public function setApartment(?int $apartment): self { $this->apartment = $apartment; return $this; }
+    public function getFloor(): ?int { return $this->floor; }
+    public function setFloor(?int $floor): self { $this->floor = $floor; return $this; }
+    public function getBloodGroup(): ?string { return $this->bloodGroup; }
+    public function setBloodGroup(string $bloodGroup): self { $this->bloodGroup = $bloodGroup; return $this; }
+    public function getRh(): ?string { return $this->rh; }
+    public function setRh(string $rh): self { $this->rh = $rh; return $this; }
+    public function getWeight(): ?float { return $this->weight; }
+    public function setWeight(float $weight): self { $this->weight = $weight; return $this; }
+    public function getHeight(): ?float { return $this->height; }
+    public function setHeight(float $height): self { $this->height = $height; return $this; }
+    public function isValidAccount(): ?bool { return $this->validAccount; }
+    public function setValidAccount(bool $validAccount): self { $this->validAccount = $validAccount; return $this; }
+    public function getBirthDate(): ?\DateTimeInterface { return $this->birthDate; }
+    public function setBirthDate(?\DateTimeInterface $birthDate): self { $this->birthDate = $birthDate; return $this; }
+    public function getSex(): ?string { return $this->sex; }
+    public function setSex(?string $sex): self { $this->sex = $sex; return $this; }
+    public function getPatientHistory(): ?array { return $this->patientHistory; }
+    public function setPatientHistory(?array $patientHistory): self { $this->patientHistory = $patientHistory; return $this; }
+    public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
+    public function setCreatedAt(?\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt; return $this; }
+    public function isIsActive(): ?bool { return $this->isActive; }
+    public function setIsActive(bool $isActive): self { $this->isActive = $isActive; return $this; }
+
+    // Allergies
+    public function getAllergies(): Collection { return $this->allergies; }
+    public function addAllergy(Allergy $allergy): self
+    {
+        if (!$this->allergies->contains($allergy)) {
+            $this->allergies[] = $allergy;
+            $allergy->setPatient($this);
         }
+        return $this;
     }
-    return $this;
-}
 
+    public function removeAllergy(Allergy $allergy): self
+    {
+        if ($this->allergies->removeElement($allergy)) {
+            if ($allergy->getPatient() === $this) {
+                $allergy->setPatient(null);
+            }
+        }
+        return $this;
+    }
+
+    // Alarms
+    public function getAlarms(): Collection { return $this->alarms; }
+    public function addAlarm(Alarm $alarm): self
+    {
+        if (!$this->alarms->contains($alarm)) {
+            $this->alarms[] = $alarm;
+            $alarm->setPatient($this);
+        }
+        return $this;
+    }
+
+    public function removeAlarm(Alarm $alarm): self
+    {
+        if ($this->alarms->removeElement($alarm)) {
+            if ($alarm->getPatient() === $this) {
+                $alarm->setPatient(null);
+            }
+        }
+        return $this;
+    }
+
+    // Diseases
+    public function getDiseases(): Collection
+    {
+        return $this->diseases;
+    }
+
+    public function addDisease(Disease $disease): static
+    {
+        if (!$this->diseases->contains($disease)) {
+            $this->diseases->add($disease);
+            $disease->setPatient($this);
+        }
+        return $this;
+    }
+
+    public function removeDisease(Disease $disease): static
+    {
+        if ($this->diseases->removeElement($disease)) {
+            if ($disease->getPatient() === $this) {
+                $disease->setPatient(null);
+            }
+        }
+        return $this;
+    }
 }
