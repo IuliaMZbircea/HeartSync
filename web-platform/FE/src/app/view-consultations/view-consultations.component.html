@@ -1,1 +1,92 @@
-<p>view-consultations works!</p>
+<div class="h-24"></div>
+
+<div class="accordion-wrapper">
+
+  <div class="patient-info-card">
+    <h2>👤 Patient Information</h2>
+    <div class="patient-info">
+      <p><strong>Full Name:</strong> {{ patient.firstName }} {{ patient.lastName }}</p>
+      <p><strong>Sex:</strong> {{ patient.sex }}</p>
+      <p><strong>CNP:</strong> {{ patient.cnp }}</p>
+    </div>
+  </div>
+
+  <mat-accordion>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h2>🩺 Current Conditions & Medication</h2>
+        </mat-panel-title>
+        <mat-panel-description>
+          Ongoing diseases and active medication
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div *ngIf="patient.diseases?.length || patient.medications?.length; else noConditions" class="view">
+        <section class="section">
+          <h4>🦠 Diseases</h4>
+          <div *ngFor="let disease of patient.diseases" class="disease-card">
+            <strong><mat-icon>coronavirus</mat-icon> {{ disease.name }}</strong>
+            <p>{{ disease.description }}</p>
+          </div>
+        </section>
+
+        <section class="section">
+          <h4>💊 Medications</h4>
+          <div *ngFor="let med of patient.medications" class="med-card">
+            <strong><mat-icon>medication</mat-icon> {{ med.name }}</strong>
+            <div>{{ med.dose }}, {{ med.frequency }} <em>({{ med.route }})</em></div>
+            <div *ngIf="med.notes">📝 {{ med.notes }}</div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h4>🌿 Allergies</h4>
+          <div *ngFor="let allergy of patient.allergies" class="med-card">
+            <strong>
+              <mat-icon style="vertical-align: middle; color: #d32f2f;">warning</mat-icon>
+              {{ allergy.name }}
+            </strong>
+            <p><strong>Severity:</strong> {{ allergy.severity | titlecase }}</p>
+            <p><strong>Active:</strong> {{ allergy.isActive ? 'Yes' : 'No' }}</p>
+            <p><strong>Recorded date:</strong> {{ allergy.recordedDate | date:'mediumDate' }}</p>
+            <p *ngIf="allergy.reaction"><strong>Reaction:</strong> {{ allergy.reaction }}</p>
+            <p *ngIf="allergy.notes"><strong>Notes:</strong> {{ allergy.notes }}</p>
+          </div>
+        </section>
+
+      </div>
+
+      <ng-template #noConditions>
+        <div class="center">
+          <h3>✅ No current conditions or medications recorded.</h3>
+        </div>
+      </ng-template>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h2>Allergies History</h2>
+        </mat-panel-title>
+        <mat-panel-description>
+          📜 Overview of previous allergy records
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <ng-template #noHistory>
+        <p>No allergy history available.</p>
+      </ng-template>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title><h2>Add New Allergy</h2></mat-panel-title>
+        <mat-panel-description>➕ Add a new allergy entry</mat-panel-description>
+      </mat-expansion-panel-header>
+
+    </mat-expansion-panel>
+
+  </mat-accordion>
+</div>
