@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from "rxjs";
 import { Patient } from "../shared/interfaces/patient";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PatientService {
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   patient: Patient[] = [
     { id: 1,
@@ -362,7 +363,7 @@ export class PatientService {
           duration: 300,
           afterActivity: false,
           message: 'Aer prea uscat. Hidratează-te și evită efortul.',
-          read : true,
+          isActive : true,
         },
         {
           parameter: 'pulse',
@@ -371,7 +372,7 @@ export class PatientService {
           duration: 45,
           afterActivity: true,
           message: 'Puls crescut semnificativ după efort.',
-          read : true,
+          isActive : true,
         }
       ],
       patientHistory : {
@@ -558,7 +559,7 @@ export class PatientService {
           duration: 60,
           afterActivity: false,
           message: 'Semnal ECG pierdut. Verifică senzorul.',
-          read : true,
+          isActive : true,
         }
       ],
       medications:[
@@ -687,7 +688,7 @@ export class PatientService {
           duration: 120,
           afterActivity: false,
           message: 'Nivel hemoglobină scăzut, necesară evaluare.',
-          read : true,
+          isActive : true,
         }
       ],
       medications:[
@@ -867,8 +868,14 @@ export class PatientService {
     }
   ]
 
+  private apiUrl:string = 'http://localhost:8000/api/custom-patients'
+
   getPatients(): Observable<any[]> {
     return of(this.patient)
+  }
+
+  getPatientsFromBE():Observable<Patient[]>{
+    return this.http.get<Patient[]>(this.apiUrl);
   }
 
   updatePatient(updatedPatient: Patient): void {
