@@ -4,6 +4,7 @@ import {MatIcon} from "@angular/material/icon";
 import {Router, RouterLink} from "@angular/router";
 import {DoctorService} from "../../../services/doctor.service";
 import {AuthService} from "../../../services/auth.service";
+import {AlertService} from "../../../services/alert.service";
 
 @Component({
   selector: 'app-login',
@@ -23,9 +24,10 @@ export class LoginComponent implements AfterViewInit {
   password: string = '';
 
   constructor(
-    private doctorService: DoctorService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertService: AlertService
+
   ) {}
 
   togglePasswordVisibility(): void {
@@ -35,14 +37,14 @@ export class LoginComponent implements AfterViewInit {
   login() {
     this.authService.loginUser(this.email, this.password).subscribe({
       next: (user) => {
+        this.alertService.success('Login successful!');
         this.router.navigate(['/PatientList']);
       },
       error: (err) => {
-        alert('Email sau parolă greșită.');
+        this.alertService.error('Email sau parolă greșită.');
       }
     });
   }
-
   ngAfterViewInit() {
     setTimeout(() => {
       const elements = document.querySelectorAll('.sign-in-section');
