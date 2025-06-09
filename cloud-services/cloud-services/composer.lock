@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b04d23bc31eaa10796ff6111e192a200",
+    "content-hash": "ab746bf83d5c1e080271cf8a8d73544a",
     "packages": [
         {
             "name": "api-platform/core",
@@ -448,6 +448,85 @@
                 "issues": "https://github.com/DamienHarper/auditor-bundle/issues",
                 "source": "https://github.com/DamienHarper/auditor-bundle/tree/6.2.1"
             },
+            "time": "2025-01-16T08:18:12+00:00"
+        },
+        {
+            "name": "damienharper/doctrine-audit-bundle",
+            "version": "6.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DamienHarper/auditor-bundle.git",
+                "reference": "092f35aade375d1e6bbacec31b5a84cd0b044cc0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DamienHarper/auditor-bundle/zipball/092f35aade375d1e6bbacec31b5a84cd0b044cc0",
+                "reference": "092f35aade375d1e6bbacec31b5a84cd0b044cc0",
+                "shasum": ""
+            },
+            "require": {
+                "damienharper/auditor": "^3.2",
+                "doctrine/doctrine-bundle": "^2.0",
+                "ext-intl": "*",
+                "php": ">=8.2",
+                "symfony/asset": "^5.4|^6.4|^7.0",
+                "symfony/doctrine-bridge": "^5.4|^6.4|^7.0",
+                "symfony/event-dispatcher": "^5.4|^6.4|^7.0",
+                "symfony/lock": "^5.4|^6.4|^7.0",
+                "symfony/security-bundle": "^5.4|^6.4|^7.0",
+                "symfony/translation": "^5.4|^6.4|^7.0",
+                "symfony/twig-bundle": "^5.4|^6.4|^7.0",
+                "twig/extra-bundle": "^3.3",
+                "twig/intl-extra": "^3.3"
+            },
+            "require-dev": {
+                "doctrine/data-fixtures": "^1.4",
+                "gedmo/doctrine-extensions": "^2.4|^3.0",
+                "matthiasnoback/symfony-dependency-injection-test": "^6.0",
+                "nyholm/symfony-bundle-test": "^2.0|^3.0",
+                "phpunit/phpunit": "^11.0",
+                "symfony/browser-kit": "^5.4|^6.4|^7.0",
+                "symfony/css-selector": "^5.4|^6.4|^7.0",
+                "symfony/framework-bundle": "^5.4|^6.4|^7.0",
+                "symfony/var-dumper": "^5.4|^6.4|^7.0",
+                "symfony/webpack-encore-bundle": "^1.12|^2.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-4.x": "4.x-dev",
+                    "dev-5.x": "5.x-dev",
+                    "dev-master": "6.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "DH\\AuditorBundle\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Damien Harper",
+                    "email": "damien.harper@gmail.com"
+                }
+            ],
+            "description": "Integrate auditor library in your Symfony projects.",
+            "keywords": [
+                "Audit",
+                "audit-log",
+                "audit-trail",
+                "auditor",
+                "doctrine"
+            ],
+            "support": {
+                "issues": "https://github.com/DamienHarper/auditor-bundle/issues",
+                "source": "https://github.com/DamienHarper/auditor-bundle/tree/6.2.1"
+            },
+            "abandoned": "damienharper/auditor-bundle",
             "time": "2025-01-16T08:18:12+00:00"
         },
         {

@@ -26,6 +26,18 @@
             "./config/routes/dh_auditor.yaml"
         ]
     },
+    "damienharper/doctrine-audit-bundle": {
+        "version": "6.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "ab8b371ee4206c79a144f3617d8eef3d6e7b87be"
+        },
+        "files": [
+            "./config/packages/dh_doctrine_audit.yaml"
+        ]
+    },
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {
