@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Component\Security\Core\Security;
 
 class DoctorController extends AbstractController
 {
@@ -52,7 +53,7 @@ class DoctorController extends AbstractController
         return $this->json($response);
     }
 
-    #[Route('/doctors', name: 'doctor_create', methods: ['POST'])]
+    #[Route('/api/doctors', name: 'doctor_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -90,7 +91,7 @@ class DoctorController extends AbstractController
         ]);
     }
 
-    #[Route('/doctors/{id}', name: 'doctor_show', methods: ['GET'])]
+    #[Route('/api/doctors/{id}', name: 'doctor_show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
         $doctor = $this->doctorRepository->find($id);
@@ -119,7 +120,7 @@ class DoctorController extends AbstractController
         ]);
     }
 
-    #[Route('/doctors/{id}', name: 'doctor_update', methods: ['PUT'])]
+    #[Route('/api/doctors/{id}', name: 'doctor_update', methods: ['PUT'])]
     public function update(Request $request, int $id): JsonResponse
     {
         $doctor = $this->doctorRepository->find($id);
@@ -167,26 +168,25 @@ class DoctorController extends AbstractController
         ]);
     }
 
-    #[Route('/doctors/{id}', name: 'doctor_delete', methods: ['DELETE'])]
-    public function delete(int $id): JsonResponse
-    {
-        $doctor = $this->doctorRepository->find($id);
-        if (!$doctor) {
-            return $this->json(['error' => 'Doctor not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $role = $doctor->getRoles();
-        if (!in_array('ROLE-ADMIN', $role)) {
-            return new JsonResponse(['error' => 'Unauthorized - Only admins can search disease'], 403);
-        }
-
-        $doctor->setIsActive(false);
-        $this->em->flush();
-
-        return $this->json(['message' => 'Doctor marked as inactive']);
+ #[Route('/api/doctors/{id}/deactivate', name: 'doctor_deactivate', methods: ['PATCH'])]
+public function deactivate(int $id): JsonResponse
+{
+    if (!$this->isGranted('ROLE_ADMIN')) {
+        return $this->json(['error' => 'Nu ai permisiunea să dezactivezi doctori.'], Response::HTTP_FORBIDDEN);
     }
 
-#[Route('/api/doctors/auth/user', name: 'api_get_auth_user', methods: ['GET'])]
+    $doctor = $this->doctorRepository->find($id);
+    if (!$doctor) {
+        return $this->json(['error' => 'Doctorul nu a fost găsit.'], Response::HTTP_NOT_FOUND);
+    }
+
+    $doctor->setIsActive(false);
+    $this->em->flush();
+
+    return $this->json(['message' => 'Doctorul a fost dezactivat cu succes.']);
+}
+
+#[Route('api/doctors/auth/user', name: 'api_get_auth_user', methods: ['GET'])]
     public function getAuthUserDetails(): JsonResponse
     {
         $user = $this->getUser();
