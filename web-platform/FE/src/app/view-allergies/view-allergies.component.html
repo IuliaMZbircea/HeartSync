@@ -28,7 +28,7 @@
           <div *ngFor="let allergy of activeAllergies" class="allergy-card">
             <p><strong>Name:</strong> {{ allergy.name }}</p>
             <p><strong>Severity:</strong> {{ allergy.severity | titlecase }}</p>
-            <p><strong>Active:</strong> {{ (allergy.active ? 'Yes' : 'No') }}</p>
+            <p><strong>Active:</strong> {{ (allergy.isActive ? 'Yes' : 'No') }}</p>
             <p><strong>Recorded date:</strong> {{ allergy.recordedDate | date:'mediumDate' }}</p>
             <p *ngIf="allergy.reaction"><strong>Reaction:</strong> {{ allergy.reaction }}</p>
             <p *ngIf="allergy.notes"><strong>Notes:</strong> {{ allergy.notes }}</p>
@@ -87,7 +87,7 @@
 
             <div class="md:col-span-2">
               <label>
-                <input type="checkbox" formControlName="active" />
+                <input type="checkbox" formControlName="isActive" />
                 Active Allergy
               </label>
             </div>
@@ -124,7 +124,7 @@
             <p><strong>Name:</strong> {{ allergy.name }}</p>
             <p><strong>Severity:</strong> {{ allergy.severity | titlecase }}</p>
             <p><strong>Recorded on:</strong> {{ allergy.recordedDate | date }}</p>
-            <p><strong>Active:</strong> {{ (allergy.active ? 'Yes' : 'No') }}</p>
+            <p><strong>Active:</strong> {{ (allergy.isActive ? 'Yes' : 'No') }}</p>
             <p *ngIf="allergy.reaction"><strong>Reaction:</strong> {{ allergy.reaction }}</p>
             <p *ngIf="allergy.notes"><strong>Notes:</strong> {{ allergy.notes }}</p>
           </section>

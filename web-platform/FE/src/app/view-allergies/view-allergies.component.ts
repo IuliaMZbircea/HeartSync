@@ -63,7 +63,7 @@ export class ViewAllergiesComponent implements OnInit {
       severity: ['', Validators.required],
       reaction: ['', Validators.maxLength(200)],
       notes: ['', Validators.maxLength(500)],
-      active: [true],
+      isActive: [true],
       recordedDate: ['']
     });
 
@@ -72,6 +72,7 @@ export class ViewAllergiesComponent implements OnInit {
       severity: ['', Validators.required],
       reaction: ['', Validators.maxLength(200)],
       notes: ['', Validators.maxLength(500)],
+      isActive: [true],
     });
   }
 
@@ -79,22 +80,22 @@ export class ViewAllergiesComponent implements OnInit {
     const idParam = this.route.snapshot.paramMap.get('id');
     const id = idParam ? Number(idParam) : null;
 
-    // if (id !== null) {
-    //   this.patientService.getPatientById(id).subscribe(patient => {
-    //     this.patient = patient;
-    //     this.loadAllergies();
-    //   }, error => {
-    //     this.alertService.error('Pacientul nu a fost găsit.');
-    //   });
-    // }
+    if (id !== null) {
+      this.patientService.getPatientById(id).subscribe(patient => {
+        this.patient = patient;
+        this.loadAllergies();
+      }, error => {
+        this.alertService.error('Pacientul nu a fost găsit.');
+      });
+    }
   }
 
   loadAllergies() {
-    // this.allergyService.getAllergiesByPatient(this.patient.id).subscribe(allergies => {
-    //   this.allergies = allergies;
-    // }, error => {
-    //   this.alertService.error('Eroare la încărcarea alergiilor.');
-    // });
+    this.allergyService.getAllergiesByPatient(this.patient.id).subscribe(allergies => {
+      this.allergies = allergies;
+    }, error => {
+      this.alertService.error('Eroare la încărcarea alergiilor.');
+    });
   }
 
   enableEditAllergies(allergy: Allergy) {
@@ -105,7 +106,7 @@ export class ViewAllergiesComponent implements OnInit {
       severity: allergy.severity,
       reaction: allergy.reaction,
       notes: allergy.notes,
-      active: allergy.active,
+      isActive: allergy.isActive,
       recordedDate: allergy.recordedDate ? new Date(allergy.recordedDate) : null,
     });
   }
@@ -116,6 +117,7 @@ export class ViewAllergiesComponent implements OnInit {
         ...this.allergiesForm.value,
         recordedDate: this.allergiesForm.value.recordedDate ? new Date(this.allergiesForm.value.recordedDate).toISOString().split('T')[0] : null
       };
+      console.log('Updated Allergy:', updatedAllergy);
       this.allergyService.updateAllergy(this.editAllergy.id!, updatedAllergy).subscribe(() => {
         this.alertService.success('Alergia a fost actualizată cu succes!');
         this.isEditingAllergies = false;
@@ -148,7 +150,7 @@ export class ViewAllergiesComponent implements OnInit {
   }
 
   get activeAllergies(): Allergy[] {
-    return this.allergies.filter(a => a.active);
+    return this.allergies.filter(a => a.isActive);
   }
 
 }

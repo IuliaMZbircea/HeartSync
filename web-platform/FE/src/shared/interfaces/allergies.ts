@@ -7,5 +7,5 @@ export interface Allergy {
   recordedDate?: string;
   createdAt?: string;
   patient?: number;
-  active?: boolean;
+  isActive?: boolean;
 }

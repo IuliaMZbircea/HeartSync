@@ -10,7 +10,7 @@ import { ErrorService } from './error.service';
 })
 export class AllergyService {
 
-  private apiUrl = `${environment.apiUrl}/custom-allergies`;
+  private apiUrl = `${environment.apiUrl}/api/custom-allergies`;
 
   constructor(private http: HttpClient, private errorService: ErrorService) {}
 
