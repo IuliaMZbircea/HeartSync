@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Alarm;
+use App\Entity\Patient;
 use App\Repository\AlarmRepository;
+use App\Repository\PatientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +18,8 @@ class AlarmController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private AlarmRepository $alarmRepository
+        private AlarmRepository $alarmRepository,
+        private PatientRepository $patientRepository
     ) {}
 
     #[Route('', name: 'alarm_index', methods: ['GET'])]
@@ -27,6 +30,7 @@ class AlarmController extends AbstractController
         $response = array_map(function (Alarm $alarm) {
             return [
                 'id' => $alarm->getId(),
+                'patientId' => $alarm->getPatient()?->getId(),
                 'parameter' => $alarm->getParameter(),
                 'conditionType' => $alarm->getConditionType(),
                 'threshold' => $alarm->getThreshold(),
@@ -37,6 +41,9 @@ class AlarmController extends AbstractController
                 'hl7' => [
                     'resourceType' => 'Observation',
                     'id' => $alarm->getId(),
+                    'subject' => [
+                    'reference' => 'Patient/' . $alarm->getPatient()?->getId(),
+                ],
                     'code' => ['text' => $alarm->getParameter()],
                     'valueQuantity' => ['value' => $alarm->getThreshold()],
                     'interpretation' => ['text' => $alarm->getConditionType()],
@@ -56,7 +63,14 @@ class AlarmController extends AbstractController
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
+        $patient = $this->patientRepository->find($data['patient_id']);
+        if (!$patient) {
+            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+        }
+
+
         $alarm = new Alarm();
+        $alarm->setPatient($patient);
         $alarm->setParameter($data['parameter'] ?? '');
         $alarm->setConditionType($data['conditionType'] ?? '');
         $alarm->setThreshold((float)($data['threshold'] ?? 0));
@@ -74,6 +88,9 @@ class AlarmController extends AbstractController
             'hl7' => [
                 'resourceType' => 'Observation',
                 'id' => $alarm->getId(),
+                'subject' => [
+                    'reference' => 'Patient/' . $alarm->getPatient()?->getId(),
+                ],
                 'code' => ['text' => $alarm->getParameter()],
                 'valueQuantity' => ['value' => $alarm->getThreshold()],
                 'interpretation' => ['text' => $alarm->getConditionType()],
@@ -95,6 +112,9 @@ class AlarmController extends AbstractController
             'hl7' => [
                 'resourceType' => 'Observation',
                 'id' => $alarm->getId(),
+                'subject' => [
+                    'reference' => 'Patient/' . $alarm->getPatient()?->getId(),
+                ],
                 'code' => ['text' => $alarm->getParameter()],
                 'valueQuantity' => ['value' => $alarm->getThreshold()],
                 'interpretation' => ['text' => $alarm->getConditionType()],
@@ -113,6 +133,15 @@ class AlarmController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
+        if (isset($data['patient_id'])) {
+            $patient = $this->patientRepository->find($data['patient_id']);
+            if (!$patient) {
+                return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+            }
+            $alarm->setPatient($patient);
+        }
+
+
         if (isset($data['parameter'])) $alarm->setParameter($data['parameter']);
         if (isset($data['conditionType'])) $alarm->setConditionType($data['conditionType']);
         if (isset($data['threshold'])) $alarm->setThreshold((float)$data['threshold']);
@@ -128,6 +157,9 @@ class AlarmController extends AbstractController
             'hl7' => [
                 'resourceType' => 'Observation',
                 'id' => $alarm->getId(),
+                'subject' => [
+                    'reference' => 'Patient/' . $alarm->getPatient()?->getId(),
+                ],
                 'code' => ['text' => $alarm->getParameter()],
                 'valueQuantity' => ['value' => $alarm->getThreshold()],
                 'interpretation' => ['text' => $alarm->getConditionType()],
