@@ -38,13 +38,19 @@ export class LoginComponent implements AfterViewInit {
     this.authService.loginUser(this.email, this.password).subscribe({
       next: (user) => {
         this.alertService.success('Login successful!');
-        this.router.navigate(['/PatientList']);
+
+        if (user.roles && user.roles.includes('ROLE_ADMIN')) {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/PatientList']);
+        }
       },
       error: (err) => {
         this.alertService.error('Email sau parolă greșită.');
       }
     });
   }
+
   ngAfterViewInit() {
     setTimeout(() => {
       const elements = document.querySelectorAll('.sign-in-section');

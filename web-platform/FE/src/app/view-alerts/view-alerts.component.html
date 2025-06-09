@@ -39,8 +39,12 @@
         <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}</p>
         <p><strong>Message:</strong> {{ alarm.message }}</p>
       </section>
-      <button mat-button color="{{ alarm.read ? 'primary' : 'warn' }}" (click)="toggleRead(alarm)">
-        {{ alarm.read ? 'Mark as Unread' : 'Mark as Read' }}
+      <button
+        mat-button
+        color="{{ alarm.isActive ? 'warn' : 'primary' }}"
+        (click)="toggleActive(alarm)"
+      >
+        {{ alarm.isActive ? 'Mark as Read' : 'Already Read' }}
       </button>
 
       <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
@@ -127,8 +131,12 @@
             <p><strong>Message:</strong> {{ alarm.message }}</p>
           </section>
 
-          <button mat-button color="{{ alarm.read ? 'primary' : 'warn' }}" (click)="toggleRead(alarm)">
-            {{ alarm.read ? 'Mark as Unread' : 'Mark as Read' }}
+          <button
+            mat-button
+            color="{{ alarm.isActive ? 'warn' : 'primary' }}"
+            (click)="toggleActive(alarm)"
+          >
+            {{ alarm.isActive ? 'Mark as Read' : 'Already Read' }}
           </button>
 
         </div>

@@ -1,5 +1,7 @@
 import Swal from 'sweetalert2';
 import { Injectable } from '@angular/core';
+import {HttpClient} from "@angular/common/http";
+import {Observable} from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class AlertService {
@@ -22,4 +24,13 @@ export class AlertService {
       text: message,
     });
   }
+
+  private apiUrl = 'http://localhost:8000/api/alarms';
+
+  constructor(private http: HttpClient) {}
+
+  getAlarmsByPatient(patientId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/patient/${patientId}`);
+  }
+
 }

@@ -13,6 +13,7 @@ import {
 import {NgForOf, NgIf} from "@angular/common";
 import {MatButton, MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
+import {AlertService} from "../../services/alert.service";
 
 @Component({
   selector: 'app-view-alerts',
@@ -69,14 +70,12 @@ export class ViewAlertsComponent implements OnInit {
     const id = idParam && !isNaN(+idParam) ? Number(idParam) : null;
 
     if (id !== null) {
-      this.patientService.getPatients().subscribe((patients: Patient[]) => {
+      this.patientService.getPatientsFromBE().subscribe((patients: Patient[]) => {
         const found = patients.find(p => p.id === id);
         if (found) {
           this.patient = found;
-          // Asigură că fiecare alarmă are proprietatea read, implicit false
           this.alarms = (found.alarms || []).map(alarm => ({
             ...alarm,
-            read: alarm.read ?? false
           }));
         } else {
           console.warn(`Patient with ID ${id} not found.`);
@@ -87,8 +86,9 @@ export class ViewAlertsComponent implements OnInit {
     }
   }
 
-  toggleRead(alarm: Alarm) {
-    alarm.read = !alarm.read;
+  toggleActive(alarm: Alarm): void {
+    alarm.isActive = false;
+    this.patientService.updatePatient(this.patient);
   }
 
   get latestAlarm(): Alarm | null {
@@ -106,7 +106,7 @@ export class ViewAlertsComponent implements OnInit {
         duration: formValue.duration,
         afterActivity: formValue.afterActivity === 'true',
         message: formValue.message,
-        read: false // implicit necitită la adăugare
+        isActive: true
       };
 
       this.alarms.push(newAlarm);
@@ -142,7 +142,6 @@ export class ViewAlertsComponent implements OnInit {
       ...this.latestAlarm,
       ...updated,
       afterActivity: updated.afterActivity === 'true',
-      read: this.latestAlarm.read // păstrează starea de citit/necitit
     };
 
     if (index !== -1) {
