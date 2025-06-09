@@ -62,7 +62,7 @@ class Referral
     public function setType(string $type): self { $this->type = $type; return $this; }
 
     public function getPatient(): ?Patient { return $this->patient; }
-    public function setPatient(Patient $patient): self { $this->patient = $patient; return $this; }
+    public function setPatient(?Patient $patient): self { $this->patient = $patient; return $this; }
 
     public function getFromDoctor(): ?Doctor { return $this->fromDoctor; }
     public function setFromDoctor(Doctor $fromDoctor): self { $this->fromDoctor = $fromDoctor; return $this; }

@@ -233,6 +233,25 @@ private function serializePatient(Patient $patient): array
 }, array_filter(
     $patient->getConsultations()->toArray(),
     fn($c) => $c->isActive()
+)), 
+// 🔹 Referrals
+'referrals' => array_map(function ($referral) {
+    return [
+        'id' => $referral->getId(),
+        'type' => $referral->getType(),
+        'fromDoctorId' => $referral->getFromDoctor()?->getId(),
+        'toDoctorId' => $referral->getToDoctor()?->getId(),
+        'reason' => $referral->getReason(),
+        'date' => $referral->getDate()?->format('Y-m-d'),
+        'hl7Payload' => $referral->getHl7Payload(),
+        'fhirResponseId' => $referral->getFhirResponseId(),
+        'isResolved' => $referral->isResolved(),
+        'createdAt' => $referral->getCreatedAt()?->format('Y-m-d H:i:s'),
+        'isActive' => $referral->isActive()
+    ];
+}, array_filter(
+    $patient->getReferrals()->toArray(),
+    fn($r) => $r->isActive()
 )),
     ];
 

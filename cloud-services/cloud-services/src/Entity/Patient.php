@@ -13,6 +13,7 @@ use App\Entity\Alarm;
 use App\Entity\Disease;
 use App\Entity\Medication;
 use App\Entity\Consultation;
+use App\Entity\Referral;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
@@ -108,6 +109,9 @@ class Patient
     #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Consultation::class, cascade: ['persist', 'remove'])]
     private Collection $consultations;
 
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Referral::class, cascade: ['persist', 'remove'])]
+    private Collection $referrals;
+
     public function __construct()
     {
         $this->allergies = new ArrayCollection();
@@ -115,6 +119,7 @@ class Patient
         $this->diseases = new ArrayCollection();
         $this->medications = new ArrayCollection();
         $this->consultations = new ArrayCollection();
+        $this->referrals = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -282,4 +287,29 @@ public function removeConsultation(Consultation $consultation): self
     }
     return $this;
 }
+
+//Referral
+
+public function getReferrals(): Collection
+{
+    return $this->referrals;
+}
+public function addReferral(Referral $referral): self
+{
+    if (!$this->referrals->contains($referral)) {
+        $this->referrals[] = $referral;
+        $referral->setPatient($this);
+    }
+    return $this;
+}
+public function removeReferral(Referral $referral): self
+{
+    if ($this->referrals->removeElement($referral)) {
+        if ($referral->getPatient() === $this) {
+            $referral->setPatient(null);
+        }
+    }
+    return $this;
+}
+
 }
