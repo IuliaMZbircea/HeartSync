@@ -178,9 +178,13 @@ class DoctorController extends AbstractController
         if (!$doctor) {
             return $this->json(['error' => 'Doctor not found'], Response::HTTP_NOT_FOUND);
         }
+        $role = $doctor->getRoles();
 
+        if (!in_array('ROLE-ADMIN', $role)) {
+            return new JsonResponse(['error' => 'Unauthorized - Only admins can search disease'], 403);}
         $doctor->setStatus(false);
         $this->em->flush();
+
 
         return $this->json(['message' => 'Doctor marked as inactive']);
     }
