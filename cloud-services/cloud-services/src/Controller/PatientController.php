@@ -54,8 +54,8 @@ class PatientController extends AbstractController
         $patient = new Patient();
         $patient->setEmail($data['email'] ?? '');
         $patient->setPhone($data['phone'] ?? '');
-        $patient->setFirstName($data['first_name'] ?? '');
-        $patient->setLastName($data['last_name'] ?? '');
+        $patient->setFirstName($data['firstName'] ?? '');
+        $patient->setLastName($data['lastName'] ?? '');
         $patient->setCnp($data['cnp'] ?? '');
         $patient->setOccupation($data['occupation'] ?? '');
         $patient->setLocality($data['locality'] ?? '');
@@ -65,12 +65,12 @@ class PatientController extends AbstractController
         $patient->setStaircase($data['staircase'] ?? null);
         $patient->setApartment($data['apartment'] ?? null);
         $patient->setFloor($data['floor'] ?? null);
-        $patient->setBloodGroup($data['blood_group'] ?? '');
+        $patient->setBloodGroup($data['bloodGroup'] ?? '');
         $patient->setRh($data['rh'] ?? '');
         $patient->setWeight($data['weight'] ?? 0);
         $patient->setHeight($data['height'] ?? 0);
         $patient->setValidAccount(true);
-        $patient->setBirthDate(isset($data['birth_date']) ? new \DateTime($data['birth_date']) : null);
+        $patient->setBirthDate(isset($data['birthDate']) ? new \DateTime($data['birthDate']) : null);
         $patient->setSex($data['sex'] ?? null);
         $patient->setPatientHistory($data['patient_history'] ?? []);
         $patient->setCreatedAt(new \DateTime());
@@ -233,7 +233,7 @@ private function serializePatient(Patient $patient): array
 }, array_filter(
     $patient->getConsultations()->toArray(),
     fn($c) => $c->isActive()
-)), 
+)),
 // 🔹 Referrals
 'referrals' => array_map(function ($referral) {
     return [
