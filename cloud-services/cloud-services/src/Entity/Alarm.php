@@ -34,8 +34,8 @@ class Alarm
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
 
-    #[ORM\Column(length: 50, options: ['default' => 'active'])]
-    private ?string $status = 'active';
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private ?bool $status = true;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeInterface $createdAt = null;
@@ -111,13 +111,13 @@ class Alarm
         return $this->message;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(bool $status): static
     {
         $this->status = $status;
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?bool
     {
         return $this->status;
     }

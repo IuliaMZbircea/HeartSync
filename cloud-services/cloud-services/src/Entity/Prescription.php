@@ -28,101 +28,37 @@ class Prescription
     #[ORM\Column(length: 100)]
     private ?string $duration = null;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $issuedDate = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $status = 'active';
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private ?bool $status = true;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    // Getters & Setters
 
-    public function getMedicationName(): ?string
-    {
-        return $this->medicationName;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function setMedicationName(string $medicationName): self
-    {
-        $this->medicationName = $medicationName;
+    public function getMedicationName(): ?string { return $this->medicationName; }
+    public function setMedicationName(string $medicationName): self { $this->medicationName = $medicationName; return $this; }
 
-        return $this;
-    }
+    public function getDose(): ?string { return $this->dose; }
+    public function setDose(string $dose): self { $this->dose = $dose; return $this; }
 
-    public function getDose(): ?string
-    {
-        return $this->dose;
-    }
+    public function getFrequency(): ?string { return $this->frequency; }
+    public function setFrequency(string $frequency): self { $this->frequency = $frequency; return $this; }
 
-    public function setDose(string $dose): self
-    {
-        $this->dose = $dose;
+    public function getDuration(): ?string { return $this->duration; }
+    public function setDuration(string $duration): self { $this->duration = $duration; return $this; }
 
-        return $this;
-    }
+    public function getIssuedDate(): ?\DateTimeInterface { return $this->issuedDate; }
+    public function setIssuedDate(\DateTimeInterface $issuedDate): self { $this->issuedDate = $issuedDate; return $this; }
 
-    public function getFrequency(): ?string
-    {
-        return $this->frequency;
-    }
+    public function isStatus(): ?bool { return $this->status; }
+    public function setStatus(bool $status): self { $this->status = $status; return $this; }
 
-    public function setFrequency(string $frequency): self
-    {
-        $this->frequency = $frequency;
-
-        return $this;
-    }
-
-    public function getDuration(): ?string
-    {
-        return $this->duration;
-    }
-
-    public function setDuration(string $duration): self
-    {
-        $this->duration = $duration;
-
-        return $this;
-    }
-
-    public function getIssuedDate(): ?\DateTimeInterface
-    {
-        return $this->issuedDate;
-    }
-
-    public function setIssuedDate(\DateTimeInterface $issuedDate): self
-    {
-        $this->issuedDate = $issuedDate;
-
-        return $this;
-    }
-
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): self
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
+    public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
+    public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt; return $this; }
 }

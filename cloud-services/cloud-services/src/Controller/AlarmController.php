@@ -22,7 +22,30 @@ class AlarmController extends AbstractController
     #[Route('', name: 'alarm_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        return $this->json($this->alarmRepository->findAll());
+        $alarms = $this->alarmRepository->findBy(['status' => true]);
+
+        $response = array_map(function (Alarm $alarm) {
+            return [
+                'id' => $alarm->getId(),
+                'parameter' => $alarm->getParameter(),
+                'conditionType' => $alarm->getConditionType(),
+                'threshold' => $alarm->getThreshold(),
+                'duration' => $alarm->getDuration(),
+                'afterActivity' => $alarm->isAfterActivity(),
+                'message' => $alarm->getMessage(),
+                'status' => $alarm->getStatus(),
+                'hl7' => [
+                    'resourceType' => 'Observation',
+                    'id' => $alarm->getId(),
+                    'code' => ['text' => $alarm->getParameter()],
+                    'valueQuantity' => ['value' => $alarm->getThreshold()],
+                    'interpretation' => ['text' => $alarm->getConditionType()],
+                    'note' => [['text' => $alarm->getMessage()]]
+                ]
+            ];
+        }, $alarms);
+
+        return $this->json($response);
     }
 
     #[Route('', name: 'alarm_create', methods: ['POST'])]
@@ -40,24 +63,44 @@ class AlarmController extends AbstractController
         $alarm->setDuration((int)($data['duration'] ?? 0));
         $alarm->setAfterActivity((bool)($data['afterActivity'] ?? false));
         $alarm->setMessage($data['message'] ?? null);
-        $alarm->setStatus($data['status'] ?? 'active');
+        $alarm->setStatus($data['status'] ?? true);
         $alarm->setCreatedAt(new \DateTime());
 
         $this->em->persist($alarm);
         $this->em->flush();
 
-        return $this->json($alarm, Response::HTTP_CREATED);
+        return $this->json([
+            'alarm' => $alarm,
+            'hl7' => [
+                'resourceType' => 'Observation',
+                'id' => $alarm->getId(),
+                'code' => ['text' => $alarm->getParameter()],
+                'valueQuantity' => ['value' => $alarm->getThreshold()],
+                'interpretation' => ['text' => $alarm->getConditionType()],
+                'note' => [['text' => $alarm->getMessage()]]
+            ]
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'alarm_show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
         $alarm = $this->alarmRepository->find($id);
-        if (!$alarm) {
+        if (!$alarm || !$alarm->getStatus()) {
             return $this->json(['error' => 'Alarm not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json($alarm);
+        return $this->json([
+            'alarm' => $alarm,
+            'hl7' => [
+                'resourceType' => 'Observation',
+                'id' => $alarm->getId(),
+                'code' => ['text' => $alarm->getParameter()],
+                'valueQuantity' => ['value' => $alarm->getThreshold()],
+                'interpretation' => ['text' => $alarm->getConditionType()],
+                'note' => [['text' => $alarm->getMessage()]]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'alarm_update', methods: ['PUT'])]
@@ -76,11 +119,21 @@ class AlarmController extends AbstractController
         if (isset($data['duration'])) $alarm->setDuration((int)$data['duration']);
         if (isset($data['afterActivity'])) $alarm->setAfterActivity((bool)$data['afterActivity']);
         if (isset($data['message'])) $alarm->setMessage($data['message']);
-        if (isset($data['status'])) $alarm->setStatus($data['status']);
+        if (isset($data['status'])) $alarm->setStatus((bool)$data['status']);
 
         $this->em->flush();
 
-        return $this->json($alarm);
+        return $this->json([
+            'alarm' => $alarm,
+            'hl7' => [
+                'resourceType' => 'Observation',
+                'id' => $alarm->getId(),
+                'code' => ['text' => $alarm->getParameter()],
+                'valueQuantity' => ['value' => $alarm->getThreshold()],
+                'interpretation' => ['text' => $alarm->getConditionType()],
+                'note' => [['text' => $alarm->getMessage()]]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'alarm_delete', methods: ['DELETE'])]
@@ -91,9 +144,9 @@ class AlarmController extends AbstractController
             return $this->json(['error' => 'Alarm not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $this->em->remove($alarm);
+        $alarm->setStatus(false);
         $this->em->flush();
 
-        return $this->json(['message' => 'Alarm deleted']);
+        return $this->json(['message' => 'Alarm marked as inactive']);
     }
 }

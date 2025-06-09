@@ -40,13 +40,11 @@ class Medication
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
-    #[ORM\Column(length: 50, options: ['default' => 'active'])]
-    private ?string $status = 'active';
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $status = true;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $created_at = null;
-
-    // Getters & Setters
 
     public function getId(): ?int { return $this->id; }
 
@@ -74,8 +72,8 @@ class Medication
     public function getNotes(): ?string { return $this->notes; }
     public function setNotes(?string $notes): self { $this->notes = $notes; return $this; }
 
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(string $status): self { $this->status = $status; return $this; }
+    public function isStatus(): bool { return $this->status; }
+    public function setStatus(bool $status): self { $this->status = $status; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->created_at; }
     public function setCreatedAt(?\DateTimeInterface $created_at): self { $this->created_at = $created_at; return $this; }

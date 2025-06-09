@@ -30,16 +30,20 @@ class MedicalLetterController extends AbstractController
     #[Route('', name: 'medical_letter_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        return $this->json($this->medicalLetterRepository->findAll());
+        $letters = $this->medicalLetterRepository->findBy(['status' => true]);
+
+        $hl7 = array_map(function ($letter) {
+            return $this->formatHL7($letter);
+        }, $letters);
+
+        return $this->json($hl7);
     }
 
     #[Route('', name: 'medical_letter_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        if (!$data) {
-            return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
-        }
+        if (!$data) return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
 
         $referral = $this->referralRepository->find($this->extractId($data['referral']));
         $patient = $this->patientRepository->find($this->extractId($data['patient']));
@@ -59,31 +63,31 @@ class MedicalLetterController extends AbstractController
         $medicalLetter->setConsultation($consultation);
         $medicalLetter->setDate(new \DateTime($data['date']));
         $medicalLetter->setFhirPayload($data['fhirPayload']);
-        $medicalLetter->setStatus($data['status'] ?? 'active');
+        $medicalLetter->setStatus(true);
         $medicalLetter->setCreatedAt(new \DateTime());
 
         $this->em->persist($medicalLetter);
         $this->em->flush();
 
-        return $this->json($medicalLetter, Response::HTTP_CREATED);
+        return $this->json($this->formatHL7($medicalLetter), Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'medical_letter_show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
         $medicalLetter = $this->medicalLetterRepository->find($id);
-        if (!$medicalLetter) {
+        if (!$medicalLetter || !$medicalLetter->isStatus()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json($medicalLetter);
+        return $this->json($this->formatHL7($medicalLetter));
     }
 
     #[Route('/{id}', name: 'medical_letter_update', methods: ['PUT'])]
     public function update(Request $request, int $id): JsonResponse
     {
         $medicalLetter = $this->medicalLetterRepository->find($id);
-        if (!$medicalLetter) {
+        if (!$medicalLetter || !$medicalLetter->isStatus()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -111,11 +115,10 @@ class MedicalLetterController extends AbstractController
         }
         if (isset($data['date'])) $medicalLetter->setDate(new \DateTime($data['date']));
         if (isset($data['fhirPayload'])) $medicalLetter->setFhirPayload($data['fhirPayload']);
-        if (isset($data['status'])) $medicalLetter->setStatus($data['status']);
 
         $this->em->flush();
 
-        return $this->json($medicalLetter);
+        return $this->json($this->formatHL7($medicalLetter));
     }
 
     #[Route('/{id}', name: 'medical_letter_delete', methods: ['DELETE'])]
@@ -126,18 +129,36 @@ class MedicalLetterController extends AbstractController
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $this->em->remove($medicalLetter);
+        $medicalLetter->setStatus(false);
         $this->em->flush();
 
-        return $this->json(['message' => 'Deleted']);
+        return $this->json(['message' => 'Soft deleted']);
     }
 
     private function extractId(string $iriOrId): int
     {
-        // Accepts either "/api/patients/1" or "1"
-        if (str_contains($iriOrId, '/')) {
-            return (int)substr($iriOrId, strrpos($iriOrId, '/') + 1);
-        }
-        return (int)$iriOrId;
+        return str_contains($iriOrId, '/') ? (int)substr($iriOrId, strrpos($iriOrId, '/') + 1) : (int)$iriOrId;
+    }
+
+    private function formatHL7(MedicalLetter $ml): array
+    {
+        return [
+            'resourceType' => 'DocumentReference',
+            'id' => $ml->getId(),
+            'status' => $ml->isStatus() ? 'current' : 'inactive',
+            'subject' => [
+                'reference' => '/api/patients/' . $ml->getPatient()->getId(),
+            ],
+            'date' => $ml->getDate()?->format('Y-m-d'),
+            'author' => [
+                ['reference' => '/api/doctors/' . $ml->getFromSpecialist()->getId()]
+            ],
+            'custodian' => [
+                'reference' => '/api/doctors/' . $ml->getToDoctor()->getId()
+            ],
+            'content' => [
+                ['attachment' => ['data' => base64_encode($ml->getFhirPayload())]]
+            ]
+        ];
     }
 }

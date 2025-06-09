@@ -1,0 +1,19 @@
+dh_auditor:
+    enabled: true
+    providers:
+        doctrine:
+            table_prefix: audit_
+            table_suffix: ~
+            entities:
+                App\Entity\Doctor: ~
+                App\Entity\Patient: ~
+                App\Entity\Medication: ~
+                App\Entity\Allergy: ~
+                App\Entity\Disease: ~
+                App\Entity\Recommendation: ~
+                App\Entity\Alarm: ~
+                App\Entity\Consultation: ~
+                App\Entity\Referral: ~
+                App\Entity\Prescription: ~
+                App\Entity\MedicalLetter: ~
+    timezone: Europe/Bucharest

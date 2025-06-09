@@ -8,8 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
 #[ApiResource]
-
-#[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
 class Patient
 {
@@ -72,20 +70,22 @@ class Patient
     #[ORM\Column(options: ["default" => true])]
     private ?bool $valid_account = true;
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $birth_date = null;
 
     #[ORM\Column(length: 1, nullable: true)]
     private ?string $sex = null;
 
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $patient_history = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $status = 'active';
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private ?bool $status = true;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at = null;
+
+    // Getters & Setters
 
     public function getId(): ?int { return $this->id; }
 
@@ -152,8 +152,8 @@ class Patient
     public function getPatientHistory(): ?array { return $this->patient_history; }
     public function setPatientHistory(?array $patient_history): self { $this->patient_history = $patient_history; return $this; }
 
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(string $status): self { $this->status = $status; return $this; }
+    public function isStatus(): ?bool { return $this->status; }
+    public function setStatus(bool $status): self { $this->status = $status; return $this; }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->created_at; }
     public function setCreatedAt(\DateTimeInterface $created_at): self { $this->created_at = $created_at; return $this; }

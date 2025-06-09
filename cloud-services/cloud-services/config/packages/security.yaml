@@ -1,12 +1,12 @@
 security:
     password_hashers:
-        App\Entity\Doctors:
+        App\Entity\Doctor:
             algorithm: auto
 
     providers:
         doctor_provider:
             entity:
-                class: App\Entity\Doctors
+                class: App\Entity\Doctor
                 property: email
 
     firewalls:
@@ -17,16 +17,14 @@ security:
         login:
             pattern: ^/api/login
             stateless: true
-            json_login:
-                check_path: /api/login
-                username_path: email
-                password_path: password
+            # json_login poate fi șters sau ignorat dacă folosești controller propriu
 
         api:
             pattern: ^/api
             stateless: true
-
+            jwt: ~
+            provider: doctor_provider
 
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: PUBLIC_ACCESS }
+        - { path: ^/api,       roles: ROLE_DOCTOR }

@@ -22,96 +22,165 @@ class ConsultationController extends AbstractController
     #[Route('', name: 'consultation_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        return $this->json($this->consultationRepository->findAll());
+        $consultations = $this->consultationRepository->findBy(['status' => true]);
+
+        $response = array_map(function (Consultation $consultation) {
+            return [
+                'id' => $consultation->getId(),
+                'dateTime' => $consultation->getDateTime()?->format('Y-m-d H:i:s'),
+                'doctorName' => $consultation->getDoctorName(),
+                'durationMinutes' => $consultation->getDurationMinutes(),
+                'symptoms' => $consultation->getSymptoms(),
+                'currentMedicationIds' => $consultation->getCurrentMedicationIds(),
+                'medicalHistoryIds' => $consultation->getMedicalHistoryIds(),
+                'familyHistory' => $consultation->getFamilyHistory(),
+                'pulse' => $consultation->getPulse(),
+                'bloodPressure' => $consultation->getBloodPressure(),
+                'temperature' => $consultation->getTemperature(),
+                'weightKg' => $consultation->getWeightKg(),
+                'heightCm' => $consultation->getHeightCm(),
+                'respiratoryRate' => $consultation->getRespiratoryRate(),
+                'notes' => $consultation->getNotes(),
+                'diagnosisIds' => $consultation->getDiagnosisIds(),
+                'referralIds' => $consultation->getReferralIds(),
+                'prescriptionIds' => $consultation->getPrescriptionIds(),
+                'status' => $consultation->getStatus(),
+                'hl7' => [
+                    'resourceType' => 'Encounter',
+                    'id' => $consultation->getId(),
+                    'status' => 'finished',
+                    'type' => [[ 'text' => $consultation->getDiagnosisIds() ]],
+                    'reasonCode' => [[ 'text' => $consultation->getSymptoms() ]],
+                    'note' => [[ 'text' => $consultation->getNotes() ]]
+                ]
+            ];
+        }, $consultations);
+
+        return $this->json($response);
     }
 
     #[Route('', name: 'consultation_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
         if (!$data) {
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
         $consultation = new Consultation();
-        $consultation->setDate(new \DateTime($data['date'] ?? 'now'));
-        $consultation->setReason($data['reason'] ?? '');
+
+        $consultation->setDateTime(new \DateTime($data['dateTime'] ?? 'now'));
+        $consultation->setDoctorName($this->getUser()?->getUserIdentifier() ?? 'Unknown');
+
+        $consultation->setDurationMinutes($data['durationMinutes'] ?? null);
         $consultation->setSymptoms($data['symptoms'] ?? '');
-        $consultation->setDiagnosisIcd10($data['diagnosis_icd10'] ?? '');
-        $consultation->setDoctorName($data['doctor_name'] ?? '');
+        $consultation->setCurrentMedicationIds($data['currentMedicationIds'] ?? null);
+        $consultation->setMedicalHistoryIds($data['medicalHistoryIds'] ?? null);
+        $consultation->setFamilyHistory($data['familyHistory'] ?? null);
+        $consultation->setPulse($data['pulse'] ?? null);
+        $consultation->setBloodPressure($data['bloodPressure'] ?? null);
+        $consultation->setTemperature($data['temperature'] ?? null);
+        $consultation->setWeightKg($data['weightKg'] ?? null);
+        $consultation->setHeightCm($data['heightCm'] ?? null);
+        $consultation->setRespiratoryRate($data['respiratoryRate'] ?? null);
         $consultation->setNotes($data['notes'] ?? null);
-        $consultation->setStatus($data['status'] ?? 'active');
+        $consultation->setDiagnosisIds($data['diagnosisIds'] ?? null);
+        $consultation->setReferralIds($data['referralIds'] ?? null);
+        $consultation->setPrescriptionIds($data['prescriptionIds'] ?? null);
+        $consultation->setStatus(true);
         $consultation->setCreatedAt(new \DateTime());
 
         $this->em->persist($consultation);
         $this->em->flush();
 
-        return $this->json($consultation, Response::HTTP_CREATED);
+        return $this->json([
+            'consultation' => $consultation,
+            'hl7' => [
+                'resourceType' => 'Encounter',
+                'id' => $consultation->getId(),
+                'status' => 'finished',
+                'type' => [[ 'text' => $consultation->getDiagnosisIds() ]],
+                'reasonCode' => [[ 'text' => $consultation->getSymptoms() ]],
+                'note' => [[ 'text' => $consultation->getNotes() ]]
+            ]
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'consultation_show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
         $consultation = $this->consultationRepository->find($id);
-
-        if (!$consultation) {
+        if (!$consultation || !$consultation->getStatus()) {
             return $this->json(['error' => 'Consultation not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json($consultation);
+        return $this->json([
+            'consultation' => $consultation,
+            'hl7' => [
+                'resourceType' => 'Encounter',
+                'id' => $consultation->getId(),
+                'status' => 'finished',
+                'type' => [[ 'text' => $consultation->getDiagnosisIds() ]],
+                'reasonCode' => [[ 'text' => $consultation->getSymptoms() ]],
+                'note' => [[ 'text' => $consultation->getNotes() ]]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'consultation_update', methods: ['PUT'])]
     public function update(Request $request, int $id): JsonResponse
     {
         $consultation = $this->consultationRepository->find($id);
-
         if (!$consultation) {
             return $this->json(['error' => 'Consultation not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
 
-        if (isset($data['date'])) {
-            $consultation->setDate(new \DateTime($data['date']));
-        }
-        if (isset($data['reason'])) {
-            $consultation->setReason($data['reason']);
-        }
-        if (isset($data['symptoms'])) {
-            $consultation->setSymptoms($data['symptoms']);
-        }
-        if (isset($data['diagnosis_icd10'])) {
-            $consultation->setDiagnosisIcd10($data['diagnosis_icd10']);
-        }
-        if (isset($data['doctor_name'])) {
-            $consultation->setDoctorName($data['doctor_name']);
-        }
-        if (array_key_exists('notes', $data)) {
-            $consultation->setNotes($data['notes']);
-        }
-        if (isset($data['status'])) {
-            $consultation->setStatus($data['status']);
-        }
+        if (isset($data['dateTime'])) $consultation->setDateTime(new \DateTime($data['dateTime']));
+        if (isset($data['durationMinutes'])) $consultation->setDurationMinutes($data['durationMinutes']);
+        if (isset($data['symptoms'])) $consultation->setSymptoms($data['symptoms']);
+        if (isset($data['currentMedicationIds'])) $consultation->setCurrentMedicationIds($data['currentMedicationIds']);
+        if (isset($data['medicalHistoryIds'])) $consultation->setMedicalHistoryIds($data['medicalHistoryIds']);
+        if (isset($data['familyHistory'])) $consultation->setFamilyHistory($data['familyHistory']);
+        if (isset($data['pulse'])) $consultation->setPulse($data['pulse']);
+        if (isset($data['bloodPressure'])) $consultation->setBloodPressure($data['bloodPressure']);
+        if (isset($data['temperature'])) $consultation->setTemperature($data['temperature']);
+        if (isset($data['weightKg'])) $consultation->setWeightKg($data['weightKg']);
+        if (isset($data['heightCm'])) $consultation->setHeightCm($data['heightCm']);
+        if (isset($data['respiratoryRate'])) $consultation->setRespiratoryRate($data['respiratoryRate']);
+        if (array_key_exists('notes', $data)) $consultation->setNotes($data['notes']);
+        if (isset($data['diagnosisIds'])) $consultation->setDiagnosisIds($data['diagnosisIds']);
+        if (isset($data['referralIds'])) $consultation->setReferralIds($data['referralIds']);
+        if (isset($data['prescriptionIds'])) $consultation->setPrescriptionIds($data['prescriptionIds']);
+        if (isset($data['status'])) $consultation->setStatus((bool)$data['status']);
 
         $this->em->flush();
 
-        return $this->json($consultation);
+        return $this->json([
+            'consultation' => $consultation,
+            'hl7' => [
+                'resourceType' => 'Encounter',
+                'id' => $consultation->getId(),
+                'status' => 'finished',
+                'type' => [[ 'text' => $consultation->getDiagnosisIds() ]],
+                'reasonCode' => [[ 'text' => $consultation->getSymptoms() ]],
+                'note' => [[ 'text' => $consultation->getNotes() ]]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'consultation_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $consultation = $this->consultationRepository->find($id);
-
         if (!$consultation) {
             return $this->json(['error' => 'Consultation not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $this->em->remove($consultation);
+        $consultation->setStatus(false);
         $this->em->flush();
 
-        return $this->json(['message' => 'Consultation deleted']);
+        return $this->json(['message' => 'Consultation marked as inactive']);
     }
 }

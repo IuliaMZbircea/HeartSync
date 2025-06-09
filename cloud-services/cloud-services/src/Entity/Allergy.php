@@ -29,8 +29,11 @@ class Allergy
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
-    #[ORM\Column(type: Types::STRING, length: 50, nullable: true)]
-    private ?string $status = null;
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $recordedDate = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private ?bool $status = true;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
@@ -84,12 +87,23 @@ class Allergy
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getRecordedDate(): ?\DateTimeInterface
+    {
+        return $this->recordedDate;
+    }
+
+    public function setRecordedDate(?\DateTimeInterface $recordedDate): static
+    {
+        $this->recordedDate = $recordedDate;
+        return $this;
+    }
+
+    public function getStatus(): ?bool
     {
         return $this->status;
     }
 
-    public function setStatus(?string $status): static
+    public function setStatus(bool $status): static
     {
         $this->status = $status;
         return $this;

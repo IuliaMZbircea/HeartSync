@@ -25,6 +25,9 @@ class Disease
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private ?bool $status = true;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +63,17 @@ class Disease
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+        return $this;
+    }
+
+    public function getStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(bool $status): static
+    {
+        $this->status = $status;
         return $this;
     }
 }

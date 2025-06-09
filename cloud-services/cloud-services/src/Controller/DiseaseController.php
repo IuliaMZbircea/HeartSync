@@ -22,7 +22,26 @@ class DiseaseController extends AbstractController
     #[Route('', name: 'disease_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        return $this->json($this->diseaseRepository->findAll());
+        $diseases = $this->diseaseRepository->findBy(['status' => true]);
+
+        $response = array_map(function (Disease $disease) {
+            return [
+                'id' => $disease->getId(),
+                'name' => $disease->getName(),
+                'type' => $disease->getType(),
+                'description' => $disease->getDescription(),
+                'status' => $disease->getStatus(),
+                'hl7' => [
+                    'resourceType' => 'Condition',
+                    'id' => $disease->getId(),
+                    'code' => ['text' => $disease->getName()],
+                    'category' => [[ 'text' => $disease->getType() ]],
+                    'note' => [[ 'text' => $disease->getDescription() ]]
+                ]
+            ];
+        }, $diseases);
+
+        return $this->json($response);
     }
 
     #[Route('', name: 'disease_create', methods: ['POST'])]
@@ -35,24 +54,43 @@ class DiseaseController extends AbstractController
 
         $disease = new Disease();
         $disease->setName($data['name'] ?? '');
-        $disease->setType($data['type'] ?? '');
+        $disease->setType($data['type'] ?? null);
         $disease->setDescription($data['description'] ?? null);
+        $disease->setStatus(true);
 
         $this->em->persist($disease);
         $this->em->flush();
 
-        return $this->json($disease, Response::HTTP_CREATED);
+        return $this->json([
+            'disease' => $disease,
+            'hl7' => [
+                'resourceType' => 'Condition',
+                'id' => $disease->getId(),
+                'code' => ['text' => $disease->getName()],
+                'category' => [[ 'text' => $disease->getType() ]],
+                'note' => [[ 'text' => $disease->getDescription() ]]
+            ]
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'disease_show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
         $disease = $this->diseaseRepository->find($id);
-        if (!$disease) {
+        if (!$disease || !$disease->getStatus()) {
             return $this->json(['error' => 'Disease not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json($disease);
+        return $this->json([
+            'disease' => $disease,
+            'hl7' => [
+                'resourceType' => 'Condition',
+                'id' => $disease->getId(),
+                'code' => ['text' => $disease->getName()],
+                'category' => [[ 'text' => $disease->getType() ]],
+                'note' => [[ 'text' => $disease->getDescription() ]]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'disease_update', methods: ['PUT'])]
@@ -67,10 +105,20 @@ class DiseaseController extends AbstractController
         if (isset($data['name'])) $disease->setName($data['name']);
         if (isset($data['type'])) $disease->setType($data['type']);
         if (isset($data['description'])) $disease->setDescription($data['description']);
+        if (isset($data['status'])) $disease->setStatus((bool)$data['status']);
 
         $this->em->flush();
 
-        return $this->json($disease);
+        return $this->json([
+            'disease' => $disease,
+            'hl7' => [
+                'resourceType' => 'Condition',
+                'id' => $disease->getId(),
+                'code' => ['text' => $disease->getName()],
+                'category' => [[ 'text' => $disease->getType() ]],
+                'note' => [[ 'text' => $disease->getDescription() ]]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'disease_delete', methods: ['DELETE'])]
@@ -81,9 +129,9 @@ class DiseaseController extends AbstractController
             return $this->json(['error' => 'Disease not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $this->em->remove($disease);
+        $disease->setStatus(false);
         $this->em->flush();
 
-        return $this->json(['message' => 'Disease deleted']);
+        return $this->json(['message' => 'Disease marked as inactive']);
     }
 }

@@ -24,7 +24,15 @@ class ReferralController extends AbstractController
     #[Route('', name: 'referral_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        return $this->json($this->referralRepository->findAll());
+        $referrals = $this->referralRepository->findBy(['status' => true]);
+
+        $fhirBundle = [
+            'resourceType' => 'Bundle',
+            'type' => 'collection',
+            'entry' => array_map(fn($r) => ['resource' => $this->toFhir($r)], $referrals)
+        ];
+
+        return $this->json($fhirBundle);
     }
 
     #[Route('', name: 'referral_create', methods: ['POST'])]
@@ -35,7 +43,6 @@ class ReferralController extends AbstractController
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Fetch entities by ID
         $patient = $this->em->getRepository(Patient::class)->find($data['patient_id'] ?? null);
         $fromDoctor = $this->em->getRepository(Doctor::class)->find($data['from_doctor_id'] ?? null);
         $toDoctor = isset($data['to_doctor_id']) ? $this->em->getRepository(Doctor::class)->find($data['to_doctor_id']) : null;
@@ -54,34 +61,38 @@ class ReferralController extends AbstractController
         $referral->setHl7Payload($data['hl7_payload'] ?? null);
         $referral->setFhirResponseId($data['fhir_response_id'] ?? null);
         $referral->setIsResolved($data['is_resolved'] ?? false);
-        $referral->setStatus($data['status'] ?? 'active');
+        $referral->setStatus(true);
         $referral->setCreatedAt(new \DateTime());
 
         $this->em->persist($referral);
         $this->em->flush();
 
-        return $this->json($referral, Response::HTTP_CREATED);
+        return $this->json($this->toFhir($referral), Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'referral_show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
         $referral = $this->referralRepository->find($id);
-        if (!$referral) {
+        if (!$referral || !$referral->isStatus()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
-        return $this->json($referral);
+
+        return $this->json($this->toFhir($referral));
     }
 
     #[Route('/{id}', name: 'referral_update', methods: ['PUT'])]
     public function update(Request $request, int $id): JsonResponse
     {
         $referral = $this->referralRepository->find($id);
-        if (!$referral) {
+        if (!$referral || !$referral->isStatus()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
+        if (!$data) {
+            return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
 
         if (isset($data['type'])) $referral->setType($data['type']);
         if (isset($data['patient_id'])) {
@@ -101,23 +112,42 @@ class ReferralController extends AbstractController
         if (array_key_exists('hl7_payload', $data)) $referral->setHl7Payload($data['hl7_payload']);
         if (isset($data['fhir_response_id'])) $referral->setFhirResponseId($data['fhir_response_id']);
         if (isset($data['is_resolved'])) $referral->setIsResolved($data['is_resolved']);
-        if (isset($data['status'])) $referral->setStatus($data['status']);
 
         $this->em->flush();
-        return $this->json($referral);
+        return $this->json($this->toFhir($referral));
     }
 
     #[Route('/{id}', name: 'referral_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $referral = $this->referralRepository->find($id);
-        if (!$referral) {
+        if (!$referral || !$referral->isStatus()) {
             return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $this->em->remove($referral);
+        $referral->setStatus(false);
         $this->em->flush();
 
-        return $this->json(['message' => 'Deleted']);
+        return $this->json(['message' => 'Referral marked as inactive']);
+    }
+
+    private function toFhir(Referral $ref): array
+    {
+        return [
+            'resourceType' => 'ServiceRequest',
+            'id' => $ref->getId(),
+            'status' => $ref->isStatus() ? 'active' : 'inactive',
+            'intent' => 'order',
+            'code' => ['text' => $ref->getType()],
+            'subject' => ['reference' => 'Patient/' . $ref->getPatient()->getId()],
+            'requester' => ['reference' => 'Practitioner/' . $ref->getFromDoctor()->getId()],
+            'recipient' => $ref->getToDoctor() ? [['reference' => 'Practitioner/' . $ref->getToDoctor()->getId()]] : [],
+            'authoredOn' => $ref->getDate()?->format('Y-m-d'),
+            'note' => [['text' => $ref->getReason()]],
+            'extension' => $ref->getHl7Payload() ? [[
+                'url' => 'http://example.com/fhir/StructureDefinition/hl7Payload',
+                'valueString' => $ref->getHl7Payload()
+            ]] : []
+        ];
     }
 }
