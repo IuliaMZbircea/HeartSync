@@ -10,25 +10,68 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
+use Psr\Log\LoggerInterface;
 
 
-#[Route('/api/patients')]
+#[Route('/api/custom-patients')]
 class PatientController extends AbstractController
 {
 
     public function __construct(
         private EntityManagerInterface $em,
-        private PatientRepository $patientRepository
+        private PatientRepository $patientRepository,
+            private LoggerInterface $logger
     ) {}
 
-    #[Route('', name: 'patient_index', methods: ['GET'])]
-    public function index(): JsonResponse
-    {
-        $patients = $this->patientRepository->findBy(['isActive' => true]);
-        $hl7 = array_map(fn(Patient $p) => $this->buildHl7($p), $patients);
+   #[Route('', name: 'patient_index', methods: ['GET'])]
+       public function index(): JsonResponse
+       {
 
-        return $this->json($hl7);
-    }
+           $patients = $this->patientRepository->findBy(['isActive' => true]);
+$this->logger->info('madalin patients:', ['patients' => $patients]);
+           $data = [];
+           foreach ($patients as $patient) {
+               $alarms = [];
+               foreach ($patient->getAlarms() as $alarm) {
+                   $alarms[] = [
+                       'id' => $alarm->getId(),
+                       'parameter' => $alarm->getParameter(),
+                       'condition' => $alarm->getConditionType(),
+                       'threshold' => $alarm->getThreshold(),
+                       'duration' => $alarm->getDuration(),
+                       'afterActivity' => $alarm->isAfterActivity(),
+                       'message' => $alarm->getMessage(),
+                       'isActive' => $alarm->isActive(),
+                       'created' => $alarm->getCreatedAt(),
+                   ];
+               }
+
+               $data[] = [
+                   'id' => $patient->getId(),
+                   'firstName' => $patient->getFirstName(),
+                   'lastName' => $patient->getLastName(),
+                   'email' => $patient->getEmail(),
+                   'phone' => $patient->getPhone(),
+                   'cnp' => $patient->getCnp(),
+                   'occupation' => $patient->getOccupation(),
+                   'locality' => $patient->getLocality(),
+                   'street' => $patient->getStreet(),
+                   'number' => $patient->getNumber(),
+                   'block' => $patient->getBlock(),
+                   'staircase' => $patient->getStaircase(),
+                   'apartment' => $patient->getApartment(),
+                   'floor' => $patient->getFloor(),
+                   'bloodGroup' => $patient->getBloodGroup(),
+                   'rh' => $patient->getRh(),
+                   'createdAt' => $patient->getCreatedAt()?->format('Y-m-d H:i:s'),
+                   'isActive' => $patient->isActive(),
+                   'alarms' => $alarms,
+               ];
+           }
+
+           return $this->json($data);
+       }
+
 
     #[Route('', name: 'patient_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
