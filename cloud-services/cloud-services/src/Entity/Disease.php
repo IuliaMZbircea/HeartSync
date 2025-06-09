@@ -28,6 +28,10 @@ class Disease
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private ?bool $isActive = true;
 
+    #[ORM\ManyToOne(targetEntity: Patient::class, inversedBy: 'diseases')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Patient $patient = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -66,14 +70,25 @@ class Disease
         return $this;
     }
 
-public function setIsActive(bool $isActive): static
-{
-    $this->isActive = $isActive;
-    return $this;
-}
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
 
-public function isActive(): ?bool
-{
-    return $this->isActive;
-}
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function getPatient(): ?Patient
+    {
+        return $this->patient;
+    }
+
+    public function setPatient(?Patient $patient): static
+    {
+        $this->patient = $patient;
+        return $this;
+    }
 }

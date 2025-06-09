@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Allergy;
 use App\Entity\Alarm;
+use App\Entity\Disease;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
@@ -96,10 +97,14 @@ class Patient
     #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Alarm::class, cascade: ['persist', 'remove'])]
     private Collection $alarms;
 
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Disease::class, cascade: ['persist'], orphanRemoval: false)]
+    private Collection $diseases;
+
     public function __construct()
     {
         $this->allergies = new ArrayCollection();
         $this->alarms = new ArrayCollection();
+        $this->diseases = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -187,6 +192,31 @@ class Patient
         if ($this->alarms->removeElement($alarm)) {
             if ($alarm->getPatient() === $this) {
                 $alarm->setPatient(null);
+            }
+        }
+        return $this;
+    }
+
+    // Diseases
+    public function getDiseases(): Collection
+    {
+        return $this->diseases;
+    }
+
+    public function addDisease(Disease $disease): static
+    {
+        if (!$this->diseases->contains($disease)) {
+            $this->diseases->add($disease);
+            $disease->setPatient($this);
+        }
+        return $this;
+    }
+
+    public function removeDisease(Disease $disease): static
+    {
+        if ($this->diseases->removeElement($disease)) {
+            if ($disease->getPatient() === $this) {
+                $disease->setPatient(null);
             }
         }
         return $this;

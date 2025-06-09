@@ -158,7 +158,6 @@ private function serializePatient(Patient $patient): array
         'height' => $patient->getHeight(),
         'birthDate' => $patient->getBirthDate()?->format('Y-m-d'),
         'sex' => $patient->getSex(),
-        'patientHistory' => $patient->getPatientHistory(),
         'createdAt' => $patient->getCreatedAt()?->format('Y-m-d H:i:s'),
         'isActive' => $patient->isIsActive(),
 
@@ -186,6 +185,16 @@ private function serializePatient(Patient $patient): array
                 'recordedDate' => $a->getRecordedDate()?->format('Y-m-d'),
             ];
         }, $patient->getAllergies()->toArray()),
+
+            // 🔹 Diseases
+        'diseases' => array_map(function ($disease) {
+        return [
+            'id' => $disease->getId(),
+            'name' => $disease->getName(),
+            'type' => $disease->getType(),
+            'description' => $disease->getDescription(),
+        ];
+    }, $patient->getDiseases()->toArray()),
     ];
 }
 }
