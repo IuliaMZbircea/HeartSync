@@ -1,3 +1,5 @@
+<div class="h-24"></div>
+
 <h2 class="form-title">Add Patient Consultation</h2>
 
 <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="patient-form">
@@ -112,29 +114,48 @@
   <section class="form-section">
     <h3>🧾 Diagnoses</h3>
     <div formArrayName="diseases">
-      <div *ngFor="let diseaseCtrl of diseases.controls; let i = index" [formGroupName]="i" class="disease-item">
+      <div
+        *ngFor="let diseaseCtrl of diseases.controls; let i = index"
+        [formGroupName]="i"
+        class="diagnosis-card"
+      >
+        <div class="diagnosis-grid">
+          <div class="form-group">
+            <label>Diagnosis</label>
+            <app-diagnosis-code
+              [formControl]="getDiseaseNameControl(i)"
+              (diseaseSelected)="onDiseaseSelected(i, $event)">
+            </app-diagnosis-code>
+          </div>
 
-        <label>Diagnosis</label>
-        <app-diagnosis-code
-          [formControl]="getDiseaseNameControl(i)"
-          (diseaseSelected)="onDiseaseSelected(i, $event)">
-        </app-diagnosis-code>
+          <div class="form-group">
+            <label>ICD Code</label>
+            <input
+              type="text"
+              [value]="diseaseCtrl.get('icdCode')?.value || ''"
+              readonly
+            />
+          </div>
 
-        <div class="icd-code mt-2 mb-2">
-          <strong>ICD Code:</strong> {{ diseaseCtrl.get('icdCode')?.value || 'N/A' }}
+          <div class="form-group">
+            <label>Category</label>
+            <select formControlName="category">
+              <option value="">Select</option>
+              <option value="Chronic">Chronic</option>
+              <option value="Genetic">Genetic</option>
+              <option value="Acute">Acute</option>
+              <option value="Autoimmune">Autoimmune</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Description</label>
+            <textarea
+              formControlName="description"
+              placeholder="e.g. Short notes about the condition...">
+          </textarea>
+          </div>
         </div>
-
-        <label>Category</label>
-        <select formControlName="category">
-          <option value="Chronic">Chronic</option>
-          <option value="Genetic">Genetic</option>
-          <option value="Acute">Acute</option>
-          <option value="Autoimmune">Autoimmune</option>
-        </select>
-
-        <label>Description</label>
-        <textarea formControlName="description" placeholder="Description"></textarea>
-
       </div>
     </div>
   </section>
