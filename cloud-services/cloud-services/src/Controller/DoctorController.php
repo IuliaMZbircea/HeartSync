@@ -42,7 +42,6 @@ class DoctorController extends AbstractController
                     'email' => $doc->getEmail(),
                     'firstName' => $doc->getFirstName(),
                     'lastName' => $doc->getLastName(),
-                    'specialization' => $doc->getSpecialization(),
                     'roles' => $doc->getRoles(),
                     'status' => $doc->getStatus(),
                     'createdAt' => $doc->getCreatedAt()?->format(DATE_ATOM),
@@ -63,8 +62,8 @@ class DoctorController extends AbstractController
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
-        if (empty($data['email']) || empty($data['password']) || empty($data['first_name']) || empty($data['last_name']) || empty($data['specialization'])) {
-            return $this->json(['error' => 'All fields are required: email, password, first_name, last_name, specialization'], 400);
+        if (empty($data['email']) || empty($data['password']) || empty($data['first_name']) || empty($data['last_name']) ) {
+            return $this->json(['error' => 'All fields are required: email, password, first_name, last_name'], 400);
         }
 
         $doctor = new Doctor();
@@ -72,7 +71,6 @@ class DoctorController extends AbstractController
         $doctor->setPassword($this->passwordHasher->hashPassword($doctor, $data['password']));
         $doctor->setFirstName($data['first_name']);
         $doctor->setLastName($data['last_name']);
-        $doctor->setSpecialization($data['specialization']);
         $doctor->setRoles(['ROLE_DOCTOR']);
         $doctor->setStatus(true);
         $doctor->setCreatedAt(new \DateTime());
@@ -109,7 +107,6 @@ class DoctorController extends AbstractController
             'email' => $doctor->getEmail(),
             'firstName' => $doctor->getFirstName(),
             'lastName' => $doctor->getLastName(),
-            'specialization' => $doctor->getSpecialization(),
             'roles' => $doctor->getRoles(),
             'status' => $doctor->getStatus(),
             'createdAt' => $doctor->getCreatedAt()?->format(DATE_ATOM),
@@ -120,9 +117,7 @@ class DoctorController extends AbstractController
                     'family' => $doctor->getLastName(),
                     'given' => [$doctor->getFirstName()]
                 ]],
-                'qualification' => [[
-                    'code' => ['text' => $doctor->getSpecialization()]
-                ]]
+
             ]
         ]);
     }
@@ -147,7 +142,6 @@ class DoctorController extends AbstractController
         }
         if (isset($data['first_name'])) $doctor->setFirstName($data['first_name']);
         if (isset($data['last_name'])) $doctor->setLastName($data['last_name']);
-        if (isset($data['specialization'])) $doctor->setSpecialization($data['specialization']);
         if (isset($data['roles']) && is_array($data['roles'])) {
             $doctor->setRoles($data['roles']);
         }
@@ -162,7 +156,6 @@ class DoctorController extends AbstractController
             'email' => $doctor->getEmail(),
             'firstName' => $doctor->getFirstName(),
             'lastName' => $doctor->getLastName(),
-            'specialization' => $doctor->getSpecialization(),
             'roles' => $doctor->getRoles(),
             'status' => $doctor->getStatus(),
             'createdAt' => $doctor->getCreatedAt()?->format(DATE_ATOM),
@@ -173,9 +166,7 @@ class DoctorController extends AbstractController
                     'family' => $doctor->getLastName(),
                     'given' => [$doctor->getFirstName()]
                 ]],
-                'qualification' => [[
-                    'code' => ['text' => $doctor->getSpecialization()]
-                ]]
+
             ]
         ]);
     }

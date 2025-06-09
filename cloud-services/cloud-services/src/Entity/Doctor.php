@@ -31,7 +31,6 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastName = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $specialization = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private ?bool $status = true;
@@ -99,16 +98,7 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getSpecialization(): ?string
-    {
-        return $this->specialization;
-    }
 
-    public function setSpecialization(string $specialization): self
-    {
-        $this->specialization = $specialization;
-        return $this;
-    }
 
     public function getStatus(): ?bool
     {
