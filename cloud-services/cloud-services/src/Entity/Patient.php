@@ -12,6 +12,7 @@ use App\Entity\Allergy;
 use App\Entity\Alarm;
 use App\Entity\Disease;
 use App\Entity\Medication;
+use App\Entity\Consultation;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
@@ -104,12 +105,16 @@ class Patient
     #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Medication::class, cascade: ['persist', 'remove'])]
     private Collection $medications;
 
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Consultation::class, cascade: ['persist', 'remove'])]
+    private Collection $consultations;
+
     public function __construct()
     {
         $this->allergies = new ArrayCollection();
         $this->alarms = new ArrayCollection();
         $this->diseases = new ArrayCollection();
         $this->medications = new ArrayCollection();
+        $this->consultations = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -247,6 +252,32 @@ public function removeMedication(Medication $medication): static
     if ($this->medications->removeElement($medication)) {
         if ($medication->getPatient() === $this) {
             $medication->setPatient(null);
+        }
+    }
+    return $this;
+}
+
+//Consultation
+
+public function getConsultations(): Collection
+{
+    return $this->consultations;
+}
+
+public function addConsultation(Consultation $consultation): self
+{
+    if (!$this->consultations->contains($consultation)) {
+        $this->consultations[] = $consultation;
+        $consultation->setPatient($this);
+    }
+    return $this;
+}
+
+public function removeConsultation(Consultation $consultation): self
+{
+    if ($this->consultations->removeElement($consultation)) {
+        if ($consultation->getPatient() === $this) {
+            $consultation->setPatient(null);
         }
     }
     return $this;

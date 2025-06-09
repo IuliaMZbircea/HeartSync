@@ -212,6 +212,29 @@ private function serializePatient(Patient $patient): array
             'isActive' => $med->isIsActive(),
     ];
 }, $patient->getMedications()->toArray()),
+
+// 🔹 Consultations
+'consultations' => array_map(function ($consultation) {
+    return [
+        'id' => $consultation->getId(),
+        'dateTime' => $consultation->getDateTime()?->format('Y-m-d H:i:s'),
+        'doctorName' => $consultation->getDoctorName(),
+        'durationMinutes' => $consultation->getDurationMinutes(),
+        'symptoms' => $consultation->getSymptoms(),
+        'notes' => $consultation->getNotes(),
+        'pulse' => $consultation->getPulse(),
+        'bloodPressure' => $consultation->getBloodPressure(),
+        'temperature' => $consultation->getTemperature(),
+        'weightKg' => $consultation->getWeightKg(),
+        'heightCm' => $consultation->getHeightCm(),
+        'respiratoryRate' => $consultation->getRespiratoryRate(),
+        'isActive' => $consultation->isActive(),
     ];
+}, array_filter(
+    $patient->getConsultations()->toArray(),
+    fn($c) => $c->isActive()
+)),
+    ];
+
 }
 }
