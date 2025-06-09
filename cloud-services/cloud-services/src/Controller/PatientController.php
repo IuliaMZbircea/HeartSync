@@ -195,6 +195,23 @@ private function serializePatient(Patient $patient): array
             'description' => $disease->getDescription(),
         ];
     }, $patient->getDiseases()->toArray()),
+
+            // 🔹 Medications
+        'medications' => array_map(function ($med) {
+          return [
+            'id' => $med->getId(),
+            'name' => $med->getName(),
+            'dose' => $med->getDose(),
+            'frequency' => $med->getFrequency(),
+            'route' => $med->getRoute(),
+            'startDate' => $med->getStartDate()?->format('Y-m-d'),
+            'endDate' => $med->getEndDate()?->format('Y-m-d'),
+            'prescribedBy' => $med->getPrescribedBy(),
+            'notes' => $med->getNotes(),
+            'createdAt' => $med->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'isActive' => $med->isIsActive(),
+    ];
+}, $patient->getMedications()->toArray()),
     ];
 }
 }

@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Allergy;
 use App\Entity\Alarm;
 use App\Entity\Disease;
+use App\Entity\Medication;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
@@ -100,11 +101,15 @@ class Patient
     #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Disease::class, cascade: ['persist'], orphanRemoval: false)]
     private Collection $diseases;
 
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Medication::class, cascade: ['persist', 'remove'])]
+    private Collection $medications;
+
     public function __construct()
     {
         $this->allergies = new ArrayCollection();
         $this->alarms = new ArrayCollection();
         $this->diseases = new ArrayCollection();
+        $this->medications = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -221,4 +226,29 @@ class Patient
         }
         return $this;
     }
+
+    //Medication
+    public function getMedications(): Collection
+{
+    return $this->medications;
+}
+
+public function addMedication(Medication $medication): static
+{
+    if (!$this->medications->contains($medication)) {
+        $this->medications[] = $medication;
+        $medication->setPatient($this);
+    }
+    return $this;
+}
+
+public function removeMedication(Medication $medication): static
+{
+    if ($this->medications->removeElement($medication)) {
+        if ($medication->getPatient() === $this) {
+            $medication->setPatient(null);
+        }
+    }
+    return $this;
+}
 }
