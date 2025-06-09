@@ -31,13 +31,14 @@
   </mat-expansion-panel-header>
 
   <ng-container *ngIf="alarms.length > 0; else noCurrentAlarms">
-    <div *ngFor="let alarm of alarms.slice(-1)">
+    <div *ngFor="let alarm of activeAlarms">
       <section *ngIf="!isEditing">
         <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
         <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
         <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
         <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}</p>
         <p><strong>Message:</strong> {{ alarm.message }}</p>
+        <p><strong>Is Active:</strong> {{ alarm.isActive ? 'Yes' : 'No' }}</p>
       </section>
       <button
         mat-button
@@ -121,7 +122,7 @@
 
     <div *ngIf="alarms.length > 0; else noAlarms">
 
-        <div *ngFor="let alarm of alarms">
+        <div *ngFor="let alarm of inactiveAlarms">
           <section>
             <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
             <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
@@ -129,6 +130,8 @@
             <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}
             </p>
             <p><strong>Message:</strong> {{ alarm.message }}</p>
+            <p><strong>Is Active:</strong> {{ alarm.isActive }}</p>
+
           </section>
 
           <button

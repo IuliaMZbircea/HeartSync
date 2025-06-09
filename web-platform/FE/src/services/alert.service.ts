@@ -33,4 +33,12 @@ export class AlertService {
     return this.http.get<any[]>(`${this.apiUrl}/patient/${patientId}`);
   }
 
+  createAlarm(alarmData: any): Observable<any> {
+    const url = 'http://localhost:8000/api/custom-alarms';
+    return this.http.post<any>(url, alarmData);
+  }
+
+  updateAlarm(id: number, updatedData: any): Observable<any> {
+    return this.http.put<any>(`http://localhost:8000/api/custom-alarms/${id}`, updatedData);
+  }
 }
