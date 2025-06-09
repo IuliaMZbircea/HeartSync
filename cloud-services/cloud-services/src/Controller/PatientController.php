@@ -158,9 +158,8 @@ private function serializePatient(Patient $patient): array
         'height' => $patient->getHeight(),
         'birthDate' => $patient->getBirthDate()?->format('Y-m-d'),
         'sex' => $patient->getSex(),
-        'patientHistory' => $patient->getPatientHistory(),
         'createdAt' => $patient->getCreatedAt()?->format('Y-m-d H:i:s'),
-        'isActive' => $patient->IsActive(),
+        'isActive' => $patient->isIsActive(),
 
         // 🔹 Alarms
         'alarms' => array_map(function ($alarm) {
@@ -186,17 +185,16 @@ private function serializePatient(Patient $patient): array
                 'recordedDate' => $a->getRecordedDate()?->format('Y-m-d'),
             ];
         }, $patient->getAllergies()->toArray()),
-        'recommendations' => array_map(function ($r) {
-            return [
-                'id' => $r->getId(),
-                'activityType' => $r->getActivityType(),
-                'dailyDuration' => $r->getDailyDuration(),
-                'startDate' => $r->getStartDate()?->format('Y-m-d'),
-                'endDate' => $r->getEndDate()?->format('Y-m-d'),
-                'additionalNotes' => $r->getAdditionalNotes(),
-                'isActive' => $r->isActive(),
-            ];
-        }, $patient->getRecommendations()->filter(fn($r) => $r->isActive())->toArray()),
+
+            // 🔹 Diseases
+        'diseases' => array_map(function ($disease) {
+        return [
+            'id' => $disease->getId(),
+            'name' => $disease->getName(),
+            'type' => $disease->getType(),
+            'description' => $disease->getDescription(),
+        ];
+    }, $patient->getDiseases()->toArray()),
     ];
 }
 }
