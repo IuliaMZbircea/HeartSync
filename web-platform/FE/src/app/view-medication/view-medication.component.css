@@ -233,3 +233,22 @@ section {
 .buttons{
   margin-top: 3%;
 }
+
+.pdf-export {
+  font-family: 'Arial', sans-serif;
+  color: #000;
+  padding: 20px;
+  background: white;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 700px;
+}
+
+.pdf-export p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.pdf-export strong {
+  font-weight: bold;
+}

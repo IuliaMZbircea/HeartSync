@@ -103,8 +103,8 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   openAllergiesDialog(id:string) {
     this.router.navigate([`/view-allergies`, id]);
   }
-
-  getDiseaseNames(diseases: any[]): string {
+  getDiseaseNames(diseases: any[] | undefined): string {
+    if (!Array.isArray(diseases)) return '-';
     return diseases.map(d => d.name).join(', ');
   }
 

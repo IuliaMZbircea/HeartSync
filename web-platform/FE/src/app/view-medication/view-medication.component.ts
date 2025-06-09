@@ -1,20 +1,22 @@
-import {Component, ElementRef, OnInit, QueryList, signal, ViewChildren} from '@angular/core';
+import { Component, ElementRef, OnInit, QueryList, signal, ViewChildren } from '@angular/core';
 import {
   MatExpansionPanel,
   MatExpansionPanelDescription,
   MatExpansionPanelHeader,
   MatExpansionPanelTitle
 } from "@angular/material/expansion";
-import {MatButton, MatIconButton} from "@angular/material/button";
-import {MatIcon} from "@angular/material/icon";
-import {Patient} from "../../shared/interfaces/patient";
-import {Medication} from "../../shared/interfaces/medication";
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {ActivatedRoute} from "@angular/router";
-import {PatientService} from "../../services/patient.service";
-import {DatePipe, NgForOf, NgIf} from "@angular/common";
-import {jsPDF} from "jspdf";
+import { MatButton, MatIconButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
+import { Patient } from "../../shared/interfaces/patient";
+import { Medication } from "../../shared/interfaces/medication";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { PatientService } from "../../services/patient.service";
+import { DatePipe, NgForOf, NgIf } from "@angular/common";
+import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { MedicationService } from "../../services/medication.service";
+import { AlertService } from "../../services/alert.service";
 
 @Component({
   selector: 'app-view-medication',
@@ -32,11 +34,11 @@ import html2canvas from "html2canvas";
     MatIconButton,
     DatePipe
   ],
+  providers: [MedicationService, AlertService],
   templateUrl: './view-medication.component.html',
   styleUrl: './view-medication.component.css'
 })
 export class ViewMedicationComponent implements OnInit {
-
   readonly panelOpenState = signal(false);
   patient!: Patient;
   medications: Medication[] = [];
@@ -46,11 +48,12 @@ export class ViewMedicationComponent implements OnInit {
   @ViewChildren('medRef') medSections!: QueryList<ElementRef>;
   @ViewChildren('latestMedRef') latestMedRef!: QueryList<ElementRef>;
 
-
   constructor(
     private route: ActivatedRoute,
     private patientService: PatientService,
-    private fb: FormBuilder
+    private medicationService: MedicationService,
+    private fb: FormBuilder,
+    private alertService: AlertService
   ) {
     this.editForm = this.fb.group({
       name: ['', Validators.required],
@@ -73,24 +76,46 @@ export class ViewMedicationComponent implements OnInit {
         const found = patients.find(p => p.id === id);
         if (found) {
           this.patient = found;
-          this.medications = found.medications || [];
+
+          this.medicationService.getMedicationsByPatient(this.patient.id!).subscribe({
+            next: (meds: Medication[]) => {
+              this.medications = meds;
+            },
+            error: (err: any) => {
+              this.alertService.error('Eroare la încărcarea medicației.');
+              console.error(err);
+            }
+          });
         } else {
-          console.warn(`Patient with ID ${id} not found.`);
+          this.alertService.error(`Pacientul cu ID ${id} nu a fost găsit.`);
         }
+      }, error => {
+        this.alertService.error('Eroare la încărcarea pacienților.');
       });
     } else {
-      console.error('Invalid or missing patient ID in route.');
+      this.alertService.error('ID-ul pacientului este invalid sau lipsește din URL.');
     }
   }
 
   get latestMedication(): Medication | null {
     if (this.medications.length === 0) return null;
-    return this.medications[this.medications.length - 1];
+
+    const currentDate = new Date();
+    const activeMedications = this.medications.filter(med => {
+      return !med.endDate || new Date(med.endDate) >= currentDate;
+    });
+
+    if (activeMedications.length === 0) return null;
+
+    return activeMedications[activeMedications.length - 1];
   }
 
   enableEdit(): void {
     const latest = this.latestMedication;
-    if (!latest) return;
+    if (!latest) {
+      this.alertService.error('Nu există o medicație activă pentru a fi editată.');
+      return;
+    }
 
     this.editForm.setValue({
       name: latest.name,
@@ -107,25 +132,36 @@ export class ViewMedicationComponent implements OnInit {
   }
 
   saveEdit(): void {
-    if (this.editForm.invalid || !this.latestMedication) return;
+    if (this.editForm.invalid || !this.latestMedication) {
+      this.alertService.error('Formularul este invalid sau nu există o medicație selectată.');
+      return;
+    }
 
     const updated = this.editForm.value;
-    const index = this.medications.indexOf(this.latestMedication);
 
-    const updatedMedication: Medication = {
-      ...this.latestMedication,
+    const updatedMedication: Partial<Medication> = {
       ...updated,
       startDate: new Date(updated.startDate),
       endDate: updated.endDate ? new Date(updated.endDate) : undefined
     };
 
-    if (index !== -1) {
-      this.medications[index] = updatedMedication;
-      this.patient.medications = this.medications;
-      // this.patientService.updatePatient(this.patient);
-    }
-
-    this.isEditing = false;
+    this.medicationService.updateMedication(this.latestMedication.id!, updatedMedication).subscribe({
+      next: () => {
+        const index = this.medications.indexOf(this.latestMedication!);
+        if (index !== -1) {
+          this.medications[index] = {
+            ...this.latestMedication!,
+            ...updatedMedication
+          } as Medication;
+        }
+        this.isEditing = false;
+        this.alertService.success('Medicația a fost actualizată cu succes!');
+      },
+      error: err => {
+        this.alertService.error('Eroare la actualizarea medicației.');
+        console.error(err);
+      }
+    });
   }
 
   private formatDate(date: string | Date): string {
@@ -133,33 +169,26 @@ export class ViewMedicationComponent implements OnInit {
     return d.toISOString().split('T')[0];
   }
 
-  exportSingleMedicationToPdf(element: HTMLElement, medication: Medication): void {
-    const originalWidth = element.style.width;
-    const originalHeight = element.style.height;
-    const originalOverflow = element.style.overflow;
+  exportSingleMedicationToPdf(element: ElementRef | HTMLElement, medication: Medication): void {
+    const nativeElement = element instanceof ElementRef ? element.nativeElement : element;
 
-    element.style.width = 'auto';
-    element.style.height = 'auto';
-    element.style.overflow = 'visible';
+    const clone = nativeElement.cloneNode(true) as HTMLElement;
+    clone.classList.add('pdf-export');
+    document.body.appendChild(clone);
 
-    html2canvas(element, {
+    html2canvas(clone, {
       scrollY: 0,
       scrollX: 0,
       useCORS: true,
       backgroundColor: '#ffffff',
-      scale: 0.7
+      scale: 2
     }).then(canvas => {
-      element.style.width = originalWidth;
-      element.style.height = originalHeight;
-      element.style.overflow = originalOverflow;
+      document.body.removeChild(clone);
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.8);
-
-      const scaleFactor = 0.7;
-      const imgWidth = 210 * scaleFactor;
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const imgWidth = 210;
       const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
       let heightLeft = imgHeight;
       let position = 0;
 
@@ -177,7 +206,7 @@ export class ViewMedicationComponent implements OnInit {
       const medName = medication.name.replace(/\s+/g, '_');
       doc.save(`medication_${medName}.pdf`);
     }).catch(err => {
-      console.error('Eroare la capturare:', err);
+      console.error('Eroare la export PDF:', err);
     });
   }
 }

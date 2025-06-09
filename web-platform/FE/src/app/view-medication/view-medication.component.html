@@ -32,12 +32,13 @@
 
     <ng-container *ngIf="latestMedication; else noCurrentMedication">
       <div class="medication-card">
-        <section #latestMedRef>
+        <section #latestMedRef class="pdf-export">
           <p><strong>Name:</strong> {{ latestMedication.name }}</p>
           <p><strong>Dosage:</strong> {{ latestMedication.dose }}</p>
           <p><strong>Frequency:</strong> {{ latestMedication.frequency }}</p>
           <p><strong>Route:</strong> {{ latestMedication.route }}</p>
           <p><strong>Start Date:</strong> {{ latestMedication.startDate | date }}</p>
+
           <p *ngIf="latestMedication.endDate"><strong>End Date:</strong> {{ latestMedication.endDate | date }}</p>
           <p><strong>Prescribed By:</strong> {{ latestMedication.prescribedBy }}</p>
           <p *ngIf="latestMedication.notes"><strong>Notes:</strong> {{ latestMedication.notes }}</p>
