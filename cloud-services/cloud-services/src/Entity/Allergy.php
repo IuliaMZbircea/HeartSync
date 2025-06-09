@@ -17,6 +17,10 @@ class Allergy
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(inversedBy: 'allergies')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Patient $patient = null;
+
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $name = null;
 
@@ -43,12 +47,23 @@ class Allergy
         return $this->id;
     }
 
+    public function getPatient(): ?Patient
+    {
+        return $this->patient;
+    }
+
+    public function setPatient(?Patient $patient): self
+    {
+        $this->patient = $patient;
+        return $this;
+    }
+
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): static
+    public function setName(?string $name): self
     {
         $this->name = $name;
         return $this;
@@ -59,7 +74,7 @@ class Allergy
         return $this->severity;
     }
 
-    public function setSeverity(?string $severity): static
+    public function setSeverity(?string $severity): self
     {
         $this->severity = $severity;
         return $this;
@@ -70,7 +85,7 @@ class Allergy
         return $this->reaction;
     }
 
-    public function setReaction(?string $reaction): static
+    public function setReaction(?string $reaction): self
     {
         $this->reaction = $reaction;
         return $this;
@@ -81,7 +96,7 @@ class Allergy
         return $this->notes;
     }
 
-    public function setNotes(?string $notes): static
+    public function setNotes(?string $notes): self
     {
         $this->notes = $notes;
         return $this;
@@ -92,30 +107,29 @@ class Allergy
         return $this->recordedDate;
     }
 
-    public function setRecordedDate(?\DateTimeInterface $recordedDate): static
+    public function setRecordedDate(?\DateTimeInterface $recordedDate): self
     {
         $this->recordedDate = $recordedDate;
         return $this;
     }
 
-    public function setIsActive(bool $isActive): static
-    {
-        $this->isActive = $isActive;
-        return $this;
-    }
-
-    public function isActive(): ?bool
+    public function isIsActive(): ?bool
     {
         return $this->isActive;
     }
 
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
 
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static
+    public function setCreatedAt(?\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
         return $this;

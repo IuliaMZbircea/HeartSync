@@ -10,68 +10,38 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
-use Psr\Log\LoggerInterface;
-
 
 #[Route('/api/custom-patients')]
 class PatientController extends AbstractController
 {
-
     public function __construct(
         private EntityManagerInterface $em,
-        private PatientRepository $patientRepository,
-            private LoggerInterface $logger
+        private PatientRepository $patientRepository
     ) {}
 
-   #[Route('', name: 'patient_index', methods: ['GET'])]
-       public function index(): JsonResponse
-       {
+    #[Route('', name: 'patient_index', methods: ['GET'])]
+    public function index(): JsonResponse
+    {
+        $patients = $this->patientRepository->findBy(['isActive' => true]);
 
-           $patients = $this->patientRepository->findBy(['isActive' => true]);
-$this->logger->info('madalin patients:', ['patients' => $patients]);
-           $data = [];
-           foreach ($patients as $patient) {
-               $alarms = [];
-               foreach ($patient->getAlarms() as $alarm) {
-                   $alarms[] = [
-                       'id' => $alarm->getId(),
-                       'parameter' => $alarm->getParameter(),
-                       'condition' => $alarm->getConditionType(),
-                       'threshold' => $alarm->getThreshold(),
-                       'duration' => $alarm->getDuration(),
-                       'afterActivity' => $alarm->isAfterActivity(),
-                       'message' => $alarm->getMessage(),
-                       'isActive' => $alarm->isActive(),
-                       'created' => $alarm->getCreatedAt(),
-                   ];
-               }
+        $response = array_map(function (Patient $patient) {
+            return $this->serializePatient($patient);
+        }, $patients);
 
-               $data[] = [
-                   'id' => $patient->getId(),
-                   'firstName' => $patient->getFirstName(),
-                   'lastName' => $patient->getLastName(),
-                   'email' => $patient->getEmail(),
-                   'phone' => $patient->getPhone(),
-                   'cnp' => $patient->getCnp(),
-                   'occupation' => $patient->getOccupation(),
-                   'locality' => $patient->getLocality(),
-                   'street' => $patient->getStreet(),
-                   'number' => $patient->getNumber(),
-                   'block' => $patient->getBlock(),
-                   'staircase' => $patient->getStaircase(),
-                   'apartment' => $patient->getApartment(),
-                   'floor' => $patient->getFloor(),
-                   'bloodGroup' => $patient->getBloodGroup(),
-                   'rh' => $patient->getRh(),
-                   'createdAt' => $patient->getCreatedAt()?->format('Y-m-d H:i:s'),
-                   'isActive' => $patient->isActive(),
-                   'alarms' => $alarms,
-               ];
-           }
+        return $this->json($response);
+    }
 
-           return $this->json($data);
-       }
+    #[Route('/{id}', name: 'patient_show', methods: ['GET'])]
+    public function show(int $id): JsonResponse
+    {
+        $patient = $this->patientRepository->find($id);
 
+        if (!$patient || !$patient->isIsActive()) {
+            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json($this->serializePatient($patient));
+    }
 
     #[Route('', name: 'patient_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
@@ -99,35 +69,24 @@ $this->logger->info('madalin patients:', ['patients' => $patients]);
         $patient->setRh($data['rh'] ?? '');
         $patient->setWeight($data['weight'] ?? 0);
         $patient->setHeight($data['height'] ?? 0);
-        $patient->setValidAccount($data['valid_account'] ?? true);
+        $patient->setValidAccount(true);
         $patient->setBirthDate(isset($data['birth_date']) ? new \DateTime($data['birth_date']) : null);
         $patient->setSex($data['sex'] ?? null);
         $patient->setPatientHistory($data['patient_history'] ?? []);
-        $patient->setIsActive(true);
         $patient->setCreatedAt(new \DateTime());
+        $patient->setIsActive(true);
 
         $this->em->persist($patient);
         $this->em->flush();
 
-        return $this->json($this->buildHl7($patient), Response::HTTP_CREATED);
-    }
-
-    #[Route('/{id}', name: 'patient_show', methods: ['GET'])]
-    public function show(int $id): JsonResponse
-    {
-        $patient = $this->patientRepository->find($id);
-        if (!$patient || !$patient->isActive()) {
-            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        return $this->json($this->buildHl7($patient));
+        return $this->json(['message' => 'Patient created', 'id' => $patient->getId()], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'patient_update', methods: ['PUT'])]
     public function update(Request $request, int $id): JsonResponse
     {
         $patient = $this->patientRepository->find($id);
-        if (!$patient || !$patient->isActive()) {
+        if (!$patient || !$patient->isIsActive()) {
             return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -136,22 +95,37 @@ $this->logger->info('madalin patients:', ['patients' => $patients]);
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
+        $patient->setEmail($data['email'] ?? $patient->getEmail());
         $patient->setPhone($data['phone'] ?? $patient->getPhone());
+        $patient->setFirstName($data['first_name'] ?? $patient->getFirstName());
+        $patient->setLastName($data['last_name'] ?? $patient->getLastName());
         $patient->setOccupation($data['occupation'] ?? $patient->getOccupation());
+        $patient->setLocality($data['locality'] ?? $patient->getLocality());
+        $patient->setStreet($data['street'] ?? $patient->getStreet());
+        $patient->setNumber($data['number'] ?? $patient->getNumber());
+        $patient->setBlock($data['block'] ?? $patient->getBlock());
+        $patient->setStaircase($data['staircase'] ?? $patient->getStaircase());
+        $patient->setApartment($data['apartment'] ?? $patient->getApartment());
+        $patient->setFloor($data['floor'] ?? $patient->getFloor());
+        $patient->setBloodGroup($data['blood_group'] ?? $patient->getBloodGroup());
+        $patient->setRh($data['rh'] ?? $patient->getRh());
         $patient->setWeight($data['weight'] ?? $patient->getWeight());
         $patient->setHeight($data['height'] ?? $patient->getHeight());
+        $patient->setBirthDate(isset($data['birth_date']) ? new \DateTime($data['birth_date']) : $patient->getBirthDate());
+        $patient->setSex($data['sex'] ?? $patient->getSex());
         $patient->setPatientHistory($data['patient_history'] ?? $patient->getPatientHistory());
 
         $this->em->flush();
 
-        return $this->json($this->buildHl7($patient));
+        return $this->json(['message' => 'Patient updated']);
     }
 
     #[Route('/{id}', name: 'patient_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $patient = $this->patientRepository->find($id);
-        if (!$patient || !$patient->isActive()) {
+
+        if (!$patient || !$patient->isIsActive()) {
             return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -161,40 +135,57 @@ $this->logger->info('madalin patients:', ['patients' => $patients]);
         return $this->json(['message' => 'Patient deactivated']);
     }
 
-    private function buildHl7(Patient $patient): array
-    {
-        return [
-            'resourceType' => 'Patient',
-            'id' => $patient->getId(),
-            'meta' => [
-                'versionId' => '1',
-                'lastUpdated' => $patient->getCreatedAt()?->format(\DateTime::ATOM),
-            ],
-            'active' => $patient->isActive(),
-            'name' => [[
-                'family' => $patient->getLastName(),
-                'given' => [$patient->getFirstName()]
-            ]],
-            'telecom' => [
-                ['system' => 'phone', 'value' => $patient->getPhone(), 'use' => 'mobile'],
-                ['system' => 'email', 'value' => $patient->getEmail(), 'use' => 'home']
-            ],
-            'gender' => match($patient->getSex()) {
-                'M' => 'male',
-                'F' => 'female',
-                default => 'unknown'
-            },
-            'birthDate' => $patient->getBirthDate()?->format('Y-m-d'),
-            'address' => [[
-                'line' => [$patient->getStreet() . ' ' . $patient->getNumber()],
-                'city' => $patient->getLocality()
-            ]],
-            'extension' => [
-                ['url' => 'http://example.org/fhir/StructureDefinition/cnp', 'valueString' => $patient->getCnp()],
-                ['url' => 'http://example.org/fhir/StructureDefinition/occupation', 'valueString' => $patient->getOccupation()],
-                ['url' => 'http://example.org/fhir/StructureDefinition/height', 'valueDecimal' => $patient->getHeight()],
-                ['url' => 'http://example.org/fhir/StructureDefinition/weight', 'valueDecimal' => $patient->getWeight()],
-            ]
-        ];
-    }
+private function serializePatient(Patient $patient): array
+{
+    return [
+        'id' => $patient->getId(),
+        'email' => $patient->getEmail(),
+        'phone' => $patient->getPhone(),
+        'firstName' => $patient->getFirstName(),
+        'lastName' => $patient->getLastName(),
+        'cnp' => $patient->getCnp(),
+        'occupation' => $patient->getOccupation(),
+        'locality' => $patient->getLocality(),
+        'street' => $patient->getStreet(),
+        'number' => $patient->getNumber(),
+        'block' => $patient->getBlock(),
+        'staircase' => $patient->getStaircase(),
+        'apartment' => $patient->getApartment(),
+        'floor' => $patient->getFloor(),
+        'bloodGroup' => $patient->getBloodGroup(),
+        'rh' => $patient->getRh(),
+        'weight' => $patient->getWeight(),
+        'height' => $patient->getHeight(),
+        'birthDate' => $patient->getBirthDate()?->format('Y-m-d'),
+        'sex' => $patient->getSex(),
+        'patientHistory' => $patient->getPatientHistory(),
+        'createdAt' => $patient->getCreatedAt()?->format('Y-m-d H:i:s'),
+        'isActive' => $patient->isIsActive(),
+
+        // 🔹 Alarms
+        'alarms' => array_map(function ($alarm) {
+            return [
+                'id' => $alarm->getId(),
+                'parameter' => $alarm->getParameter(),
+                'condition' => $alarm->getConditionType(),
+                'threshold' => $alarm->getThreshold(),
+                'duration' => $alarm->getDuration(),
+                'afterActivity' => $alarm->isAfterActivity(),
+                'message' => $alarm->getMessage(),
+            ];
+        }, $patient->getAlarms()->toArray()),
+
+        // 🔹 Allergies
+        'allergies' => array_map(function ($a) {
+            return [
+                'id' => $a->getId(),
+                'name' => $a->getName(),
+                'severity' => $a->getSeverity(),
+                'reaction' => $a->getReaction(),
+                'notes' => $a->getNotes(),
+                'recordedDate' => $a->getRecordedDate()?->format('Y-m-d'),
+            ];
+        }, $patient->getAllergies()->toArray()),
+    ];
+}
 }
