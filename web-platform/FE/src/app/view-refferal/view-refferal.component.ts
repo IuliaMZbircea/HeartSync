@@ -143,6 +143,7 @@ export class ViewRefferalComponent implements OnInit{
       default: return type;
     }
   }
+
   exportReferralToPdf(referral: Referral): void {
     const doc = new jsPDF();
 

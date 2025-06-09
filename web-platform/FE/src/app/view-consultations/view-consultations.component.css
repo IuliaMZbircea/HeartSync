@@ -258,3 +258,401 @@ section {
   color: #555;
 }
 
+.close{
+  padding: 2%;
+  display: flex;
+  justify-content: space-between;
+
+  span{
+    cursor: pointer;
+  }
+}
+
+.section {
+  background-color: #f5f5f5;
+  padding: 20px;
+  margin-top: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.section h4 {
+  margin-bottom: 1rem;
+  color: #1a1f38;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.field-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.field-group label {
+  width: 100%;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.section label{
+  font-weight: normal;
+  color: #555;
+  font-size: 14px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+input:invalid, select:invalid, textarea:invalid {
+  border-color: #e53935;
+}
+
+.button-add-recommendation {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 0.5rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 5px;
+  background-color: #1a1f38;
+  color: white;
+  border: 2px solid #9ca1c4;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.button-add-recommendation:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-add-recommendation:hover:not(:disabled) {
+  background-color: transparent;
+  color: #1a1f38;
+  border: 1px solid #9ca1c4;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  display: block;
+}
+
+.toggle-button{
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 7%;
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+
+form{
+  overflow: auto;
+  padding-right: 3%;
+  padding-left: 3%;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 255, 0.5);
+}
+
+.custom-toggle-group {
+  background: transparent;
+  border: none;
+}
+
+.custom-toggle-group .mat-button-toggle {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+  background-color: white;
+  color: #333;
+  transition: background-color 0.2s ease;
+}
+
+.custom-toggle-group .mat-button-toggle-checked {
+  background-color: #1a1f38;
+  color: white;
+}
+
+.custom-toggle-group .mat-button-toggle:hover {
+  background-color: #f0f0f0;
+}
+
+.view{
+  padding:5%;
+}
+
+h2 {
+  color: #1a1f38;
+  font-weight: bolder;
+}
+
+.center h2{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #5e5e5e;
+
+  img{
+    width: 7%;
+  }
+}
+
+
+.accordion-wrapper {
+  width: 100%;
+  max-width: 60vw;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (max-width: 800px) {
+  .accordion-wrapper {
+    width: 95%;
+    padding: 0.5rem;
+  }
+}
+
+section {
+  margin-bottom: 20px;
+  background: #f8f8f8;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 255, 0.3);
+  border-left: 3px solid #1a1f38;
+  font-size: 1rem;
+  line-height: 1.6;
+  display: block;
+  overflow: visible;
+}
+
+.mat-expansion-panel-header {
+  min-height: 56px;
+  font-size: 16px;
+}
+
+@media (min-width: 600px) {
+  .mat-expansion-panel-header {
+    min-height: 64px;
+    padding: 16px 24px;
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 960px) {
+  .mat-expansion-panel-header {
+    min-height: 70px;
+    padding: 20px 32px;
+    font-size: 20px;
+  }
+}
+
+.patient-info-card {
+  background-color: #f0f4ff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  border-left: 4px solid #1a1f38;
+  font-size: 2rem;
+
+  h2 {
+    margin-top: 0;
+    color: #1a1f38;
+  }
+
+  p {
+    margin: 5px 0;
+    font-size: 16px;
+  }
+
+  strong {
+    color: #37474f;
+  }
+}
+
+.patient-info{
+  margin-top:3%;
+}
+
+.buttons{
+  margin-top: 3%;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 8px;
+  width: fit-content;
+  font-size: 14px;
+}
+
+.status-indicator.resolved {
+  background-color: #e6f4ea;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.status-indicator.pending {
+  background-color: #fff3e0;
+  color: #ef6c00;
+  border: 1px solid #ffe0b2;
+}
+
+.status-icon {
+  font-size: 20px;
+}
+
+.panel-description-right {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  white-space: nowrap;
+}
+
+.status-badge.resolved {
+  background-color: #e6f4ea;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.status-badge.pending {
+  background-color: #fff3e0;
+  color: #ef6c00;
+  border: 1px solid #ffe0b2;
+}
+
+.status-icon {
+  font-size: 18px;
+}
+
+.grid-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.from-doctor p {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 12px 0;
+}
+
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  font-size: 1rem;
+  position: relative;
+  padding-left: 50px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.toggle-switch .slider {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-switch .slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 1px;
+  top: 1px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: #4caf50;
+}
+
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+.flex.justify-end.full-width {
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+
+.resolved-checkbox {
+  margin-top: 16px;
+  font-weight: 600;
+}
+
+.status-badge.resolved {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.status-badge.pending {
+  background-color: #FF9800;
+  color: white;
+}
+
+.status-icon {
+  font-size: 1.3rem;
+}
+
