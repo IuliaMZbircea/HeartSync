@@ -53,6 +53,14 @@
         <input [value]="age" disabled />
       </div>
       <div class="form-group">
+        <label>Sex</label>
+        <input [value]="sex" disabled />
+      </div>
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" formControlName="birthDate" />
+      </div>
+      <div class="form-group">
         <label>Occupation*</label>
         <input formControlName="occupation" type="text" />
         <div class="error-message" *ngIf="patientForm.get('occupation')?.invalid && patientForm.get('occupation')?.touched">
@@ -65,9 +73,31 @@
   <section class="form-section">
     <h3>🏠 Address</h3>
     <div class="form-row">
-      <div class="form-group"><label>City*</label><input formControlName="locality" type="text" /></div>
-      <div class="form-group"><label>Street*</label><input formControlName="street" type="text" /></div>
-      <div class="form-group"><label>No*</label><input formControlName="number" type="text" /></div>
+      <div class="form-group">
+        <label>City*</label>
+        <input formControlName="locality" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('locality')?.touched && patientForm.get('locality')?.invalid">
+          <div *ngIf="patientForm.get('locality')?.errors?.['required']">City is required.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Street*</label>
+        <input formControlName="street" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('street')?.touched && patientForm.get('street')?.invalid">
+          <div *ngIf="patientForm.get('street')?.errors?.['required']">Street is required.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>No*</label>
+        <input formControlName="number" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('number')?.touched && patientForm.get('number')?.invalid">
+          <div *ngIf="patientForm.get('number')?.errors?.['required']">Number is required.</div>
+          <div *ngIf="patientForm.get('number')?.errors?.['pattern']">Number must contain only digits.</div>
+        </div>
+      </div>
+
       <div class="form-group"><label>Block</label><input formControlName="block" type="text" /></div>
       <div class="form-group"><label>Staircase</label><input formControlName="staircase" type="text" /></div>
       <div class="form-group"><label>Apartment</label><input formControlName="apartment" type="text" /></div>
@@ -123,7 +153,6 @@
           <div class="form-group">
             <label>Diagnosis</label>
             <app-diagnosis-code
-              [formControl]="getDiseaseNameControl(i)"
               (diseaseSelected)="onDiseaseSelected(i, $event)">
             </app-diagnosis-code>
           </div>
