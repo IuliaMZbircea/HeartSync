@@ -2,8 +2,8 @@ import {AfterViewInit, Component, ElementRef} from '@angular/core';
 import {FormsModule} from "@angular/forms";
 import {MatIcon} from "@angular/material/icon";
 import {Router, RouterLink} from "@angular/router";
-import {DoctorService} from "../../services/doctor.service";
-import {AuthService} from "../../services/auth.service";
+import {DoctorService} from "../../../services/doctor.service";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-login',
@@ -33,13 +33,11 @@ export class LoginComponent implements AfterViewInit {
   }
 
   login() {
-    this.doctorService.getDoctors().subscribe(doctors => {
-      const foundDoctor = doctors.find(d => d.email === this.email && d.password === this.password);
-
-      if (foundDoctor) {
-        this.authService.login(foundDoctor);
+    this.authService.loginUser(this.email, this.password).subscribe({
+      next: (user) => {
         this.router.navigate(['/PatientList']);
-      } else {
+      },
+      error: (err) => {
         alert('Email sau parolă greșită.');
       }
     });
