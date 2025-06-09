@@ -10,15 +10,15 @@
       <div class="form-group">
         <label>Email</label>
         <input formControlName="email" type="email" placeholder="example@mail.com" />
-        <div class="error-message" *ngIf="patientForm.get('email')?.invalid && patientForm.get('email')?.touched">
-          Invalid email.
+        <div class="error-message" *ngIf="patientForm.get('email')?.touched && patientForm.get('email')?.errors?.['email']">
+          Invalid email address.
         </div>
       </div>
       <div class="form-group">
         <label>Phone*</label>
         <input formControlName="phone" type="tel" placeholder="0712345678" />
-        <div class="error-message" *ngIf="patientForm.get('phone')?.invalid && patientForm.get('phone')?.touched">
-          Invalid or missing phone number.
+        <div class="error-message" *ngIf="patientForm.get('phone')?.touched && patientForm.get('phone')?.errors?.['required']">
+          Phone number is required.
         </div>
       </div>
     </div>
@@ -30,22 +30,25 @@
       <div class="form-group">
         <label>First Name*</label>
         <input formControlName="firstName" type="text" />
-        <div class="error-message" *ngIf="patientForm.get('firstName')?.invalid && patientForm.get('firstName')?.touched">
+        <div class="error-message" *ngIf="patientForm.get('firstName')?.touched && patientForm.get('firstName')?.errors?.['required']">
           First name is required.
         </div>
       </div>
       <div class="form-group">
         <label>Last Name*</label>
         <input formControlName="lastName" type="text" />
-        <div class="error-message" *ngIf="patientForm.get('lastName')?.invalid && patientForm.get('lastName')?.touched">
+        <div class="error-message" *ngIf="patientForm.get('lastName')?.touched && patientForm.get('lastName')?.errors?.['required']">
           Last name is required.
         </div>
       </div>
       <div class="form-group">
         <label>CNP*</label>
         <input formControlName="cnp" type="text" placeholder="1234567890123" />
-        <div class="error-message" *ngIf="patientForm.get('cnp')?.invalid && patientForm.get('cnp')?.touched">
-          Invalid CNP.
+        <div class="error-message" *ngIf="patientForm.get('cnp')?.touched && patientForm.get('cnp')?.errors?.['required']">
+          CNP is required.
+        </div>
+        <div class="error-message" *ngIf="patientForm.get('cnp')?.touched && patientForm.get('cnp')?.errors?.['pattern']">
+          Invalid CNP format.
         </div>
       </div>
       <div class="form-group">
@@ -54,17 +57,17 @@
       </div>
       <div class="form-group">
         <label>Sex</label>
-        <input [value]="sex" disabled />
+        <input formControlName="sex" type="text" readonly />
       </div>
       <div class="form-group">
         <label>Date of Birth</label>
-        <input type="date" formControlName="birthDate" />
+        <input formControlName="birthDate" type="date" readonly />
       </div>
       <div class="form-group">
         <label>Occupation*</label>
         <input formControlName="occupation" type="text" />
-        <div class="error-message" *ngIf="patientForm.get('occupation')?.invalid && patientForm.get('occupation')?.touched">
-          Required field.
+        <div class="error-message" *ngIf="patientForm.get('occupation')?.touched && patientForm.get('occupation')?.errors?.['required']">
+          Occupation is required.
         </div>
       </div>
     </div>
@@ -76,25 +79,27 @@
       <div class="form-group">
         <label>City*</label>
         <input formControlName="locality" type="text" />
-        <div class="error-message" *ngIf="patientForm.get('locality')?.touched && patientForm.get('locality')?.invalid">
-          <div *ngIf="patientForm.get('locality')?.errors?.['required']">City is required.</div>
+        <div class="error-message" *ngIf="patientForm.get('locality')?.touched && patientForm.get('locality')?.errors?.['required']">
+          City is required.
         </div>
       </div>
 
       <div class="form-group">
         <label>Street*</label>
         <input formControlName="street" type="text" />
-        <div class="error-message" *ngIf="patientForm.get('street')?.touched && patientForm.get('street')?.invalid">
-          <div *ngIf="patientForm.get('street')?.errors?.['required']">Street is required.</div>
+        <div class="error-message" *ngIf="patientForm.get('street')?.touched && patientForm.get('street')?.errors?.['required']">
+          Street is required.
         </div>
       </div>
 
       <div class="form-group">
         <label>No*</label>
         <input formControlName="number" type="text" />
-        <div class="error-message" *ngIf="patientForm.get('number')?.touched && patientForm.get('number')?.invalid">
-          <div *ngIf="patientForm.get('number')?.errors?.['required']">Number is required.</div>
-          <div *ngIf="patientForm.get('number')?.errors?.['pattern']">Number must contain only digits.</div>
+        <div class="error-message" *ngIf="patientForm.get('number')?.touched && patientForm.get('number')?.errors?.['required']">
+          Number is required.
+        </div>
+        <div class="error-message" *ngIf="patientForm.get('number')?.touched && patientForm.get('number')?.errors?.['pattern']">
+          Number must contain only digits.
         </div>
       </div>
 
@@ -118,7 +123,7 @@
           <option value="O">O</option>
           <option value="AB">AB</option>
         </select>
-        <div class="error-message" *ngIf="patientForm.get('bloodGroup')?.touched && patientForm.get('bloodGroup')?.invalid">
+        <div class="error-message" *ngIf="patientForm.get('bloodGroup')?.touched && patientForm.get('bloodGroup')?.errors?.['required']">
           Blood group is required.
         </div>
       </div>
@@ -130,7 +135,7 @@
           <option value="+">Positive</option>
           <option value="-">Negative</option>
         </select>
-        <div class="error-message" *ngIf="patientForm.get('rh')?.touched && patientForm.get('rh')?.invalid">
+        <div class="error-message" *ngIf="patientForm.get('rh')?.touched && patientForm.get('rh')?.errors?.['required']">
           Rh factor is required.
         </div>
       </div>
@@ -138,74 +143,25 @@
       <div class="form-group">
         <label>Weight (kg)*</label>
         <input formControlName="weight" type="text" />
-        <div class="error-message" *ngIf="patientForm.get('weight')?.touched && patientForm.get('weight')?.invalid">
-          <div *ngIf="patientForm.get('weight')?.errors?.['required']">Weight is required.</div>
-          <div *ngIf="patientForm.get('weight')?.errors?.['pattern']">Weight must be a valid number (e.g. 70 or 70.5).</div>
+        <div class="error-message" *ngIf="patientForm.get('weight')?.touched && patientForm.get('weight')?.errors?.['required']">
+          Weight is required.
+        </div>
+        <div class="error-message" *ngIf="patientForm.get('weight')?.touched && patientForm.get('weight')?.errors?.['pattern']">
+          Weight must be a valid number (e.g. 70 or 70.5).
         </div>
       </div>
 
       <div class="form-group">
         <label>Height (cm)*</label>
         <input formControlName="height" type="text" />
-        <div class="error-message" *ngIf="patientForm.get('height')?.touched && patientForm.get('height')?.invalid">
-          <div *ngIf="patientForm.get('height')?.errors?.['required']">Height is required.</div>
-          <div *ngIf="patientForm.get('height')?.errors?.['pattern']">Height must be a valid number (e.g. 170 or 170.5).</div>
+        <div class="error-message" *ngIf="patientForm.get('height')?.touched && patientForm.get('height')?.errors?.['required']">
+          Height is required.
+        </div>
+        <div class="error-message" *ngIf="patientForm.get('height')?.touched && patientForm.get('height')?.errors?.['pattern']">
+          Height must be a valid number (e.g. 170 or 170.5).
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Allergies</label>
-        <input formControlName="allergies" type="text" />
-      </div>
-
-    </div>
-  </section>
-
-  <section class="form-section">
-    <h3>🧾 Diagnoses</h3>
-    <div formArrayName="diseases">
-      <div
-        *ngFor="let diseaseCtrl of diseases.controls; let i = index"
-        [formGroupName]="i"
-        class="diagnosis-card"
-      >
-        <div class="diagnosis-grid">
-          <div class="form-group">
-            <label>Diagnosis</label>
-            <app-diagnosis-code
-              (diseaseSelected)="onDiseaseSelected(i, $event)">
-            </app-diagnosis-code>
-          </div>
-
-          <div class="form-group">
-            <label>ICD Code</label>
-            <input
-              type="text"
-              [value]="diseaseCtrl.get('icdCode')?.value || ''"
-              readonly
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Category</label>
-            <select formControlName="category">
-              <option value="">Select</option>
-              <option value="Chronic">Chronic</option>
-              <option value="Genetic">Genetic</option>
-              <option value="Acute">Acute</option>
-              <option value="Autoimmune">Autoimmune</option>
-            </select>
-          </div>
-
-          <div class="form-group full-width">
-            <label>Description</label>
-            <textarea
-              formControlName="description"
-              placeholder="e.g. Short notes about the condition...">
-          </textarea>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 

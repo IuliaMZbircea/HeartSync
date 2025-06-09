@@ -1,28 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
-  FormArray,
   FormBuilder,
-  FormControl,
   FormGroup,
-  ReactiveFormsModule, ValidationErrors,
+  ReactiveFormsModule,
+  ValidationErrors,
   ValidatorFn,
-  Validators} from '@angular/forms';
-import { NgIf, NgForOf } from '@angular/common';
-import {debounceTime, of, switchMap} from "rxjs";
-import {DiagnosisCodeComponent} from "../diagnosis-code/diagnosis-code.component";
-import {IcdService} from "../../services/diagnosis.code.service";
+  Validators
+} from '@angular/forms';
+import { NgIf } from '@angular/common';
+import { DiagnosisCodeComponent } from "../diagnosis-code/diagnosis-code.component";
+import { IcdService } from "../../services/diagnosis.code.service";
+import { PatientService } from "../../services/patient.service";
+import { AlertService } from "../../services/alert.service";
 
 @Component({
   selector: 'app-add-new-consultation',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    NgForOf,
-    NgIf,
-    DiagnosisCodeComponent
+    NgIf
   ],
-  providers: [IcdService],
+  providers: [IcdService, AlertService],
   templateUrl: './add-patient.component.html',
   styleUrl: './add-patient.component.css'
 })
@@ -31,16 +30,20 @@ export class AddPatientComponent implements OnInit {
   age: number | null = null;
   sex: string | null = null;
   cnpError: string | null = null;
-  token='eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE3NDk1MDk2NzEsImV4cCI6MTc0OTUxMzI3MSwiaXNzIjoiaHR0cHM6Ly9pY2RhY2Nlc3NtYW5hZ2VtZW50Lndoby5pbnQiLCJhdWQiOlsiaHR0cHM6Ly9pY2RhY2Nlc3NtYW5hZ2VtZW50Lndoby5pbnQvcmVzb3VyY2VzIiwiaWNkYXBpIl0sImNsaWVudF9pZCI6IjQwMDYxMDkyLTZhYjktNGI5OC04ZWI3LWJmMGM1YzU0MWE2Zl9mZjlkOTVmZS04MGEyLTQ5NmMtYjI0YS1jMDVkNzE0YTY1NTUiLCJzY29wZSI6WyJpY2RhcGlfYWNjZXNzIl19.H-oYxiwm5AGZxtsAdB-KAiuiA3aLnheAy_kDJGSZM8XH6hegiFUijL4Yfwg4BHLaJRH87O8E9_DZi62WTrYLiDowpJMMLkldNuvEnv8jpYxig93JjSs3qihky2orGv0BdT5V58sNmxkMCol-PohzotKRMtDLQqX2EXE745deB9JwUY71gxlN17PsP163GWxmaXyy5vVrtYZ6BjQ1MNmAhEgelVcO5kyr3sMtvVniYtbKRbz5hXazKjb6JdqhutFgLYm0WJlWM2qu2aG2PzP3xRyR_lgQPFDHVObgpkYdX-qt5c9eAJQPxj4rgm0AjV6ycT-XUPVJzopP3lDvPtymlQ'
-  diseaseSuggestions: Array<any[]> = [];
-  constructor(private fb: FormBuilder, private icdService: IcdService) { }
+
+  constructor(
+    private fb: FormBuilder,
+    private patientService: PatientService,
+    private alertService: AlertService
+  ) {}
+
   ngOnInit(): void {
     this.patientForm = this.fb.group({
       email: ['', [Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(/^0\d{9}$/)]],
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
-      cnp: ['', [Validators.required, Validators.pattern(/^\d{13}$/),this.cnpValidator()]],
+      cnp: ['', [Validators.required, Validators.pattern(/^\d{13}$/), this.cnpValidator()]],
       occupation: ['', Validators.required],
       locality: ['', Validators.required],
       street: ['', Validators.required],
@@ -53,8 +56,6 @@ export class AddPatientComponent implements OnInit {
       rh: ['', Validators.required],
       weight: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       height: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-      allergies: [''],
-      diseases: this.fb.array([]),
       birthDate: [{ value: '', disabled: true }],
       sex: [{ value: '', disabled: true }],
     });
@@ -62,64 +63,19 @@ export class AddPatientComponent implements OnInit {
     this.patientForm.get('cnp')?.valueChanges.subscribe(val => {
       this.validateAndExtractCNP(val);
     });
-    this.addDisease();
-
   }
 
-  get diseases(): FormArray {
-    return this.patientForm.get('diseases') as FormArray;
-  }
-
-  createDiseaseGroup() {
-    return this.fb.group({
-      name: ['', Validators.required],
-      category: ['Infectious'],
-      description: [''],
-      icdCode: ['']
-    });
-  }
-
-  addDisease() {
-    this.diseases.push(this.createDiseaseGroup());
-    this.diseaseSuggestions.push([]);
-
-    const index = this.diseases.length - 1;
-    const control = this.diseases.at(index).get('name');
-
-    control?.valueChanges.pipe(
-      debounceTime(300),
-      switchMap(value => {
-        if (!value?.trim()) {
-          this.diseaseSuggestions[index] = [];
-          return of(null);
-        }
-        return this.icdService.searchDisease(value, this.token);
-      })
-    ).subscribe((res: any) => {
-      if (res?.destinationEntities?.length > 0) {
-        this.diseaseSuggestions[index] = res.destinationEntities.map((item: any) => ({
-          title: this.stripHtmlTags(item.title),
-          code: item.code || item.theCode || 'N/A'
-        }));
-      } else {
-        this.diseaseSuggestions[index] = [];
-      }
-    });
-  }
-
-  stripHtmlTags(text: string): string {
-    return text.replace(/<\/?[^>]+(>|$)/g, "");
-  }
   validateAndExtractCNP(cnp: string): void {
     this.age = null;
     this.sex = null;
     this.cnpError = null;
 
-    if (!/^\d{13}$/.test(cnp)) {
-      this.cnpError = 'CNP must contain exactly 13 digits.';
+    // if (!/^\d{13}$/.test(cnp)) {
+    //   this.cnpError = 'CNP must contain exactly 13 digits.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
-      return;
-    }
+    //   this.alertService.error(this.cnpError);
+    //   return;
+    // }
 
     const genderCode = parseInt(cnp[0], 10);
     const year = parseInt(cnp.slice(1, 3), 10);
@@ -129,12 +85,14 @@ export class AddPatientComponent implements OnInit {
     if (month < 1 || month > 12) {
       this.cnpError = 'Invalid month in CNP.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
+      this.alertService.error(this.cnpError);
       return;
     }
 
     if (day < 1 || day > 31) {
       this.cnpError = 'Invalid day in CNP.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
+      this.alertService.error(this.cnpError);
       return;
     }
 
@@ -145,17 +103,17 @@ export class AddPatientComponent implements OnInit {
       case 1:
       case 2:
         fullYear = 1900 + year;
-        genderText = (genderCode === 1) ? 'Male' : 'Female';
+        genderText = (genderCode === 1) ? 'M' : 'F';
         break;
       case 3:
       case 4:
         fullYear = 1800 + year;
-        genderText = (genderCode === 3) ? 'Male' : 'Female';
+        genderText = (genderCode === 3) ? 'M' : 'F';
         break;
       case 5:
       case 6:
         fullYear = 2000 + year;
-        genderText = (genderCode === 5) ? 'Male' : 'Female';
+        genderText = (genderCode === 5) ? 'M' : 'F';
         break;
       case 7:
       case 8:
@@ -170,6 +128,7 @@ export class AddPatientComponent implements OnInit {
       default:
         this.cnpError = 'Unknown gender code in CNP.';
         this.patientForm.patchValue({ birthDate: '', sex: '' });
+        this.alertService.error(this.cnpError);
         return;
     }
 
@@ -182,6 +141,7 @@ export class AddPatientComponent implements OnInit {
     ) {
       this.cnpError = 'Invalid birth date in CNP.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
+      this.alertService.error(this.cnpError);
       return;
     }
 
@@ -193,8 +153,9 @@ export class AddPatientComponent implements OnInit {
     }
 
     if (age < 0 || age > 120) {
-      this.cnpError = 'Age calculated from CNP is out of valid range.';
+      this.cnpError = 'Age derived from CNP is out of valid range.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
+      this.alertService.error(this.cnpError);
       return;
     }
 
@@ -203,7 +164,7 @@ export class AddPatientComponent implements OnInit {
 
     this.patientForm.patchValue({
       birthDate: this.formatDateLocal(birthDate),
-      sex: this.sex
+      sex: genderText
     });
   }
 
@@ -225,17 +186,21 @@ export class AddPatientComponent implements OnInit {
 
   onSubmit(): void {
     if (this.patientForm.valid) {
-      console.log('Form data:', this.patientForm.value);
+
+      const patientData = this.patientForm.getRawValue();
+      this.patientService.createPatient(patientData).subscribe({
+        next: (response) => {
+          this.alertService.success('Patient successfully created!');
+          this.patientForm.reset();
+        },
+        error: (error) => {
+          this.alertService.error('Failed to create patient. Please try again.');
+          console.error('Error creating patient:', error);
+        }
+      });
     } else {
+      this.alertService.error('Form is invalid. Please check all required fields.');
       this.patientForm.markAllAsTouched();
     }
   }
-  onDiseaseSelected(index: number, disease: {title: string, code: string}) {
-    const diseaseGroup = this.diseases.at(index);
-    diseaseGroup.patchValue({
-      name: disease.title,
-      icdCode: disease.code
-    });
-  }
 }
-

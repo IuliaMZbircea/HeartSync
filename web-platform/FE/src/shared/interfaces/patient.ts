@@ -28,7 +28,7 @@ export interface Patient {
   validAccount: boolean;
   birthDate?: string;
   sex?: 'M' | 'F';
-  createdAt?: string; // ISO date string
+  createdAt?: string;
   isActive: boolean;
 
   allergies?: Allergy[];
