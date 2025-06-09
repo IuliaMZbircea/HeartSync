@@ -253,6 +253,28 @@ private function serializePatient(Patient $patient): array
     $patient->getReferrals()->toArray(),
     fn($r) => $r->isActive()
 )),
+//Recommendations
+'recommendations' => $patient->getRecommendations()->map(fn($r) => [
+    'resourceType' => 'ActivityDefinition',
+    'id' => $r->getId(),
+    'status' => $r->isActive() ? 'active' : 'inactive',
+    'description' => $r->getActivityType(),
+    'timingTiming' => [
+        'repeat' => [
+            'frequency' => 1,
+            'period' => $r->getDailyDuration(),
+            'periodUnit' => 'd'
+        ]
+    ],
+    'effectivePeriod' => [
+        'start' => $r->getStartDate()?->format('Y-m-d'),
+        'end' => $r->getEndDate()?->format('Y-m-d')
+    ],
+    'text' => [
+        'status' => 'generated',
+        'div' => $r->getAdditionalNotes() ?? ''
+    ]
+])->toArray(),
     ];
 
 }

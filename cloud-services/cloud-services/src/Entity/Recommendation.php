@@ -6,6 +6,7 @@ use App\Repository\RecommendationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Patient;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: RecommendationRepository::class)]
@@ -20,10 +21,10 @@ class Recommendation
     #[ORM\JoinColumn(name: "patient_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     private ?Patient $patient = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $activityType = null;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $dailyDuration = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -38,73 +39,105 @@ class Recommendation
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true])]
     private ?bool $isActive = true;
 
-    // Getters & Setters
-public function __construct()
-{
-    $this->createdAt = new \DateTimeImmutable();
-    $this->isActive = true;
-}
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+        $this->isActive = true;
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     public function getPatient(): ?Patient
     {
         return $this->patient;
     }
 
-public function setPatient(?Patient $patient): self
-{
-    $this->patient = $patient;
-    return $this;
-}
+    public function setPatient(?Patient $patient): self
+    {
+        $this->patient = $patient;
+        return $this;
+    }
 
-    public function getActivityType(): ?string { return $this->activityType; }
-    public function setActivityType(string $activityType): self {
+    public function getActivityType(): ?string
+    {
+        return $this->activityType;
+    }
+
+    public function setActivityType(string $activityType): self
+    {
         $this->activityType = $activityType;
         return $this;
     }
 
-    public function getDailyDuration(): ?int { return $this->dailyDuration; }
-    public function setDailyDuration(int $dailyDuration): self {
+    public function getDailyDuration(): ?int
+    {
+        return $this->dailyDuration;
+    }
+
+    public function setDailyDuration(int $dailyDuration): self
+    {
         $this->dailyDuration = $dailyDuration;
         return $this;
     }
 
-    public function getStartDate(): ?\DateTimeInterface { return $this->startDate; }
-    public function setStartDate(\DateTimeInterface $startDate): self {
+    public function getStartDate(): ?\DateTimeInterface
+    {
+        return $this->startDate;
+    }
+
+    public function setStartDate(\DateTimeInterface $startDate): self
+    {
         $this->startDate = $startDate;
         return $this;
     }
 
-    public function getEndDate(): ?\DateTimeInterface { return $this->endDate; }
-    public function setEndDate(?\DateTimeInterface $endDate): self {
+    public function getEndDate(): ?\DateTimeInterface
+    {
+        return $this->endDate;
+    }
+
+    public function setEndDate(?\DateTimeInterface $endDate): self
+    {
         $this->endDate = $endDate;
         return $this;
     }
 
-    public function getAdditionalNotes(): ?string { return $this->additionalNotes; }
-    public function setAdditionalNotes(?string $additionalNotes): self {
+    public function getAdditionalNotes(): ?string
+    {
+        return $this->additionalNotes;
+    }
+
+    public function setAdditionalNotes(?string $additionalNotes): self
+    {
         $this->additionalNotes = $additionalNotes;
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeInterface $createdAt): self {
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
         $this->createdAt = $createdAt;
         return $this;
     }
 
-public function setIsActive(bool $isActive): static
-{
-    $this->isActive = $isActive;
-    return $this;
-}
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
 
-public function isActive(): ?bool
-{
-    return $this->isActive;
-}
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
 }
