@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/api/medical-letters')]
+#[Route('/api/custom-medical-letters')]
 class MedicalLetterController extends AbstractController
 {
     public function __construct(

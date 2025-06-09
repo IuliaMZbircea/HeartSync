@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/api/referrals')]
+#[Route('/api/custom-referrals')]
 class ReferralController extends AbstractController
 {
     public function __construct(

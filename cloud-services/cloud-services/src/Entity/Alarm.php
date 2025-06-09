@@ -43,8 +43,13 @@ class Alarm
     private ?bool $isActive = true;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
-    private ?\DateTimeInterface $createdAt = null;
+    private ?\DateTimeInterface $createdAt;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->isActive = true;
+    }
     public function getId(): ?int
     {
         return $this->id;
