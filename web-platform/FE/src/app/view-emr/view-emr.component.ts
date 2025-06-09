@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {DatePipe, NgForOf, NgIf} from "@angular/common";
-import {Patient} from "../interfaces/patient";
-import {PatientService} from "../services/patient.service";
+import {Patient} from "../../shared/interfaces/patient";
+import {PatientService} from "../../services/patient.service";
 import {ActivatedRoute} from "@angular/router";
 import {jsPDF} from "jspdf";
 import html2canvas from "html2canvas";

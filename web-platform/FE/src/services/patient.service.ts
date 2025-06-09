@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from "rxjs";
 import { Patient } from "../interfaces/patient";
 import {HttpClient} from "@angular/common/http";
+import { Patient } from "../shared/interfaces/patient";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PatientService {
 
-  constructor(private http: HttpClient) { }
+  constructor() { }
 
   patient: Patient[] = [
     { id: 1,
@@ -161,7 +162,7 @@ export class PatientService {
             "password": "test123",
             "firstName": "Magda",
             "lastName": "Paicu",
-            "specialization": "Cardiology"
+            "roles": ['ROLE_DOCTOR']
           },
           toDoctor: {
             "id": 2,
@@ -169,7 +170,8 @@ export class PatientService {
             "password": "test123",
             "firstName": "Luyza",
             "lastName": "Nica",
-            "specialization": "Neurology"
+            "roles": ['ROLE_DOCTOR']
+
           },
           reason: 'Suspicion of diabetes',
           date: new Date('2025-05-01'),
@@ -185,7 +187,8 @@ export class PatientService {
             "password": "test123",
             "firstName": "Magda",
             "lastName": "Paicu",
-            "specialization": "Cardiology"
+            "roles": ['ROLE_DOCTOR']
+
           },
           toDoctor: {
             "id": 2,
@@ -193,7 +196,8 @@ export class PatientService {
             "password": "test123",
             "firstName": "Luyza",
             "lastName": "Nica",
-            "specialization": "Neurology"
+            "roles": ['ROLE_DOCTOR']
+
           },
           reason: 'Blood sugar test',
           date: new Date('2025-05-10'),
@@ -359,8 +363,7 @@ export class PatientService {
           threshold: 30,
           duration: 300,
           afterActivity: false,
-          message: 'Aer prea uscat. Hidratează-te și evită efortul.',
-          read:false
+          message: 'Aer prea uscat. Hidratează-te și evită efortul.'
         },
         {
           parameter: 'pulse',
@@ -368,8 +371,7 @@ export class PatientService {
           threshold: 130,
           duration: 45,
           afterActivity: true,
-          message: 'Puls crescut semnificativ după efort.',
-          read:false
+          message: 'Puls crescut semnificativ după efort.'
         }
       ],
       patientHistory : {
@@ -555,8 +557,7 @@ export class PatientService {
           threshold: 0,
           duration: 60,
           afterActivity: false,
-          message: 'Semnal ECG pierdut. Verifică senzorul.',
-          read:true
+          message: 'Semnal ECG pierdut. Verifică senzorul.'
         }
       ],
       medications:[
@@ -684,8 +685,7 @@ export class PatientService {
           threshold: 8,
           duration: 120,
           afterActivity: false,
-          message: 'Nivel hemoglobină scăzut, necesară evaluare.',
-          read:true
+          message: 'Nivel hemoglobină scăzut, necesară evaluare.'
         }
       ],
       medications:[
@@ -878,9 +878,4 @@ export class PatientService {
     }
   }
 
-  private apiUrl = 'http://localhost:8000/api/patients';
-
-  getPatientsFromController(): Observable<Patient[]> {
-    return this.http.get<Patient[]>(this.apiUrl);
-  }
 }

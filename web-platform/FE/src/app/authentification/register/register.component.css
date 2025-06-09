@@ -132,3 +132,12 @@ input::placeholder {
     box-shadow: 0 0 0 0 rgba(78, 91, 166, 0);
   }
 }
+
+.flex.space-between {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.form-outline {
+  flex: 1;
+}

@@ -15,26 +15,121 @@
             <div class="col-lg-6 pt-0 ">
               <div class="card-body p-md-3 mx-md-4" style="border: 0;  border-radius: 0">
                 <div class="text-center">
-                  <img src="../../../assets/logo.jpg" style="height: 100px; padding-bottom:20px" alt="logo">
-                  <h4 class="mt-1 mb-5 pb-1" style="color: #9ca1c4;">We are The  Heart Sync Team</h4>
+                  <img src="../../../assets/logo.jpg" style="height: 100px; padding-bottom:20px" alt="logo" class="mx-auto d-block">
+                  <h4 class="mt-1 mb-5 pb-1" style="color: #9ca1c4;">We are The Heart Sync Team</h4>
                 </div>
 
                 <p style="color: #8a8eb1; padding-right: 20px" class="typing">Please create your account</p>
                 <form #singIn="ngForm" (ngSubmit)="register()">
-                  <div data-mdb-input-init class="form-outline mb-4">
-                    <input type="email" id="form2Example11" class="form-control" placeholder="example@gmail.com"  [(ngModel)]="email" name="email" />
-                    <label class="form-label" for="form2Example11" >Email</label>
+                  <div class="form-outline mb-2">
+                    <input
+                      type="email"
+                      id="email"
+                      class="form-control"
+                      placeholder="example@gmail.com"
+                      [(ngModel)]="email"
+                      name="email"
+                      required
+                      email
+                      #emailRef="ngModel"
+                    />
+                    <label
+                      class="form-label"
+                      for="email"
+                      *ngIf="!(emailRef.invalid && emailRef.touched)"
+                    >
+                      Email
+                    </label>
+                    <div *ngIf="emailRef.invalid && emailRef.touched" class="text-danger small">
+                      <div *ngIf="emailRef.errors?.['required']">Email is required.</div>
+                      <div *ngIf="emailRef.errors?.['email']">Invalid email format.</div>
+                    </div>
                   </div>
 
-                  <div data-mdb-input-init class="form-outline mb-4 position-relative">
-                    <input [type]="passwordFieldType" id="form2Example22" class="form-control" placeholder="Bsafa@564" [(ngModel)]="password" name="password"/>
-                    <label class="form-label" for="form2Example22">Password</label>
+                  <div class="form-outline mb-2 position-relative">
+                    <input
+                      [type]="passwordFieldType"
+                      id="password"
+                      class="form-control"
+                      placeholder="Bsafa@564"
+                      [(ngModel)]="password"
+                      name="password"
+                      required
+                      pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
+                      #passwordRef="ngModel"
+                    />
+                    <label
+                      class="form-label"
+                      for="password"
+                      *ngIf="!(passwordRef.invalid && passwordRef.touched)"
+                    >
+                      Password
+                    </label>
                     <button type="button" class="eye-icon" (click)="togglePasswordVisibility()">
                       <mat-icon>{{ passwordFieldType === 'password' ? 'visibility_off' : 'visibility' }}</mat-icon>
                     </button>
+
+                    <div *ngIf="passwordRef.invalid && passwordRef.touched" class="text-danger small">
+                      <div *ngIf="passwordRef.errors?.['required']">Password is required.</div>
+                      <div *ngIf="passwordRef.errors?.['pattern']">
+                        Password must have: at least 8 characters, one letter, one number and one special character.
+                      </div>
+                    </div>
                   </div>
 
-                  <div class="text-center pt-1 mb-5 pb-1">
+                  <div class="d-flex gap-2 mb-2">
+                    <div class="form-outline w-100">
+                      <input
+                        type="text"
+                        id="firstName"
+                        class="form-control"
+                        placeholder="John"
+                        [(ngModel)]="firstName"
+                        name="firstName"
+                        required
+                        #firstNameRef="ngModel"
+                      />
+                      <label
+                        class="form-label"
+                        for="firstName"
+                        *ngIf="!(firstNameRef.invalid && firstNameRef.touched)"
+                      >
+                        First Name
+                      </label>
+                      <div *ngIf="firstNameRef.invalid && firstNameRef.touched" class="text-danger small">
+                        First name is required.
+                      </div>
+                    </div>
+
+                    <div class="form-outline w-100">
+                      <input
+                        type="text"
+                        id="lastName"
+                        class="form-control"
+                        placeholder="Doe"
+                        [(ngModel)]="lastName"
+                        name="lastName"
+                        required
+                        #lastNameRef="ngModel"
+                      />
+                      <label
+                        class="form-label"
+                        for="lastName"
+                        *ngIf="!(lastNameRef.invalid && lastNameRef.touched)"
+                      >
+                        Last Name
+                      </label>
+                      <div *ngIf="lastNameRef.invalid && lastNameRef.touched" class="text-danger small">
+                        Last name is required.
+                      </div>
+                    </div>
+                  </div>
+
+
+
+
+
+                  <div class="text-center pt-1 mb-2 pb-1">
                     <button data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3" type="submit" class="register">Create</button>
                   </div>
                 </form>

@@ -10,11 +10,11 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {MatButton, MatIconButton} from "@angular/material/button";
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
-import {Patient} from "../interfaces/patient";
+import {Patient} from "../../shared/interfaces/patient";
 import {ActivatedRoute} from "@angular/router";
-import {PatientService} from "../services/patient.service";
-import {Allergy} from "../interfaces/allergies";
-import {AlertService} from "../services/alert.service";
+import {PatientService} from "../../services/patient.service";
+import {Allergy} from "../../shared/interfaces/allergies";
+import {AlertService} from "../../services/alert.service";
 
 @Component({
   selector: 'app-view-allergies',

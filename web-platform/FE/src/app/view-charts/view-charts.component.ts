@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Patient } from "../interfaces/patient";
+import { Patient } from "../../shared/interfaces/patient";
 import { ActivatedRoute } from "@angular/router";
-import { PatientService } from "../services/patient.service";
+import { PatientService } from "../../services/patient.service";
 import { BaseChartDirective } from "ng2-charts";
 import { ChartConfiguration, ChartOptions } from "chart.js";
 import {

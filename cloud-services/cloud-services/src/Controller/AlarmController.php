@@ -38,17 +38,6 @@ class AlarmController extends AbstractController
                 'afterActivity' => $alarm->isAfterActivity(),
                 'message' => $alarm->getMessage(),
                 'isActive' => $alarm->isActive(),
-                'hl7' => [
-                    'resourceType' => 'Observation',
-                    'id' => $alarm->getId(),
-                    'subject' => [
-                    'reference' => 'Patient/' . $alarm->getPatient()?->getId(),
-                ],
-                    'code' => ['text' => $alarm->getParameter()],
-                    'valueQuantity' => ['value' => $alarm->getThreshold()],
-                    'interpretation' => ['text' => $alarm->getConditionType()],
-                    'note' => [['text' => $alarm->getMessage()]]
-                ]
             ];
         }, $alarms);
 
@@ -68,7 +57,6 @@ class AlarmController extends AbstractController
             return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
-
         $alarm = new Alarm();
         $alarm->setPatient($patient);
         $alarm->setParameter($data['parameter'] ?? '');
@@ -84,18 +72,15 @@ class AlarmController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'alarm' => $alarm,
-            'hl7' => [
-                'resourceType' => 'Observation',
-                'id' => $alarm->getId(),
-                'subject' => [
-                    'reference' => 'Patient/' . $alarm->getPatient()?->getId(),
-                ],
-                'code' => ['text' => $alarm->getParameter()],
-                'valueQuantity' => ['value' => $alarm->getThreshold()],
-                'interpretation' => ['text' => $alarm->getConditionType()],
-                'note' => [['text' => $alarm->getMessage()]]
-            ]
+            'id' => $alarm->getId(),
+            'patientId' => $alarm->getPatient()?->getId(),
+            'parameter' => $alarm->getParameter(),
+            'conditionType' => $alarm->getConditionType(),
+            'threshold' => $alarm->getThreshold(),
+            'duration' => $alarm->getDuration(),
+            'afterActivity' => $alarm->isAfterActivity(),
+            'message' => $alarm->getMessage(),
+            'isActive' => $alarm->isActive()
         ], Response::HTTP_CREATED);
     }
 
@@ -108,18 +93,15 @@ class AlarmController extends AbstractController
         }
 
         return $this->json([
-            'alarm' => $alarm,
-            'hl7' => [
-                'resourceType' => 'Observation',
-                'id' => $alarm->getId(),
-                'subject' => [
-                    'reference' => 'Patient/' . $alarm->getPatient()?->getId(),
-                ],
-                'code' => ['text' => $alarm->getParameter()],
-                'valueQuantity' => ['value' => $alarm->getThreshold()],
-                'interpretation' => ['text' => $alarm->getConditionType()],
-                'note' => [['text' => $alarm->getMessage()]]
-            ]
+            'id' => $alarm->getId(),
+            'patientId' => $alarm->getPatient()?->getId(),
+            'parameter' => $alarm->getParameter(),
+            'conditionType' => $alarm->getConditionType(),
+            'threshold' => $alarm->getThreshold(),
+            'duration' => $alarm->getDuration(),
+            'afterActivity' => $alarm->isAfterActivity(),
+            'message' => $alarm->getMessage(),
+            'isActive' => $alarm->isActive()
         ]);
     }
 
@@ -141,7 +123,6 @@ class AlarmController extends AbstractController
             $alarm->setPatient($patient);
         }
 
-
         if (isset($data['parameter'])) $alarm->setParameter($data['parameter']);
         if (isset($data['conditionType'])) $alarm->setConditionType($data['conditionType']);
         if (isset($data['threshold'])) $alarm->setThreshold((float)$data['threshold']);
@@ -153,18 +134,15 @@ class AlarmController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'alarm' => $alarm,
-            'hl7' => [
-                'resourceType' => 'Observation',
-                'id' => $alarm->getId(),
-                'subject' => [
-                    'reference' => 'Patient/' . $alarm->getPatient()?->getId(),
-                ],
-                'code' => ['text' => $alarm->getParameter()],
-                'valueQuantity' => ['value' => $alarm->getThreshold()],
-                'interpretation' => ['text' => $alarm->getConditionType()],
-                'note' => [['text' => $alarm->getMessage()]]
-            ]
+            'id' => $alarm->getId(),
+            'patientId' => $alarm->getPatient()?->getId(),
+            'parameter' => $alarm->getParameter(),
+            'conditionType' => $alarm->getConditionType(),
+            'threshold' => $alarm->getThreshold(),
+            'duration' => $alarm->getDuration(),
+            'afterActivity' => $alarm->isAfterActivity(),
+            'message' => $alarm->getMessage(),
+            'isActive' => $alarm->isActive()
         ]);
     }
 

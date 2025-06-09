@@ -1,9 +1,9 @@
 import {Component, ElementRef, Inject, Input, OnInit, ViewChild} from '@angular/core';
 import {MatDivider} from "@angular/material/divider";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {Patient} from "../../interfaces/patient";
+import {Patient} from "../../../shared/interfaces/patient";
 import {DatePipe, NgForOf, NgIf} from "@angular/common";
-import {PatientService} from "../../services/patient.service";
+import {PatientService} from "../../../services/patient.service";
 import {HoverScaleDirective} from "../../directives/hover-scale.directive";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
