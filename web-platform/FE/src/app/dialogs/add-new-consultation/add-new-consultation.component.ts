@@ -217,9 +217,5 @@ export class AddNewConsultationComponent implements OnInit {
       name: disease.title,
       icdCode: disease.code
     });
-
-  }
-  getDiseaseNameControl(i: number): FormControl {
-    return this.diseases.at(i).get('name') as FormControl;
   }
 }

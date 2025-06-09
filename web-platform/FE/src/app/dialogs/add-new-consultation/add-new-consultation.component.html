@@ -108,6 +108,7 @@
   <section class="form-section">
     <h3>🩺 Medical Information</h3>
     <div class="form-row">
+
       <div class="form-group">
         <label>Blood Group*</label>
         <select formControlName="bloodGroup">
@@ -117,7 +118,11 @@
           <option value="O">O</option>
           <option value="AB">AB</option>
         </select>
+        <div class="error-message" *ngIf="patientForm.get('bloodGroup')?.touched && patientForm.get('bloodGroup')?.invalid">
+          Blood group is required.
+        </div>
       </div>
+
       <div class="form-group">
         <label>Rh Factor*</label>
         <select formControlName="rh">
@@ -125,19 +130,34 @@
           <option value="+">Positive</option>
           <option value="-">Negative</option>
         </select>
+        <div class="error-message" *ngIf="patientForm.get('rh')?.touched && patientForm.get('rh')?.invalid">
+          Rh factor is required.
+        </div>
       </div>
+
       <div class="form-group">
         <label>Weight (kg)*</label>
         <input formControlName="weight" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('weight')?.touched && patientForm.get('weight')?.invalid">
+          <div *ngIf="patientForm.get('weight')?.errors?.['required']">Weight is required.</div>
+          <div *ngIf="patientForm.get('weight')?.errors?.['pattern']">Weight must be a valid number (e.g. 70 or 70.5).</div>
+        </div>
       </div>
+
       <div class="form-group">
         <label>Height (cm)*</label>
         <input formControlName="height" type="text" />
+        <div class="error-message" *ngIf="patientForm.get('height')?.touched && patientForm.get('height')?.invalid">
+          <div *ngIf="patientForm.get('height')?.errors?.['required']">Height is required.</div>
+          <div *ngIf="patientForm.get('height')?.errors?.['pattern']">Height must be a valid number (e.g. 170 or 170.5).</div>
+        </div>
       </div>
+
       <div class="form-group">
         <label>Allergies</label>
         <input formControlName="allergies" type="text" />
       </div>
+
     </div>
   </section>
 
