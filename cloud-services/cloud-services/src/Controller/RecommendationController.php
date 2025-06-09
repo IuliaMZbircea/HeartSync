@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Recommendation;
+use App\Entity\Patient;
 use App\Repository\RecommendationRepository;
+use App\Repository\PatientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +18,8 @@ class RecommendationController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private RecommendationRepository $recommendationRepository
+        private RecommendationRepository $recommendationRepository,
+        private PatientRepository $patientRepository
     ) {}
 
     #[Route('', name: 'recommendation_index', methods: ['GET'])]
@@ -24,15 +27,44 @@ class RecommendationController extends AbstractController
     {
         $recommendations = $this->recommendationRepository->findBy(['isActive' => true]);
 
-        $fhirBundle = [
-            'resourceType' => 'Bundle',
-            'type' => 'collection',
-            'entry' => array_map(fn($rec) => [
-                'resource' => $this->toFhir($rec)
-            ], $recommendations)
-        ];
+        $response = array_map(function (Recommendation $recommendation) {
+            return [
+                'id' => $recommendation->getId(),
+                'patientId' => $recommendation->getPatient()?->getId(),
+                'activityType' => $recommendation->getActivityType(),
+                'dailyDuration' => $recommendation->getDailyDuration(),
+                'startDate' => $recommendation->getStartDate(),
+                'endDate' => $recommendation->getEndDate(),
+                'additionalNotes' => $recommendation->getAdditionalNotes(),
+                'isActive' => $recommendation->isActive(),
+                'hl7' => [
+                    'resourceType' => 'ActivityDefinition',
+                    'id' => $recommendation->getId(),
+                    'status' => $recommendation->isActive() ? 'active' : 'inactive',
+                    'subject' => [
+                        'reference' => 'Patient/' . $recommendation->getPatient()?->getId(),
+                    ],
+                    'description' => $recommendation->getActivityType(),
+                    'timingTiming' => [
+                        'repeat' => [
+                            'frequency' => 1,
+                            'period' => $recommendation->getDailyDuration(),
+                            'periodUnit' => 'd'
+                        ]
+                    ],
+                    'effectivePeriod' => [
+                        'start' => $recommendation->getStartDate()?->format('Y-m-d'),
+                        'end' => $recommendation->getEndDate()?->format('Y-m-d')
+                    ],
+                    'text' => [
+                        'status' => 'generated',
+                        'div' => $recommendation->getAdditionalNotes() ?? ''
+                    ]
+                ]
+            ];
+        }, $recommendations);
 
-        return $this->json($fhirBundle);
+        return $this->json($response);
     }
 
     #[Route('', name: 'recommendation_create', methods: ['POST'])]
@@ -40,27 +72,59 @@ class RecommendationController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!$data) {
-            return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        if (!$data || !isset($data['patient'])) {
+            return $this->json(['error' => 'Invalid JSON or missing patient'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $patient = $this->patientRepository->find($data['patient']);
+        if (!$patient) {
+            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
 
         $recommendation = new Recommendation();
-        $recommendation->setActivityType($data['activity_type'] ?? '');
-        $recommendation->setDailyDuration((int)($data['daily_duration'] ?? 0));
-        $recommendation->setStartDate(new \DateTime($data['start_date'] ?? 'now'));
+        $recommendation->setPatient($patient);
+        $recommendation->setActivityType($data['activityType'] ?? '');
+        $recommendation->setDailyDuration((int)($data['dailyDuration'] ?? 0));
+        $recommendation->setStartDate(new \DateTime($data['startDate'] ?? 'now'));
 
-        if (!empty($data['end_date'])) {
-            $recommendation->setEndDate(new \DateTime($data['end_date']));
+        if (!empty($data['endDate'])) {
+            $recommendation->setEndDate(new \DateTime($data['endDate']));
         }
 
-        $recommendation->setAdditionalNotes($data['additional_notes'] ?? null);
+        $recommendation->setAdditionalNotes($data['additionalNotes'] ?? null);
+        $recommendation->setIsActive($data['isActive'] ?? true);
         $recommendation->setCreatedAt(new \DateTime());
-        $recommendation->setIsActive(true);
 
         $this->em->persist($recommendation);
         $this->em->flush();
 
-        return $this->json($this->toFhir($recommendation), Response::HTTP_CREATED);
+        return $this->json([
+            'recommendation' => $recommendation,
+            'hl7' => [
+                'resourceType' => 'ActivityDefinition',
+                'id' => $recommendation->getId(),
+                'status' => $recommendation->isActive() ? 'active' : 'inactive',
+                'subject' => [
+                    'reference' => 'Patient/' . $recommendation->getPatient()?->getId(),
+                ],
+                'description' => $recommendation->getActivityType(),
+                'timingTiming' => [
+                    'repeat' => [
+                        'frequency' => 1,
+                        'period' => $recommendation->getDailyDuration(),
+                        'periodUnit' => 'd'
+                    ]
+                ],
+                'effectivePeriod' => [
+                    'start' => $recommendation->getStartDate()?->format('Y-m-d'),
+                    'end' => $recommendation->getEndDate()?->format('Y-m-d')
+                ],
+                'text' => [
+                    'status' => 'generated',
+                    'div' => $recommendation->getAdditionalNotes() ?? ''
+                ]
+            ]
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'recommendation_show', methods: ['GET'])]
@@ -72,78 +136,102 @@ class RecommendationController extends AbstractController
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json($this->toFhir($recommendation));
+        return $this->json([
+            'recommendation' => $recommendation,
+            'hl7' => [
+                'resourceType' => 'ActivityDefinition',
+                'id' => $recommendation->getId(),
+                'status' => $recommendation->isActive() ? 'active' : 'inactive',
+                'subject' => [
+                    'reference' => 'Patient/' . $recommendation->getPatient()?->getId(),
+                ],
+                'description' => $recommendation->getActivityType(),
+                'timingTiming' => [
+                    'repeat' => [
+                        'frequency' => 1,
+                        'period' => $recommendation->getDailyDuration(),
+                        'periodUnit' => 'd'
+                    ]
+                ],
+                'effectivePeriod' => [
+                    'start' => $recommendation->getStartDate()?->format('Y-m-d'),
+                    'end' => $recommendation->getEndDate()?->format('Y-m-d')
+                ],
+                'text' => [
+                    'status' => 'generated',
+                    'div' => $recommendation->getAdditionalNotes() ?? ''
+                ]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'recommendation_update', methods: ['PUT'])]
     public function update(Request $request, int $id): JsonResponse
     {
         $recommendation = $this->recommendationRepository->find($id);
-
-        if (!$recommendation || !$recommendation->isActive()) {
+        if (!$recommendation) {
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
 
-        if (isset($data['activity_type'])) {
-            $recommendation->setActivityType($data['activity_type']);
+        if (isset($data['patient'])) {
+            $patient = $this->patientRepository->find($data['patient']);
+            if (!$patient) {
+                return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+            }
+            $recommendation->setPatient($patient);
         }
-        if (isset($data['daily_duration'])) {
-            $recommendation->setDailyDuration((int)$data['daily_duration']);
-        }
-        if (isset($data['start_date'])) {
-            $recommendation->setStartDate(new \DateTime($data['start_date']));
-        }
-        if (isset($data['end_date'])) {
-            $recommendation->setEndDate(new \DateTime($data['end_date']));
-        }
-        if (array_key_exists('additional_notes', $data)) {
-            $recommendation->setAdditionalNotes($data['additional_notes']);
-        }
+
+        if (isset($data['activityType'])) $recommendation->setActivityType($data['activityType']);
+        if (isset($data['dailyDuration'])) $recommendation->setDailyDuration((int)$data['dailyDuration']);
+        if (isset($data['startDate'])) $recommendation->setStartDate(new \DateTime($data['startDate']));
+        if (isset($data['endDate'])) $recommendation->setEndDate(new \DateTime($data['endDate']));
+        if (isset($data['additionalNotes'])) $recommendation->setAdditionalNotes($data['additionalNotes']);
+        if (isset($data['isActive'])) $recommendation->setIsActive((bool)$data['isActive']);
 
         $this->em->flush();
 
-        return $this->json($this->toFhir($recommendation));
+        return $this->json([
+            'recommendation' => $recommendation,
+            'hl7' => [
+                'resourceType' => 'ActivityDefinition',
+                'id' => $recommendation->getId(),
+                'status' => $recommendation->isActive() ? 'active' : 'inactive',
+                'subject' => [
+                    'reference' => 'Patient/' . $recommendation->getPatient()?->getId(),
+                ],
+                'description' => $recommendation->getActivityType(),
+                'timingTiming' => [
+                    'repeat' => [
+                        'frequency' => 1,
+                        'period' => $recommendation->getDailyDuration(),
+                        'periodUnit' => 'd'
+                    ]
+                ],
+                'effectivePeriod' => [
+                    'start' => $recommendation->getStartDate()?->format('Y-m-d'),
+                    'end' => $recommendation->getEndDate()?->format('Y-m-d')
+                ],
+                'text' => [
+                    'status' => 'generated',
+                    'div' => $recommendation->getAdditionalNotes() ?? ''
+                ]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'recommendation_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $recommendation = $this->recommendationRepository->find($id);
-
-        if (!$recommendation || !$recommendation->isActive()) {
+        if (!$recommendation) {
             return $this->json(['error' => 'Recommendation not found'], Response::HTTP_NOT_FOUND);
         }
 
         $recommendation->setIsActive(false);
         $this->em->flush();
 
-        return $this->json(['message' => 'Recommendation deactivated']);
-    }
-
-    private function toFhir(Recommendation $rec): array
-    {
-        return [
-            'resourceType' => 'ActivityDefinition',
-            'id' => $rec->getId(),
-            'status' => $rec->isActive() ? 'active' : 'inactive',
-            'description' => $rec->getActivityType(),
-            'timingTiming' => [
-                'repeat' => [
-                    'frequency' => 1,
-                    'period' => $rec->getDailyDuration(),
-                    'periodUnit' => 'd'
-                ]
-            ],
-            'effectivePeriod' => [
-                'start' => $rec->getStartDate()?->format('Y-m-d'),
-                'end' => $rec->getEndDate()?->format('Y-m-d')
-            ],
-            'text' => [
-                'status' => 'generated',
-                'div' => $rec->getAdditionalNotes() ?? ''
-            ]
-        ];
+        return $this->json(['message' => 'Recommendation marked as inactive']);
     }
 }

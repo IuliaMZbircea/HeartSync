@@ -31,7 +31,7 @@ class AllergyController extends AbstractController
             return [
                 'id' => $allergy->getId(),
                 'name' => $allergy->getName(),
-                'severity' => $allergy->getSeverity(),
+                'sevSerity' => $allergy->getSeverity(),
                 'reaction' => $allergy->getReaction(),
                 'notes' => $allergy->getNotes(),
                 'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
@@ -46,6 +46,7 @@ class AllergyController extends AbstractController
     #[Route('', name: 'allergy_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
+
         $data = json_decode($request->getContent(), true);
 
         if (!$data || !isset($data['patient_id'])) {
@@ -54,6 +55,11 @@ class AllergyController extends AbstractController
 
         $patient = $this->patientRepository->find($data['patient_id']);
 
+        if (!$patient) {
+            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $patient = $this->patientRepository->find($data['patient_id'] ?? null);
         if (!$patient) {
             return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
@@ -76,8 +82,21 @@ class AllergyController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'message' => 'Allergy created successfully',
-            'id' => $allergy->getId()
+            'allergy' => $allergy,
+            'hl7' => [
+                'resourceType' => 'AllergyIntolerance',
+                'id' => $allergy->getId(),
+                'subject' => [
+                    'reference' => 'Patient/' . $allergy->getPatient()?->getId(),
+                ],
+                'code' => ['text' => $allergy->getName()],
+                'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
+                'reaction' => [[
+                    'description' => $allergy->getReaction(),
+                    'severity' => $allergy->getSeverity(),
+                    'note' => [['text' => $allergy->getNotes()]]
+                ]]
+            ]
         ], Response::HTTP_CREATED);
     }
 
@@ -89,6 +108,8 @@ class AllergyController extends AbstractController
         if (!$allergy || !$allergy->isIsActive()) {
             return $this->json(['error' => 'Allergy not found'], Response::HTTP_NOT_FOUND);
         }
+
+        $patientId = $allergy->getPatient()?->getId();
 
         return $this->json([
             'id' => $allergy->getId(),
@@ -138,7 +159,22 @@ class AllergyController extends AbstractController
 
         $this->em->flush();
 
-        return $this->json(['message' => 'Allergy updated successfully']);
+        $patientId = $allergy->getPatient()?->getId();
+
+        return $this->json([
+            'allergy' => $allergy,
+            'hl7' => [
+                'resourceType' => 'AllergyIntolerance',
+                'id' => $allergy->getId(),
+                'code' => ['text' => $allergy->getName()],
+                'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
+                'reaction' => [[
+                    'description' => $allergy->getReaction(),
+                    'severity' => $allergy->getSeverity(),
+                    'note' => [['text' => $allergy->getNotes()]]
+                ]]
+            ]
+        ]);
     }
 
     #[Route('/{id}', name: 'allergy_delete', methods: ['DELETE'])]
