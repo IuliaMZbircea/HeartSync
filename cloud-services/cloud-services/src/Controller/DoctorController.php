@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-#[Route('/doctors')]
 class DoctorController extends AbstractController
 {
     public function __construct(
@@ -23,7 +22,7 @@ class DoctorController extends AbstractController
         private JWTTokenManagerInterface $jwtManager
     ) {}
 
-    #[Route('', name: 'doctor_index', methods: ['GET'])]
+    #[Route('/doctors', name: 'doctor_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
         $doctors = $this->doctorRepository->findBy(['isActive' => true]);
@@ -53,7 +52,7 @@ class DoctorController extends AbstractController
         return $this->json($response);
     }
 
-    #[Route('', name: 'doctor_create', methods: ['POST'])]
+    #[Route('/doctors', name: 'doctor_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -91,7 +90,7 @@ class DoctorController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'doctor_show', methods: ['GET'])]
+    #[Route('/doctors/{id}', name: 'doctor_show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
         $doctor = $this->doctorRepository->find($id);
@@ -120,7 +119,7 @@ class DoctorController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'doctor_update', methods: ['PUT'])]
+    #[Route('/doctors/{id}', name: 'doctor_update', methods: ['PUT'])]
     public function update(Request $request, int $id): JsonResponse
     {
         $doctor = $this->doctorRepository->find($id);
@@ -168,7 +167,7 @@ class DoctorController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'doctor_delete', methods: ['DELETE'])]
+    #[Route('/doctors/{id}', name: 'doctor_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $doctor = $this->doctorRepository->find($id);
@@ -186,4 +185,31 @@ class DoctorController extends AbstractController
 
         return $this->json(['message' => 'Doctor marked as inactive']);
     }
+
+#[Route('/api/doctors/auth/user', name: 'api_get_auth_user', methods: ['GET'])]
+    public function getAuthUserDetails(): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Doctor) {
+            return new JsonResponse(['error' => 'Unauthorized - No authenticated user'], 401);
+        }
+
+        if (in_array('doctor', $user->getRoles())) {
+            return new JsonResponse([
+            'id' => $user->getEmail(),
+            'email' => $user->getEmail(),
+            'roles' => $user->getRoles(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'specialization' => $user->getSpecialization()->getName(),
+        ]);
+    }else  {
+            return new JsonResponse([
+                'id' => $user->getEmail(),
+                'email' => $user->getEmail(),
+                'roles' => $user->getRoles(),
+            ]);
+        }
+    }
+
 }
