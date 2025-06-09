@@ -1,5 +1,5 @@
 import {Component, ElementRef, OnInit, QueryList, signal, ViewChildren} from '@angular/core';
-import {Referral, ReferralType} from "../interfaces/referral";
+import {Referral, ReferralType} from "../../shared/interfaces/referral";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {
   MatExpansionPanel,
@@ -9,14 +9,14 @@ import {
 } from "@angular/material/expansion";
 import {MatIcon} from "@angular/material/icon";
 import {ActivatedRoute} from "@angular/router";
-import {PatientService} from "../services/patient.service";
+import {PatientService} from "../../services/patient.service";
 import {DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
-import {Patient} from "../interfaces/patient";
+import {Patient} from "../../shared/interfaces/patient";
 import html2canvas from "html2canvas";
 import {jsPDF} from "jspdf";
 import {MatButton, MatIconButton} from "@angular/material/button";
-import {Doctor} from "../interfaces/doctor";
-import {DoctorService} from "../services/doctor.service";
+import {Doctor} from "../../shared/interfaces/doctor";
+import {DoctorService} from "../../services/doctor.service";
 
 @Component({
   selector: 'app-view-refferal',

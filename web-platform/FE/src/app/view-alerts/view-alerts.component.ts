@@ -1,9 +1,9 @@
 import {Component, OnInit, signal} from '@angular/core';
-import {Patient} from "../interfaces/patient";
-import {Alarm} from "../interfaces/alarm";
+import {Patient} from "../../shared/interfaces/patient";
+import {Alarm} from "../../shared/interfaces/alarm";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute} from "@angular/router";
-import {PatientService} from "../services/patient.service";
+import {PatientService} from "../../services/patient.service";
 import {
   MatAccordion,
   MatExpansionPanel,

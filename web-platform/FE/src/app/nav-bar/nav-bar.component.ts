@@ -1,8 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import {Router, RouterLink} from "@angular/router";
-import {CommonModule, NgIf} from "@angular/common";
-import {AuthService} from "../services/auth.service";
+import { Router } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { AuthService } from "../../services/auth.service";
+import { DoctorI } from "../../shared/interfaces/doctor";
 
 @Component({
   selector: 'app-nav-bar',
@@ -13,38 +14,39 @@ import {AuthService} from "../services/auth.service";
 })
 export class NavBarComponent implements OnInit {
   isAuthenticated: boolean = false;
-  fullName:string='';
+  fullName: string = '';
 
-  constructor(private router: Router, private authService: AuthService){}
+  constructor(private router: Router, private authService: AuthService) {}
 
   navigateToHome() {
     this.router.navigate(['/Home']);
   }
 
-  navigateToAuth(){
+  navigateToAuth() {
     this.router.navigate(['/Login']);
   }
 
-  navigateToHelpSection(){
+  navigateToHelpSection() {
     this.router.navigate(['/Help']);
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/Home']);
+    this.authService.logout().subscribe(() => {
+      this.isAuthenticated = false;
+      this.fullName = '';
+      this.router.navigate(['/Home']);
+    });
   }
 
   ngOnInit(): void {
-    this.authService.isLoggedIn$.subscribe((isLogged) => {
-      this.isAuthenticated = isLogged;
-
-      const doctorData = localStorage.getItem('loggedDoctor');
-      if (doctorData) {
-        const doctor = JSON.parse(doctorData);
-        this.fullName = doctor.name ?? `Dr. ${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`;
-      } else {
-        this.fullName = '';
-      }
+    this.authService.currentUser$.subscribe((user: DoctorI) => {
+      console.log(user);
+      this.isAuthenticated = !!user?.id;
+      this.fullName = user?.firstName && user?.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : '';
     });
   }
+
+
 }

@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Output} from '@angular/core';
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
-import {IcdService} from "../services/diagnosis.code.service";
+import {IcdService} from "../../services/diagnosis.code.service";
 import {debounceTime, of, switchMap} from "rxjs";
 import {NgForOf, NgIf} from "@angular/common";
 

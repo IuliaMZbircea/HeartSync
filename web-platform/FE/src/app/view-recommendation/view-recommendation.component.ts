@@ -8,15 +8,15 @@ import {
 } from '@angular/material/expansion';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Patient } from '../interfaces/patient';
-import { PatientService } from '../services/patient.service';
-import { Recommendation } from '../interfaces/recommendation';
+import { Patient } from '../../shared/interfaces/patient';
+import { PatientService } from '../../services/patient.service';
+import { Recommendation } from '../../shared/interfaces/recommendation';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import {AlertService} from "../services/alert.service";
+import {AlertService} from "../../services/alert.service";
 
 @Component({
   selector: 'app-view-recommendation',

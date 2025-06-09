@@ -7,11 +7,11 @@ import {
 } from "@angular/material/expansion";
 import {MatButton, MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
-import {Patient} from "../interfaces/patient";
-import {Medication} from "../interfaces/medication";
+import {Patient} from "../../shared/interfaces/patient";
+import {Medication} from "../../shared/interfaces/medication";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
-import {PatientService} from "../services/patient.service";
+import {PatientService} from "../../services/patient.service";
 import {DatePipe, NgForOf, NgIf} from "@angular/common";
 import {jsPDF} from "jspdf";
 import html2canvas from "html2canvas";

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from "rxjs";
-import { Patient } from "../interfaces/patient";
+import { Patient } from "../shared/interfaces/patient";
 
 @Injectable({
   providedIn: 'root'
@@ -160,7 +160,7 @@ export class PatientService {
             "password": "test123",
             "firstName": "Magda",
             "lastName": "Paicu",
-            "specialization": "Cardiology"
+            "roles": ['ROLE_DOCTOR']
           },
           toDoctor: {
             "id": 2,
@@ -168,7 +168,8 @@ export class PatientService {
             "password": "test123",
             "firstName": "Luyza",
             "lastName": "Nica",
-            "specialization": "Neurology"
+            "roles": ['ROLE_DOCTOR']
+
           },
           reason: 'Suspicion of diabetes',
           date: new Date('2025-05-01'),
@@ -184,7 +185,8 @@ export class PatientService {
             "password": "test123",
             "firstName": "Magda",
             "lastName": "Paicu",
-            "specialization": "Cardiology"
+            "roles": ['ROLE_DOCTOR']
+
           },
           toDoctor: {
             "id": 2,
@@ -192,7 +194,8 @@ export class PatientService {
             "password": "test123",
             "firstName": "Luyza",
             "lastName": "Nica",
-            "specialization": "Neurology"
+            "roles": ['ROLE_DOCTOR']
+
           },
           reason: 'Blood sugar test',
           date: new Date('2025-05-10'),

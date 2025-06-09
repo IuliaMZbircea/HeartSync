@@ -3,8 +3,8 @@ import {MatDivider} from "@angular/material/divider";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {NgForOf, NgIf} from "@angular/common";
-import {PatientService} from "../../services/patient.service";
-import {Patient} from "../../interfaces/patient";
+import {PatientService} from "../../../services/patient.service";
+import {Patient} from "../../../shared/interfaces/patient";
 import {MatButtonToggle, MatButtonToggleGroup} from "@angular/material/button-toggle";
 
 @Component({

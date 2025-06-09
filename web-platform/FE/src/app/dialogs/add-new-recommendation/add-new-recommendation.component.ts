@@ -4,8 +4,8 @@ import {MatDivider} from "@angular/material/divider";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {DatePipe, NgForOf, NgIf} from "@angular/common";
 import {MatButtonToggle, MatButtonToggleGroup} from "@angular/material/button-toggle";
-import {PatientService} from "../../services/patient.service";
-import {Patient} from "../../interfaces/patient";
+import {PatientService} from "../../../services/patient.service";
+import {Patient} from "../../../shared/interfaces/patient";
 
 @Component({
   selector: 'app-add-new-recommendation',

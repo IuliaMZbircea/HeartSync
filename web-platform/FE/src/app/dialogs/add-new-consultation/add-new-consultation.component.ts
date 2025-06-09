@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { NgIf, NgForOf } from '@angular/common';
 import {debounceTime, of, switchMap} from "rxjs";
-import {IcdService} from "../../services/diagnosis.code.service";
+import {IcdService} from "../../../services/diagnosis.code.service";
 import {DiagnosisCodeComponent} from "../../diagnosis-code/diagnosis-code.component";
 
 @Component({
