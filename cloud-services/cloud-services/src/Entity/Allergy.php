@@ -17,8 +17,8 @@ class Allergy
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'allergies')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Patient::class, inversedBy: 'allergies')]
+    #[ORM\JoinColumn(name: "patient_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     private ?Patient $patient = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -57,7 +57,7 @@ class Allergy
         $this->patient = $patient;
         return $this;
     }
-
+    
     public function getName(): ?string
     {
         return $this->name;

@@ -25,18 +25,18 @@ class AllergyController extends AbstractController
     #[Route('', name: 'allergy_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $allergies = $this->allergyRepository->findBy(['isActive' => true]);
-
+        $allergies = $this->allergyRepository->findAll();
         $response = array_map(function (Allergy $allergy) {
             return [
                 'id' => $allergy->getId(),
                 'name' => $allergy->getName(),
-                'severity' => $allergy->getSeverity(),
+                'sevSerity' => $allergy->getSeverity(),
                 'reaction' => $allergy->getReaction(),
                 'notes' => $allergy->getNotes(),
                 'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
                 'createdAt' => $allergy->getCreatedAt()?->format('Y-m-d H:i:s'),
                 'patient' => $allergy->getPatient()?->getId(),
+                'isActive' => $allergy->isIsActive(),
             ];
         }, $allergies);
 
@@ -46,6 +46,7 @@ class AllergyController extends AbstractController
     #[Route('', name: 'allergy_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
+
         $data = json_decode($request->getContent(), true);
 
         if (!$data || !isset($data['patient_id'])) {
@@ -54,6 +55,11 @@ class AllergyController extends AbstractController
 
         $patient = $this->patientRepository->find($data['patient_id']);
 
+        if (!$patient) {
+            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $patient = $this->patientRepository->find($data['patient_id'] ?? null);
         if (!$patient) {
             return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
         }
@@ -76,8 +82,21 @@ class AllergyController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'message' => 'Allergy created successfully',
-            'id' => $allergy->getId()
+            'allergy' => $allergy,
+            'hl7' => [
+                'resourceType' => 'AllergyIntolerance',
+                'id' => $allergy->getId(),
+                'subject' => [
+                    'reference' => 'Patient/' . $allergy->getPatient()?->getId(),
+                ],
+                'code' => ['text' => $allergy->getName()],
+                'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
+                'reaction' => [[
+                    'description' => $allergy->getReaction(),
+                    'severity' => $allergy->getSeverity(),
+                    'note' => [['text' => $allergy->getNotes()]]
+                ]]
+            ]
         ], Response::HTTP_CREATED);
     }
 
@@ -86,9 +105,11 @@ class AllergyController extends AbstractController
     {
         $allergy = $this->allergyRepository->find($id);
 
-        if (!$allergy || !$allergy->isIsActive()) {
+        if (!$allergy) {
             return $this->json(['error' => 'Allergy not found'], Response::HTTP_NOT_FOUND);
         }
+
+        $patientId = $allergy->getPatient()?->getId();
 
         return $this->json([
             'id' => $allergy->getId(),
@@ -99,6 +120,7 @@ class AllergyController extends AbstractController
             'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
             'createdAt' => $allergy->getCreatedAt()?->format('Y-m-d H:i:s'),
             'patient' => $allergy->getPatient()?->getId(),
+            'isActive' => $allergy->isIsActive(),
         ]);
     }
 
@@ -136,8 +158,20 @@ class AllergyController extends AbstractController
             $allergy->setRecordedDate(new \DateTime($data['recordedDate']));
         }
 
-        $this->em->flush();
+$allergy->setName($data['name']             ?? $allergy->getName());
+    $allergy->setSeverity($data['severity']     ?? $allergy->getSeverity());
+    $allergy->setReaction($data['reaction']     ?? $allergy->getReaction());
+    $allergy->setNotes($data['notes']           ?? $allergy->getNotes());
 
+    if (\array_key_exists('isActive', $data)) {
+        $allergy->setIsActive((bool) $data['isActive']);
+    }
+
+    if (!empty($data['recordedDate'])) {
+        $allergy->setRecordedDate(new \DateTimeImmutable($data['recordedDate']));
+    }
+
+    $this->em->flush();
         return $this->json(['message' => 'Allergy updated successfully']);
     }
 
@@ -166,9 +200,7 @@ public function getAllergiesByPatient(int $patientId): JsonResponse
     }
 
     $allergies = $this->allergyRepository->findBy([
-        'patient' => $patient,
-        'isActive' => true,
-    ]);
+        'patient' => $patient    ]);
 
     $response = array_map(function (Allergy $allergy) {
         return [
@@ -179,6 +211,7 @@ public function getAllergiesByPatient(int $patientId): JsonResponse
             'notes' => $allergy->getNotes(),
             'recordedDate' => $allergy->getRecordedDate()?->format('Y-m-d'),
             'createdAt' => $allergy->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'isActive' => $allergy->isIsActive(),
         ];
     }, $allergies);
 

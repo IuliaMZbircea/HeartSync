@@ -16,6 +16,10 @@ class Recommendation
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(targetEntity: Patient::class)]
+    #[ORM\JoinColumn(name: "patient_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
+    private ?Patient $patient = null;
+
     #[ORM\Column(length: 255)]
     private ?string $activityType = null;
 
@@ -38,8 +42,24 @@ class Recommendation
     private ?bool $isActive = true;
 
     // Getters & Setters
+public function __construct()
+{
+    $this->createdAt = new \DateTimeImmutable();
+    $this->isActive = true;
+}
 
     public function getId(): ?int { return $this->id; }
+
+    public function getPatient(): ?Patient
+    {
+        return $this->patient;
+    }
+
+public function setPatient(?Patient $patient): self
+{
+    $this->patient = $patient;
+    return $this;
+}
 
     public function getActivityType(): ?string { return $this->activityType; }
     public function setActivityType(string $activityType): self {

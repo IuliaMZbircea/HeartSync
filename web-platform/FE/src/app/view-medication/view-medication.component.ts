@@ -122,7 +122,7 @@ export class ViewMedicationComponent implements OnInit {
     if (index !== -1) {
       this.medications[index] = updatedMedication;
       this.patient.medications = this.medications;
-      this.patientService.updatePatient(this.patient);
+      // this.patientService.updatePatient(this.patient);
     }
 
     this.isEditing = false;

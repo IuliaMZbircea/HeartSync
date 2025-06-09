@@ -1,11 +1,10 @@
-import {Component, OnInit, signal} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Patient} from "../../shared/interfaces/patient";
 import {Alarm} from "../../shared/interfaces/alarm";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute} from "@angular/router";
 import {PatientService} from "../../services/patient.service";
 import {
-  MatAccordion,
   MatExpansionPanel,
   MatExpansionPanelDescription, MatExpansionPanelHeader,
   MatExpansionPanelTitle,
@@ -34,7 +33,6 @@ import {AlertService} from "../../services/alert.service";
   styleUrl: './view-alerts.component.css'
 })
 export class ViewAlertsComponent implements OnInit {
-  readonly panelOpenState = signal(false);
   patient!: Patient;
   alarms: Alarm[] = [];
   alarmForm: FormGroup;
@@ -44,7 +42,8 @@ export class ViewAlertsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private patientService: PatientService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private alertService: AlertService
   ) {
     this.alarmForm = this.fb.group({
       parameter: ['', Validators.required],
@@ -70,25 +69,27 @@ export class ViewAlertsComponent implements OnInit {
     const id = idParam && !isNaN(+idParam) ? Number(idParam) : null;
 
     if (id !== null) {
-      this.patientService.getPatientsFromBE().subscribe((patients: Patient[]) => {
-        const found = patients.find(p => p.id === id);
-        if (found) {
-          this.patient = found;
-          this.alarms = (found.alarms || []).map(alarm => ({
-            ...alarm,
-          }));
+      this.patientService.getPatientById(id).subscribe((patient: Patient) => {
+        if (patient) {
+          this.patient = patient;
+          this.alarms = (patient.alarms || []).map(alarm => ({...alarm}));
         } else {
           console.warn(`Patient with ID ${id} not found.`);
         }
       });
-    } else {
-      console.error('Invalid or missing patient ID in route.');
     }
+  }
+
+  get activeAlarms(): Alarm[] {
+    return this.alarms.filter(a => a.isActive);
+  }
+
+  get inactiveAlarms(): Alarm[] {
+    return this.alarms.filter(a => !a.isActive);
   }
 
   toggleActive(alarm: Alarm): void {
     alarm.isActive = false;
-    this.patientService.updatePatient(this.patient);
   }
 
   get latestAlarm(): Alarm | null {
@@ -96,24 +97,32 @@ export class ViewAlertsComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.alarmForm.valid) {
-      const formValue = this.alarmForm.value;
+    if (this.alarmForm.invalid || !this.patient?.id) return;
 
-      const newAlarm: Alarm = {
-        parameter: formValue.parameter,
-        condition: formValue.condition,
-        threshold: formValue.threshold,
-        duration: formValue.duration,
-        afterActivity: formValue.afterActivity === 'true',
-        message: formValue.message,
-        isActive: true
-      };
+    const formValue = this.alarmForm.value;
 
-      this.alarms.push(newAlarm);
-      this.patient.alarms = this.alarms;
-      this.patientService.updatePatient(this.patient);
-      this.alarmForm.reset();
-    }
+    const alarmPayload = {
+      patient_id: this.patient.id,
+      parameter: formValue.parameter,
+      conditionType: formValue.condition,
+      threshold: formValue.threshold,
+      duration: formValue.duration,
+      afterActivity: formValue.afterActivity === 'true',
+      message: formValue.message,
+      isActive: true
+    };
+
+    this.alertService.createAlarm(alarmPayload).subscribe({
+      next: (response) => {
+        this.alarms.push(response);
+        this.alarmForm.reset();
+        this.alertService.success('Alarmă adăugată cu succes!');
+      },
+      error: (err) => {
+        console.error(err);
+        this.alertService.error('Eroare la salvarea alarmei.');
+      }
+    });
   }
 
   enableEdit(): void {
@@ -147,7 +156,6 @@ export class ViewAlertsComponent implements OnInit {
     if (index !== -1) {
       this.alarms[index] = updatedAlarm;
       this.patient.alarms = this.alarms;
-      this.patientService.updatePatient(this.patient);
     }
 
     this.isEditing = false;

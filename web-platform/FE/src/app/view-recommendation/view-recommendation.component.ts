@@ -111,7 +111,7 @@ export class ViewRecommendationComponent implements OnInit {
       this.recommendations.push(newRecommendation);
 
       this.patient.recommendations = this.recommendations;
-      this.patientService.updatePatient(this.patient);
+      // this.patientService.updatePatient(this.patient);
 
       this.alertService.success('New recommendation added successfully!');
 
@@ -153,7 +153,7 @@ export class ViewRecommendationComponent implements OnInit {
       this.recommendations[index] = updatedRecommendation;
 
       this.patient.recommendations = this.recommendations;
-      this.patientService.updatePatient(this.patient);
+      // this.patientService.updatePatient(this.patient);
       this.alertService.success('Recommendation updated successfully!');
 
       this.isEditing = false;
