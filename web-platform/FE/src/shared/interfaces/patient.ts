@@ -1,15 +1,10 @@
+import {Referral} from "./referral";
+import {Medication} from "./medication";
 import {Consultation} from "./consultation";
 import {Recommendation} from "./recommendation";
 import {Alarm} from "./alarm";
 import {Allergy} from "./allergies";
-import {Medication} from "./medication";
-import {Referral} from "./referral";
-
-export interface Disease {
-  name: string;
-  type: string;
-  description: string;
-}
+import {Disease} from "./disease";
 
 export interface Patient {
   id: number;
@@ -30,15 +25,19 @@ export interface Patient {
   rh: string;
   weight: number;
   height: number;
-  allergies?: Allergy[];
-  validAccount:Boolean;
-  diseases: Disease[];
-  birthDate?: Date;
+  validAccount: boolean;
+  birthDate?: string;
   sex?: 'M' | 'F';
+  createdAt?: string; // ISO date string
+  isActive: boolean;
+
+  allergies?: Allergy[];
+  alarms?: Alarm[];
+
   consultations?: Consultation[];
   recommendations?: Recommendation[];
-  alarms?: Alarm[];
   medications?: Medication[];
   referrals?: Referral[];
-  patientHistory:Object
+
+  diseases?: Disease[];
 }

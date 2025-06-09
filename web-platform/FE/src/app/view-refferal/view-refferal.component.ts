@@ -113,7 +113,7 @@ export class ViewRefferalComponent implements OnInit{
     if (index !== -1) {
       this.referrals[index] = updatedReferral;
       this.patient.referrals = this.referrals;
-      this.patientService.updatePatient(this.patient);
+      // this.patientService.updatePatient(this.patient);
     }
 
     this.editingReferrals[referral.id] = false;

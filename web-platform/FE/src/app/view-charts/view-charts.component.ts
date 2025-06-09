@@ -85,7 +85,7 @@ export class ViewChartsComponent implements OnInit {
         const found = patients.find(p => p.id === id);
         if (found) {
           this.patient = found;
-          this.patientHistory = found.patientHistory || null;
+          this.patientHistory = found.diseases || null;
           if (this.patientHistory && this.patientHistory.pulse) {
             this.updatePulseChart(this.patientHistory.pulse);
           }

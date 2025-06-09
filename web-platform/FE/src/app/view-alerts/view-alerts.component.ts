@@ -70,25 +70,25 @@ export class ViewAlertsComponent implements OnInit {
     const id = idParam && !isNaN(+idParam) ? Number(idParam) : null;
 
     if (id !== null) {
-      this.patientService.getPatientsFromBE().subscribe((patients: Patient[]) => {
-        const found = patients.find(p => p.id === id);
-        if (found) {
-          this.patient = found;
-          this.alarms = (found.alarms || []).map(alarm => ({
-            ...alarm,
-          }));
-        } else {
-          console.warn(`Patient with ID ${id} not found.`);
-        }
-      });
-    } else {
-      console.error('Invalid or missing patient ID in route.');
+    //   this.patientService.getPatientsFromBE().subscribe((patients: Patient[]) => {
+    //     const found = patients.find(p => p.id === id);
+    //     if (found) {
+    //       this.patient = found;
+    //       this.alarms = (found.alarms || []).map(alarm => ({
+    //         ...alarm,
+    //       }));
+    //     } else {
+    //       console.warn(`Patient with ID ${id} not found.`);
+    //     }
+    //   });
+    // } else {
+    //   console.error('Invalid or missing patient ID in route.');
     }
   }
 
   toggleActive(alarm: Alarm): void {
     alarm.isActive = false;
-    this.patientService.updatePatient(this.patient);
+    // this.patientService.updatePatient(this.patient);
   }
 
   get latestAlarm(): Alarm | null {
@@ -111,7 +111,7 @@ export class ViewAlertsComponent implements OnInit {
 
       this.alarms.push(newAlarm);
       this.patient.alarms = this.alarms;
-      this.patientService.updatePatient(this.patient);
+      // this.patientService.updatePatient(this.patient);
       this.alarmForm.reset();
     }
   }
@@ -147,7 +147,7 @@ export class ViewAlertsComponent implements OnInit {
     if (index !== -1) {
       this.alarms[index] = updatedAlarm;
       this.patient.alarms = this.alarms;
-      this.patientService.updatePatient(this.patient);
+      // this.patientService.updatePatient(this.patient);
     }
 
     this.isEditing = false;
