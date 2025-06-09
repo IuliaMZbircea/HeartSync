@@ -361,7 +361,8 @@ export class PatientService {
           threshold: 30,
           duration: 300,
           afterActivity: false,
-          message: 'Aer prea uscat. Hidratează-te și evită efortul.'
+          message: 'Aer prea uscat. Hidratează-te și evită efortul.',
+          read : true,
         },
         {
           parameter: 'pulse',
@@ -369,7 +370,8 @@ export class PatientService {
           threshold: 130,
           duration: 45,
           afterActivity: true,
-          message: 'Puls crescut semnificativ după efort.'
+          message: 'Puls crescut semnificativ după efort.',
+          read : true,
         }
       ],
       patientHistory : {
@@ -555,7 +557,8 @@ export class PatientService {
           threshold: 0,
           duration: 60,
           afterActivity: false,
-          message: 'Semnal ECG pierdut. Verifică senzorul.'
+          message: 'Semnal ECG pierdut. Verifică senzorul.',
+          read : true,
         }
       ],
       medications:[
@@ -683,7 +686,8 @@ export class PatientService {
           threshold: 8,
           duration: 120,
           afterActivity: false,
-          message: 'Nivel hemoglobină scăzut, necesară evaluare.'
+          message: 'Nivel hemoglobină scăzut, necesară evaluare.',
+          read : true,
         }
       ],
       medications:[
