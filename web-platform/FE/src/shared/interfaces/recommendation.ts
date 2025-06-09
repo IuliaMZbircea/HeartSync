@@ -1,7 +1,11 @@
 export interface Recommendation {
+  id: number;
+  patientId: number;
   activityType: string;
   dailyDuration: number;
-  startDate: Date;
-  endDate?: Date;
+  startDate: string;
+  endDate?: string;
   additionalNotes?: string;
+  isActive: boolean;
+  createdAt?: string;
 }

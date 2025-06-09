@@ -53,7 +53,7 @@ class DoctorController extends AbstractController
         return $this->json($response);
     }
 
-    #[Route('/api/doctors', name: 'doctor_create', methods: ['POST'])]
+    #[Route('/doctors', name: 'doctor_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
