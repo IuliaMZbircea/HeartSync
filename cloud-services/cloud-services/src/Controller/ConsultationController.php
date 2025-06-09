@@ -23,7 +23,7 @@ class ConsultationController extends AbstractController
     #[Route('', name: 'consultation_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $consultations = $this->consultationRepository->findBy(['isActive' => true]);
+        $consultations = $this->consultationRepository->findAll();
 
         $response = array_map(function (Consultation $consultation) {
             return [

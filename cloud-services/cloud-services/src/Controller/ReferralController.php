@@ -24,8 +24,7 @@ class ReferralController extends AbstractController
     #[Route('', name: 'referral_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $referrals = $this->referralRepository->findBy(['isActive' => true]);
-
+        $referrals = $this->referralRepository->findAll();
         $fhirBundle = [
             'resourceType' => 'Bundle',
             'type' => 'collection',

@@ -22,7 +22,7 @@ class PrescriptionController extends AbstractController
     #[Route('', name: 'prescription_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $prescriptions = $this->prescriptionRepository->findBy(['isActive' => true]);
+        $prescriptions = $this->prescriptionRepository->findAll();
 
         $fhirBundle = [
             'resourceType' => 'Bundle',

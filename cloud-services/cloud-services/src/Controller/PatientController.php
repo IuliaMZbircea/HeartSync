@@ -22,7 +22,7 @@ class PatientController extends AbstractController
     #[Route('', name: 'patient_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $patients = $this->patientRepository->findBy(['isActive' => true]);
+        $patients = $this->patientRepository->findAll();
 
         $response = array_map(function (Patient $patient) {
             return $this->serializePatient($patient);
