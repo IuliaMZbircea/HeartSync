@@ -234,4 +234,32 @@ class RecommendationController extends AbstractController
 
         return $this->json(['message' => 'Recommendation marked as inactive']);
     }
+    #[Route('/patient_id/{id}', name: 'recommendations_by_patient', methods: ['GET'])]
+public function getByPatient(int $id): JsonResponse
+{
+    $patient = $this->patientRepository->find($id);
+
+    if (!$patient) {
+        return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+    }
+
+    $recommendations = $this->recommendationRepository->findBy(['patient' => $patient]);
+
+    $response = array_map(function (Recommendation $r) {
+        return [
+            'id' => $r->getId(),
+            'patientId' => $r->getPatient()?->getId(),
+            'activityType' => $r->getActivityType(),
+            'dailyDuration' => $r->getDailyDuration(),
+            'startDate' => $r->getStartDate()?->format('Y-m-d'),
+            'endDate' => $r->getEndDate()?->format('Y-m-d'),
+            'additionalNotes' => $r->getAdditionalNotes(),
+            'createdAt' => $r->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'isActive' => $r->isActive()
+        ];
+    }, $recommendations);
+
+    return $this->json($response);
+}
+
 }
