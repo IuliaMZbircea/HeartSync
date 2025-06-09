@@ -24,7 +24,7 @@ class DiseaseController extends AbstractController
     #[Route('', name: 'disease_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $diseases = $this->diseaseRepository->findBy(['isActive' => true]);
+        $diseases = $this->diseaseRepository->findAll();
 
         $response = array_map(fn(Disease $disease) => $this->serializeDisease($disease), $diseases);
 

@@ -30,7 +30,7 @@ class MedicalLetterController extends AbstractController
     #[Route('', name: 'medical_letter_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $letters = $this->medicalLetterRepository->findBy(['isActive' => true]);
+        $letters = $this->medicalLetterRepository->findAll();
 
         $hl7 = array_map(function ($letter) {
             return $this->formatHL7($letter);

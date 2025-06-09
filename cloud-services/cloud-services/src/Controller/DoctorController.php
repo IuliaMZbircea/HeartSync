@@ -26,7 +26,7 @@ class DoctorController extends AbstractController
     #[Route('/custom-doctors', name: 'doctor_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $doctors = $this->doctorRepository->findBy(['isActive' => true]);
+        $doctors = $this->doctorRepository->findAll();
 
         $response = [
             '@context' => '/api/contexts/Doctor',

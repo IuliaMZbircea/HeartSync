@@ -25,7 +25,7 @@ class AlarmController extends AbstractController
     #[Route('', name: 'alarm_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $alarms = $this->alarmRepository->findBy(['isActive' => true]);
+        $alarms = $this->alarmRepository->findAll();
 
         $response = array_map(function (Alarm $alarm) {
             return [

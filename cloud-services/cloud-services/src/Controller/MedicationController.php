@@ -25,7 +25,7 @@ class MedicationController extends AbstractController
     #[Route('', name: 'medication_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $medications = $this->medicationRepository->findBy(['isActive' => true]);
+        $medications = $this->medicationRepository->findAll();
 
         $hl7 = array_map(fn(Medication $m) => $this->toHL7($m), $medications);
 

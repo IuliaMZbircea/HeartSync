@@ -25,7 +25,7 @@ class RecommendationController extends AbstractController
     #[Route('', name: 'recommendation_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $recommendations = $this->recommendationRepository->findBy(['isActive' => true]);
+        $recommendations = $this->recommendationRepository->findAll();
 
         $response = array_map(function (Recommendation $recommendation) {
             return [
