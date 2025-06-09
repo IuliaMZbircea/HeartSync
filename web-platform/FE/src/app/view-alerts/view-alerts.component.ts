@@ -32,7 +32,6 @@ import {MatIcon} from "@angular/material/icon";
   templateUrl: './view-alerts.component.html',
   styleUrl: './view-alerts.component.css'
 })
-
 export class ViewAlertsComponent implements OnInit {
   readonly panelOpenState = signal(false);
   patient!: Patient;
@@ -46,7 +45,6 @@ export class ViewAlertsComponent implements OnInit {
     private patientService: PatientService,
     private fb: FormBuilder
   ) {
-
     this.alarmForm = this.fb.group({
       parameter: ['', Validators.required],
       condition: ['', Validators.required],
@@ -75,7 +73,11 @@ export class ViewAlertsComponent implements OnInit {
         const found = patients.find(p => p.id === id);
         if (found) {
           this.patient = found;
-          this.alarms = found.alarms || [];
+          // Asigură că fiecare alarmă are proprietatea read, implicit false
+          this.alarms = (found.alarms || []).map(alarm => ({
+            ...alarm,
+            read: alarm.read ?? false
+          }));
         } else {
           console.warn(`Patient with ID ${id} not found.`);
         }
@@ -83,6 +85,10 @@ export class ViewAlertsComponent implements OnInit {
     } else {
       console.error('Invalid or missing patient ID in route.');
     }
+  }
+
+  toggleRead(alarm: Alarm) {
+    alarm.read = !alarm.read;
   }
 
   get latestAlarm(): Alarm | null {
@@ -99,7 +105,8 @@ export class ViewAlertsComponent implements OnInit {
         threshold: formValue.threshold,
         duration: formValue.duration,
         afterActivity: formValue.afterActivity === 'true',
-        message: formValue.message
+        message: formValue.message,
+        read: false // implicit necitită la adăugare
       };
 
       this.alarms.push(newAlarm);
@@ -134,7 +141,8 @@ export class ViewAlertsComponent implements OnInit {
     const updatedAlarm: Alarm = {
       ...this.latestAlarm,
       ...updated,
-      afterActivity: updated.afterActivity === 'true'
+      afterActivity: updated.afterActivity === 'true',
+      read: this.latestAlarm.read // păstrează starea de citit/necitit
     };
 
     if (index !== -1) {
@@ -146,5 +154,3 @@ export class ViewAlertsComponent implements OnInit {
     this.isEditing = false;
   }
 }
-
-

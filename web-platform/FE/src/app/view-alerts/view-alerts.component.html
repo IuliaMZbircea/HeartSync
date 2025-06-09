@@ -39,6 +39,9 @@
         <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}</p>
         <p><strong>Message:</strong> {{ alarm.message }}</p>
       </section>
+      <button mat-button color="{{ alarm.read ? 'primary' : 'warn' }}" (click)="toggleRead(alarm)">
+        {{ alarm.read ? 'Mark as Unread' : 'Mark as Read' }}
+      </button>
 
       <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -123,6 +126,11 @@
             </p>
             <p><strong>Message:</strong> {{ alarm.message }}</p>
           </section>
+
+          <button mat-button color="{{ alarm.read ? 'primary' : 'warn' }}" (click)="toggleRead(alarm)">
+            {{ alarm.read ? 'Mark as Unread' : 'Mark as Read' }}
+          </button>
+
         </div>
     </div>
 

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from "rxjs";
 import { Patient } from "../interfaces/patient";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PatientService {
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   patient: Patient[] = [
     { id: 1,
@@ -358,7 +359,8 @@ export class PatientService {
           threshold: 30,
           duration: 300,
           afterActivity: false,
-          message: 'Aer prea uscat. Hidratează-te și evită efortul.'
+          message: 'Aer prea uscat. Hidratează-te și evită efortul.',
+          read:false
         },
         {
           parameter: 'pulse',
@@ -366,7 +368,8 @@ export class PatientService {
           threshold: 130,
           duration: 45,
           afterActivity: true,
-          message: 'Puls crescut semnificativ după efort.'
+          message: 'Puls crescut semnificativ după efort.',
+          read:false
         }
       ],
       patientHistory : {
@@ -552,7 +555,8 @@ export class PatientService {
           threshold: 0,
           duration: 60,
           afterActivity: false,
-          message: 'Semnal ECG pierdut. Verifică senzorul.'
+          message: 'Semnal ECG pierdut. Verifică senzorul.',
+          read:true
         }
       ],
       medications:[
@@ -680,7 +684,8 @@ export class PatientService {
           threshold: 8,
           duration: 120,
           afterActivity: false,
-          message: 'Nivel hemoglobină scăzut, necesară evaluare.'
+          message: 'Nivel hemoglobină scăzut, necesară evaluare.',
+          read:true
         }
       ],
       medications:[
@@ -873,4 +878,9 @@ export class PatientService {
     }
   }
 
+  private apiUrl = 'http://localhost:8000/api/patients';
+
+  getPatientsFromController(): Observable<Patient[]> {
+    return this.http.get<Patient[]>(this.apiUrl);
+  }
 }

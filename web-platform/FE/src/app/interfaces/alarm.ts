@@ -5,4 +5,5 @@ export interface Alarm {
   duration: number;
   afterActivity: boolean;
   message: string;
+  read: boolean;
 }
