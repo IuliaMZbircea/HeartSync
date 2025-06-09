@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Consultation;
+use App\Entity\Patient;
 use App\Repository\ConsultationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,6 +28,9 @@ class ConsultationController extends AbstractController
         $response = array_map(function (Consultation $consultation) {
             return [
                 'id' => $consultation->getId(),
+                'patient' => [
+                    'id' => $consultation->getPatient()?->getId()
+                ],
                 'dateTime' => $consultation->getDateTime()?->format('Y-m-d H:i:s'),
                 'doctorName' => $consultation->getDoctorName(),
                 'durationMinutes' => $consultation->getDurationMinutes(),
@@ -49,6 +53,7 @@ class ConsultationController extends AbstractController
                     'resourceType' => 'Encounter',
                     'id' => $consultation->getId(),
                     'status' => 'finished',
+                    'subject' => [ 'reference' => '/api/patients/' . $consultation->getPatient()?->getId() ],
                     'type' => [[ 'text' => $consultation->getDiagnosisIds() ]],
                     'reasonCode' => [[ 'text' => $consultation->getSymptoms() ]],
                     'note' => [[ 'text' => $consultation->getNotes() ]]
@@ -67,11 +72,19 @@ class ConsultationController extends AbstractController
             return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
-        $consultation = new Consultation();
+        if (!isset($data['patient_id'])) {
+            return $this->json(['error' => 'Missing patient_id'], Response::HTTP_BAD_REQUEST);
+        }
 
+        $patient = $this->em->getRepository(Patient::class)->find($data['patient_id']);
+        if (!$patient) {
+            return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $consultation = new Consultation();
+        $consultation->setPatient($patient);
         $consultation->setDateTime(new \DateTime($data['dateTime'] ?? 'now'));
         $consultation->setDoctorName($this->getUser()?->getUserIdentifier() ?? 'Unknown');
-
         $consultation->setDurationMinutes($data['durationMinutes'] ?? null);
         $consultation->setSymptoms($data['symptoms'] ?? '');
         $consultation->setCurrentMedicationIds($data['currentMedicationIds'] ?? null);
@@ -94,11 +107,12 @@ class ConsultationController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'consultation' => $consultation,
+            'consultation' => $consultation->getId(),
             'hl7' => [
                 'resourceType' => 'Encounter',
                 'id' => $consultation->getId(),
                 'status' => 'finished',
+                'subject' => [ 'reference' => '/api/patients/' . $patient->getId() ],
                 'type' => [[ 'text' => $consultation->getDiagnosisIds() ]],
                 'reasonCode' => [[ 'text' => $consultation->getSymptoms() ]],
                 'note' => [[ 'text' => $consultation->getNotes() ]]
@@ -115,11 +129,12 @@ class ConsultationController extends AbstractController
         }
 
         return $this->json([
-            'consultation' => $consultation,
+            'consultation' => $consultation->getId(),
             'hl7' => [
                 'resourceType' => 'Encounter',
                 'id' => $consultation->getId(),
                 'status' => 'finished',
+                'subject' => [ 'reference' => '/api/patients/' . $consultation->getPatient()?->getId() ],
                 'type' => [[ 'text' => $consultation->getDiagnosisIds() ]],
                 'reasonCode' => [[ 'text' => $consultation->getSymptoms() ]],
                 'note' => [[ 'text' => $consultation->getNotes() ]]
@@ -136,6 +151,14 @@ class ConsultationController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
+
+        if (isset($data['patient_id'])) {
+            $patient = $this->em->getRepository(Patient::class)->find($data['patient_id']);
+            if (!$patient) {
+                return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+            }
+            $consultation->setPatient($patient);
+        }
 
         if (isset($data['dateTime'])) $consultation->setDateTime(new \DateTime($data['dateTime']));
         if (isset($data['durationMinutes'])) $consultation->setDurationMinutes($data['durationMinutes']);
@@ -158,11 +181,12 @@ class ConsultationController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'consultation' => $consultation,
+            'consultation' => $consultation->getId(),
             'hl7' => [
                 'resourceType' => 'Encounter',
                 'id' => $consultation->getId(),
                 'status' => 'finished',
+                'subject' => [ 'reference' => '/api/patients/' . $consultation->getPatient()?->getId() ],
                 'type' => [[ 'text' => $consultation->getDiagnosisIds() ]],
                 'reasonCode' => [[ 'text' => $consultation->getSymptoms() ]],
                 'note' => [[ 'text' => $consultation->getNotes() ]]

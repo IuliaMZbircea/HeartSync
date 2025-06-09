@@ -119,6 +119,35 @@ class MedicationController extends AbstractController
         return $this->json(['message' => 'Medication marked as inactive']);
     }
 
+    #[Route('/patient_id/{id}', name: 'medications_by_patient', methods: ['GET'])]
+public function getByPatient(int $id, PatientRepository $patientRepository): JsonResponse
+{
+    $patient = $patientRepository->find($id);
+
+    if (!$patient) {
+        return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+    }
+
+    $medications = $this->medicationRepository->findBy(['patient' => $patient]);
+
+    $response = array_map(function (Medication $med) {
+        return [
+            'id' => $med->getId(),
+            'name' => $med->getName(),
+            'dose' => $med->getDose(),
+            'frequency' => $med->getFrequency(),
+            'route' => $med->getRoute(),
+            'startDate' => $med->getStartDate()?->format('Y-m-d'),
+            'endDate' => $med->getEndDate()?->format('Y-m-d'),
+            'prescribedBy' => $med->getPrescribedBy(),
+            'notes' => $med->getNotes(),
+            'createdAt' => $med->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'isActive' => $med->isIsActive(),
+        ];
+    }, $medications);
+
+    return $this->json($response);
+}
     private function toHL7(Medication $medication): array
     {
         return [

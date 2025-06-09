@@ -12,6 +12,9 @@ use App\Entity\Allergy;
 use App\Entity\Alarm;
 use App\Entity\Disease;
 use App\Entity\Medication;
+use App\Entity\Consultation;
+use App\Entity\Referral;
+use App\Entity\Recommendation;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
@@ -104,12 +107,24 @@ class Patient
     #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Medication::class, cascade: ['persist', 'remove'])]
     private Collection $medications;
 
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Consultation::class, cascade: ['persist', 'remove'])]
+    private Collection $consultations;
+
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Referral::class, cascade: ['persist', 'remove'])]
+    private Collection $referrals;
+
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Recommendation::class, cascade: ['remove'])]
+    private Collection $recommendations;
+
     public function __construct()
     {
         $this->allergies = new ArrayCollection();
         $this->alarms = new ArrayCollection();
         $this->diseases = new ArrayCollection();
         $this->medications = new ArrayCollection();
+        $this->consultations = new ArrayCollection();
+        $this->referrals = new ArrayCollection();
+        $this->recommendations = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -247,6 +262,81 @@ public function removeMedication(Medication $medication): static
     if ($this->medications->removeElement($medication)) {
         if ($medication->getPatient() === $this) {
             $medication->setPatient(null);
+        }
+    }
+    return $this;
+}
+
+//Consultation
+
+public function getConsultations(): Collection
+{
+    return $this->consultations;
+}
+
+public function addConsultation(Consultation $consultation): self
+{
+    if (!$this->consultations->contains($consultation)) {
+        $this->consultations[] = $consultation;
+        $consultation->setPatient($this);
+    }
+    return $this;
+}
+
+public function removeConsultation(Consultation $consultation): self
+{
+    if ($this->consultations->removeElement($consultation)) {
+        if ($consultation->getPatient() === $this) {
+            $consultation->setPatient(null);
+        }
+    }
+    return $this;
+}
+
+//Referral
+
+public function getReferrals(): Collection
+{
+    return $this->referrals;
+}
+public function addReferral(Referral $referral): self
+{
+    if (!$this->referrals->contains($referral)) {
+        $this->referrals[] = $referral;
+        $referral->setPatient($this);
+    }
+    return $this;
+}
+public function removeReferral(Referral $referral): self
+{
+    if ($this->referrals->removeElement($referral)) {
+        if ($referral->getPatient() === $this) {
+            $referral->setPatient(null);
+        }
+    }
+    return $this;
+}
+//Recommendation
+
+public function getRecommendations(): Collection
+{
+    return $this->recommendations;
+}
+
+public function addRecommendation(Recommendation $recommendation): self
+{
+    if (!$this->recommendations->contains($recommendation)) {
+        $this->recommendations[] = $recommendation;
+        $recommendation->setPatient($this);
+    }
+    return $this;
+}
+
+public function removeRecommendation(Recommendation $recommendation): self
+{
+    if ($this->recommendations->removeElement($recommendation)) {
+        if ($recommendation->getPatient() === $this) {
+            $recommendation->setPatient(null);
         }
     }
     return $this;

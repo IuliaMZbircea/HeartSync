@@ -212,6 +212,70 @@ private function serializePatient(Patient $patient): array
             'isActive' => $med->isIsActive(),
     ];
 }, $patient->getMedications()->toArray()),
+
+// 🔹 Consultations
+'consultations' => array_map(function ($consultation) {
+    return [
+        'id' => $consultation->getId(),
+        'dateTime' => $consultation->getDateTime()?->format('Y-m-d H:i:s'),
+        'doctorName' => $consultation->getDoctorName(),
+        'durationMinutes' => $consultation->getDurationMinutes(),
+        'symptoms' => $consultation->getSymptoms(),
+        'notes' => $consultation->getNotes(),
+        'pulse' => $consultation->getPulse(),
+        'bloodPressure' => $consultation->getBloodPressure(),
+        'temperature' => $consultation->getTemperature(),
+        'weightKg' => $consultation->getWeightKg(),
+        'heightCm' => $consultation->getHeightCm(),
+        'respiratoryRate' => $consultation->getRespiratoryRate(),
+        'isActive' => $consultation->isActive(),
     ];
+}, array_filter(
+    $patient->getConsultations()->toArray(),
+    fn($c) => $c->isActive()
+)), 
+// 🔹 Referrals
+'referrals' => array_map(function ($referral) {
+    return [
+        'id' => $referral->getId(),
+        'type' => $referral->getType(),
+        'fromDoctorId' => $referral->getFromDoctor()?->getId(),
+        'toDoctorId' => $referral->getToDoctor()?->getId(),
+        'reason' => $referral->getReason(),
+        'date' => $referral->getDate()?->format('Y-m-d'),
+        'hl7Payload' => $referral->getHl7Payload(),
+        'fhirResponseId' => $referral->getFhirResponseId(),
+        'isResolved' => $referral->isResolved(),
+        'createdAt' => $referral->getCreatedAt()?->format('Y-m-d H:i:s'),
+        'isActive' => $referral->isActive()
+    ];
+}, array_filter(
+    $patient->getReferrals()->toArray(),
+    fn($r) => $r->isActive()
+)),
+//Recommendations
+'recommendations' => $patient->getRecommendations()->map(fn($r) => [
+    'resourceType' => 'ActivityDefinition',
+    'id' => $r->getId(),
+    'status' => $r->isActive() ? 'active' : 'inactive',
+    'description' => $r->getActivityType(),
+    'timingTiming' => [
+        'repeat' => [
+            'frequency' => 1,
+            'period' => $r->getDailyDuration(),
+            'periodUnit' => 'd'
+        ]
+    ],
+    'effectivePeriod' => [
+        'start' => $r->getStartDate()?->format('Y-m-d'),
+        'end' => $r->getEndDate()?->format('Y-m-d')
+    ],
+    'text' => [
+        'status' => 'generated',
+        'div' => $r->getAdditionalNotes() ?? ''
+    ]
+])->toArray(),
+    ];
+
 }
 }
