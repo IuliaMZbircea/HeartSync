@@ -19,95 +19,85 @@
           <h2>Current Status</h2>
         </mat-panel-title>
         <mat-panel-description>
-          🧬 The current active medical advice.
-          <button
-            mat-icon-button
-            aria-label="Edit"
-            (click)="enableEdit(); $event.stopPropagation()"
-            *ngIf="!isEditing && latestRecommendation"
-            style="margin-left: 8px;"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
+          🧬 Current recommendations
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <section *ngIf="latestRecommendation; else noCurrentRecommendation">
-        <h4>Latest Recommendation</h4>
+      <div *ngIf="recommendationsEnded.length > 0; else noCurrentRecs">
+        <div *ngFor="let rec of recommendationsEnded" class="recommendation-card">
+          <section *ngIf="!isEditing || editingRecommendation?.id !== rec.id">
+            <h4>{{ rec.activityType }}</h4>
+            <p><strong>Duration:</strong> {{ rec.dailyDuration }} min/day</p>
+            <p><strong>Start:</strong> {{ rec.startDate | date }}</p>
+            <p><strong>End:</strong> {{ rec.endDate | date }}</p>
+            <p *ngIf="rec.additionalNotes"><strong>Notes:</strong> {{ rec.additionalNotes }}</p>
+            <button mat-icon-button aria-label="Edit" (click)="enableEdit(rec)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </section>
 
-        <div *ngIf="!isEditing">
-          <p><strong>Activity:</strong> {{ latestRecommendation.activityType }}</p>
-          <p><strong>Start:</strong> {{ latestRecommendation.startDate | date }}</p>
-          <p><strong>Duration:</strong> {{ latestRecommendation.dailyDuration }} min/day</p>
-          <p *ngIf="latestRecommendation.endDate"><strong>End:</strong> {{ latestRecommendation.endDate | date }}</p>
-          <p *ngIf="latestRecommendation.additionalNotes"><strong>Notes:</strong> {{ latestRecommendation.additionalNotes }}</p>
+          <form *ngIf="isEditing && editingRecommendation?.id === rec.id" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label>Activity Type*</label>
+                <select formControlName="activityType" class="w-full">
+                  <option value="bicycle">Bicycle</option>
+                  <option value="walk">Walk</option>
+                  <option value="run">Run</option>
+                  <option value="exercise">Physical Exercise</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Daily Duration (min)*</label>
+                <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" class="w-full" />
+              </div>
+
+              <div>
+                <label>Start Date*</label>
+                <input type="date" formControlName="startDate" class="w-full" />
+              </div>
+
+              <div>
+                <label>End Date</label>
+                <input type="date" formControlName="endDate" class="w-full" />
+              </div>
+
+              <div class="md:col-span-2">
+                <label>Additional Notes</label>
+                <textarea formControlName="additionalNotes" placeholder="Optional notes..." class="w-full"></textarea>
+              </div>
+            </div>
+
+            <div class="flex justify-end mt-4">
+              <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">
+                💾 Save
+              </button>
+            </div>
+          </form>
         </div>
+      </div>
 
-        <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label>Activity Type*</label>
-              <select formControlName="activityType" class="w-full">
-                <option value="bicycle">Bicycle</option>
-                <option value="walk">Walk</option>
-                <option value="run">Run</option>
-                <option value="exercise">Physical Exercise</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label>Daily Duration (min)*</label>
-              <input type="number" formControlName="dailyDuration" placeholder="e.g. 30" class="w-full" />
-            </div>
-
-            <div>
-              <label>Start Date*</label>
-              <input type="date" formControlName="startDate" class="w-full" />
-            </div>
-
-            <div>
-              <label>End Date</label>
-              <input type="date" formControlName="endDate" class="w-full" />
-            </div>
-
-            <div class="md:col-span-2">
-              <label>Additional Notes</label>
-              <textarea formControlName="additionalNotes" placeholder="Optional notes..." class="w-full"></textarea>
-            </div>
-          </div>
-
-          <div class="flex justify-end mt-4">
-            <button
-              mat-flat-button
-              color="primary"
-              type="submit"
-              [disabled]="editForm.invalid"
-            >💾 Save</button>
-          </div>
-        </form>
-      </section>
-
-      <ng-template #noCurrentRecommendation>
+      <ng-template #noCurrentRecs>
         <div class="center">
-          <h2> There is no current recommendation!</h2>
+          <h2>There are no ended recommendations.</h2>
         </div>
       </ng-template>
-
     </mat-expansion-panel>
 
-    <mat-expansion-panel (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
+    <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
           <h2>History</h2>
         </mat-panel-title>
         <mat-panel-description>
-          📜Overview of previous activity recommendations.
+          📜 All patient recommendations.
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <div *ngIf="recommendations.length > 0; else noRecs">
-        <div *ngFor="let rec of recommendations" class="recommendation-card">
+      <div *ngIf="allRecommendations.length > 0; else noRecs">
+        <div *ngFor="let rec of allRecommendations" class="recommendation-card">
           <section>
             <h4>{{ rec.activityType }}</h4>
             <p><strong>Duration:</strong> {{ rec.dailyDuration }} min/day</p>
@@ -120,7 +110,7 @@
 
       <ng-template #noRecs>
         <div class="center">
-          <h2>There are no recommendations yet!</h2>
+          <h2>There are no recommendations for this patient.</h2>
         </div>
       </ng-template>
     </mat-expansion-panel>

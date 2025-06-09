@@ -1,40 +1,27 @@
 import { Component, OnInit, signal } from '@angular/core';
-import {
-  MatAccordion,
-  MatExpansionPanel,
-  MatExpansionPanelDescription,
-  MatExpansionPanelHeader,
-  MatExpansionPanelTitle,
-} from '@angular/material/expansion';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Patient } from '../../shared/interfaces/patient';
 import { PatientService } from '../../services/patient.service';
-import { Recommendation } from '../../shared/interfaces/recommendation';
-import { DatePipe, NgForOf, NgIf } from '@angular/common';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import {AlertService} from "../../services/alert.service";
+import { RecommendationService } from '../../services/recommendation.service';
+import { AlertService } from '../../services/alert.service';
+import { Recommendation } from "../../shared/interfaces/recommendation";
+import {MatExpansionModule} from "@angular/material/expansion";
+import { DatePipe, NgForOf, NgIf } from "@angular/common";
+import { MatIconModule } from "@angular/material/icon";
+import {MatButton} from "@angular/material/button";
 
 @Component({
   selector: 'app-view-recommendation',
   standalone: true,
   imports: [
-    MatAccordion,
-    MatExpansionPanelTitle,
-    MatExpansionPanel,
-    MatExpansionPanelDescription,
-    MatExpansionPanelHeader,
+    MatExpansionModule,
+    MatIconModule,
+    NgIf,
     ReactiveFormsModule,
     DatePipe,
-    NgIf,
     NgForOf,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule
+    MatButton,
   ],
   templateUrl: './view-recommendation.component.html',
   styleUrls: ['./view-recommendation.component.css']
@@ -42,7 +29,9 @@ import {AlertService} from "../../services/alert.service";
 export class ViewRecommendationComponent implements OnInit {
   readonly panelOpenState = signal(false);
   patient!: Patient;
-  recommendations: Recommendation[] = [];
+
+  recommendationsEnded: Recommendation[] = [];
+  allRecommendations: Recommendation[] = [];
 
   recommendationForm = this.fb.group({
     activityType: ['', Validators.required],
@@ -54,10 +43,12 @@ export class ViewRecommendationComponent implements OnInit {
 
   editForm: FormGroup;
   isEditing = false;
+  editingRecommendation: Recommendation | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private patientService: PatientService,
+    private recommendationService: RecommendationService,
     public fb: FormBuilder,
     private alertService: AlertService
   ) {
@@ -76,88 +67,107 @@ export class ViewRecommendationComponent implements OnInit {
 
     if (id !== null) {
       this.patientService.getPatients().subscribe((patients: Patient[]) => {
-        const found = patients.find((p) => p.id === id);
+        const found = patients.find(p => p.id === id);
         if (found) {
           this.patient = found;
-          this.recommendations = found.recommendations || [];
+          this.refreshRecommendations();
         } else {
-          console.warn(`Patient with ID ${id} not found.`);
+          this.alertService.error('The patient ID is invalid or missing from the URL.');
         }
       });
-    } else {
-      console.error('Invalid or missing patient ID in route.');
     }
   }
 
-  get latestRecommendation(): Recommendation | null {
-    if (this.recommendations.length === 0) return null;
+  refreshRecommendations() {
+    if (!this.patient?.id) return;
 
-    return [...this.recommendations]
-      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())[0];
+    this.recommendationService.getRecommendationsByPatient(this.patient.id).subscribe({
+      next: (recs: Recommendation[]) => {
+        const today = new Date();
+
+        this.recommendationsEnded = recs.filter(rec => {
+          if (!rec.endDate) return false;
+          const endDate = new Date(rec.endDate);
+
+          return endDate > today;
+        });
+
+        this.allRecommendations = recs;
+      },
+      error: () => {
+        this.alertService.error('Error loading recommendations.');
+      }
+    });
   }
 
   onSubmit(): void {
-    if (this.recommendationForm.valid) {
-      const formValue = this.recommendationForm.value;
+    if (this.recommendationForm.invalid) return;
 
-      const newRecommendation: Recommendation = {
-        activityType: formValue.activityType!,
-        dailyDuration: formValue.dailyDuration!,
-        startDate: new Date(formValue.startDate!),
-        endDate: formValue.endDate ? new Date(formValue.endDate) : undefined,
-        additionalNotes: formValue.additionalNotes || ''
-      };
+    const formValue = this.recommendationForm.value;
 
-      this.recommendations.push(newRecommendation);
+    const newRecommendation: Partial<Recommendation> & { patient: number } = {
+      patient: this.patient.id!,
+      activityType: formValue.activityType!,
+      dailyDuration: formValue.dailyDuration!,
+      startDate: formValue.startDate!,
+      endDate: formValue.endDate || undefined,
+      additionalNotes: formValue.additionalNotes || '',
+      isActive: true
+    };
 
-      this.patient.recommendations = this.recommendations;
-      // this.patientService.updatePatient(this.patient);
-
-      this.alertService.success('New recommendation added successfully!');
-
-      this.recommendationForm.reset();
-
-    }
+    this.recommendationService.createRecommendation(newRecommendation).subscribe({
+      next: () => {
+        this.alertService.success('The recommendation has been successfully added!');
+        this.recommendationForm.reset();
+        this.refreshRecommendations();
+      },
+      error: () => {
+        this.alertService.error('Error adding the recommendation.');
+      }
+    });
   }
 
-  enableEdit(): void {
-    const latest = this.latestRecommendation;
-    if (!latest) return;
+  enableEdit(rec: Recommendation): void {
+    this.editingRecommendation = rec;
+    const normalizedActivityType = rec.activityType?.toLowerCase() || '';
 
     this.editForm.setValue({
-      activityType: latest.activityType,
-      dailyDuration: latest.dailyDuration,
-      startDate: this.formatDate(latest.startDate),
-      endDate: latest.endDate ? this.formatDate(latest.endDate) : '',
-      additionalNotes: latest.additionalNotes || ''
+      activityType: normalizedActivityType,
+      dailyDuration: rec.dailyDuration,
+      startDate: this.formatDate(rec.startDate),
+      endDate: rec.endDate ? this.formatDate(rec.endDate) : '',
+      additionalNotes: rec.additionalNotes || ''
     });
 
     this.isEditing = true;
   }
 
-
   saveEdit(): void {
-    if (this.editForm.invalid || !this.latestRecommendation) return;
+    if (this.editForm.invalid || !this.editingRecommendation) return;
 
     const updated = this.editForm.value;
-    const index = this.recommendations.indexOf(this.latestRecommendation);
+    const id = this.editingRecommendation.id;
 
-    if (index !== -1) {
-      const updatedRecommendation: Recommendation = {
-        ...this.latestRecommendation,
-        ...updated,
-        startDate: new Date(updated.startDate),
-        endDate: updated.endDate ? new Date(updated.endDate) : undefined
-      };
+    const updatedRecommendation: Partial<Recommendation> = {
+      activityType: updated.activityType,
+      dailyDuration: updated.dailyDuration,
+      startDate: updated.startDate,
+      endDate: updated.endDate || undefined,
+      additionalNotes: updated.additionalNotes
+    };
 
-      this.recommendations[index] = updatedRecommendation;
+    this.recommendationService.updateRecommendation(id, updatedRecommendation).subscribe({
+      next: () => {
+        this.alertService.success('The recommendation has been successfully updated!');
+        this.isEditing = false;
+        this.editingRecommendation = null;
 
-      this.patient.recommendations = this.recommendations;
-      // this.patientService.updatePatient(this.patient);
-      this.alertService.success('Recommendation updated successfully!');
-
-      this.isEditing = false;
-    }
+        this.refreshRecommendations();
+      },
+      error: () => {
+        this.alertService.error('Error updating the recommendation.');
+      }
+    });
   }
 
   private formatDate(date: string | Date): string {
