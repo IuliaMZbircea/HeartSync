@@ -1,0 +1,33 @@
+<div class="p-20">
+  <h1 class="text-4xl font-extrabold text-indigo-900 mb-6 tracking-tight">Doctors list</h1>
+
+  <input
+    type="text"
+    placeholder="Search by name..."
+    [(ngModel)]="searchTerm"
+    style="margin-bottom: 10px; padding: 5px; width: 300px;"
+  />
+
+  <table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Roles</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let doctor of filteredDoctors">
+      <td>{{ doctor.id }}</td>
+      <td>{{ doctor.firstName }} {{ doctor.lastName }}</td>
+      <td>{{ doctor.email }}</td>
+      <td>{{ doctor.roles.join(', ') }}</td>
+      <td>
+        <button (click)="deactivateDoctor(doctor.id)">🗑️ Delete</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

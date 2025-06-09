@@ -15,6 +15,7 @@ import {AddNewConsultationComponent} from "./dialogs/add-new-consultation/add-ne
 import {ViewRefferalComponent} from "./view-refferal/view-refferal.component";
 import {ViewChartsComponent} from "./view-charts/view-charts.component";
 import {RoleGuard} from "../services/auth-guard";
+import {AdminDashboardComponent} from "./admin-dashboard/admin-dashboard.component";
 
 export const routes: Routes = [
   { path: '', component: PresentationPageComponent },
@@ -28,6 +29,7 @@ export const routes: Routes = [
      canActivate: [RoleGuard],
      data: {expectedRole: 'ROLE_DOCTOR'}
    },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [RoleGuard], data: { expectedRole: 'ROLE_ADMIN' } },
   { path: 'add-patient', component: AddPatientComponent },
   { path: 'add-consultation', component: AddNewConsultationComponent },
   { path: 'view-alerts/:id', component: ViewAlertsComponent },
