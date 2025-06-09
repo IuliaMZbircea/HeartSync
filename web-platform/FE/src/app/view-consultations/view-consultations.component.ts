@@ -18,6 +18,8 @@ import {DoctorService} from "../../services/doctor.service";
 import {ReferralType} from "../../shared/interfaces/referral";
 import {Doctor} from "../../shared/interfaces/doctor";
 import {MatButton} from "@angular/material/button";
+import {Medication} from "../../shared/interfaces/medication";
+import {MedicationService} from "../../services/medication.service";
 
 @Component({
   selector: 'app-view-consultations',
@@ -48,18 +50,32 @@ export class ViewConsultationsComponent implements OnInit {
   patient!: Patient;
   referralForm: FormGroup;
   availableDoctors: Doctor[] = [];
+  medicationForm: FormGroup;
 
   constructor(private route: ActivatedRoute,
               private patientService: PatientService,
               private alertService:AlertService,
               private doctorsService:DoctorService,
-              private fb: FormBuilder){
+              private fb: FormBuilder,
+              private medicationService: MedicationService)
+  {
     this.referralForm = this.fb.group({
       reason: ['', Validators.required],
       isResolved: [false],
       type: ['', Validators.required],
       toDoctorId: ['', Validators.required],
       date: ['', Validators.required]
+    });
+
+    this.medicationForm = this.fb.group({
+      name: ['', Validators.required],
+      dose: ['', Validators.required],
+      frequency: ['', Validators.required],
+      route: ['', Validators.required],
+      startDate: ['', Validators.required],
+      endDate: [''],
+      prescribedBy: ['', Validators.required],
+      notes: ['']
     });
   }
 
@@ -110,5 +126,32 @@ export class ViewConsultationsComponent implements OnInit {
       this.alertService.error('Please fill all required fields correctly.');
     }
   }
+
+  saveEdit(): void {
+    if (this.medicationForm.invalid || !this.patient?.id) {
+      this.alertService.error('Formularul este invalid sau pacientul nu este încărcat.');
+      return;
+    }
+
+    const formValue = this.medicationForm.value;
+    const medication = {
+      ...formValue,
+      patient_id: this.patient.id
+    };
+
+    this.medicationService.createMedication(medication).subscribe({
+      next: () => {
+        this.alertService.success('Medicația a fost salvată cu succes.');
+        this.medicationForm.reset();
+        this.patientService.getPatientById(this.patient.id).subscribe(updated => {
+          this.patient = updated;
+        });
+      },
+      error: () => {
+        this.alertService.error('Eroare la salvarea medicației.');
+      }
+    });
+  }
+
 
 }

@@ -80,9 +80,11 @@
 
         <form class="section grid-form" [formGroup]="referralForm" (ngSubmit)="submitReferral()">
 
+          <!-- To Doctor -->
           <div class="form-group">
             <label>👨‍⚕️ To Doctor*</label>
             <select formControlName="toDoctorId" class="w-full">
+              <option value="" disabled selected>Select a doctor</option>
               <option *ngFor="let doc of availableDoctors" [value]="doc.id">
                 {{ doc.firstName }} {{ doc.lastName }}
               </option>
@@ -92,9 +94,11 @@
             </div>
           </div>
 
+          <!-- Type -->
           <div class="form-group">
             <label>📄 Type*</label>
             <select formControlName="type" class="w-full">
+              <option value="" disabled selected>Select a referral type</option>
               <option *ngFor="let type of referralTypes" [value]="type">
                 {{ getReferralTypeLabel(type) }}
               </option>
@@ -104,25 +108,26 @@
             </div>
           </div>
 
+          <!-- Reason -->
           <div class="form-group full-width">
             <label>📝 Reason*</label>
             <textarea formControlName="reason" rows="3" class="w-full" placeholder="Enter reason for referral..."></textarea>
             <div *ngIf="referralForm.get('reason')?.invalid && referralForm.get('reason')?.touched" class="error-message">
-              Reason is required.
+              Please provide a reason for the referral.
             </div>
           </div>
 
+          <!-- Date -->
           <div class="form-group">
             <label>📅 Date*</label>
             <input type="date" formControlName="date" class="w-full" />
             <div *ngIf="referralForm.get('date')?.invalid && referralForm.get('date')?.touched" class="error-message">
-              Please provide a valid date.
+              Please select a valid date.
             </div>
           </div>
-
+          <!-- Submit Button -->
           <div class="flex justify-end mt-4 full-width">
-            <button mat-flat-button color="primary" type="submit"
-                    [disabled]="referralForm.invalid">
+            <button mat-flat-button color="primary" type="submit" [disabled]="referralForm.invalid">
               💾 Submit Referral
             </button>
           </div>
@@ -132,11 +137,57 @@
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title><h2>Add New Allergy</h2></mat-panel-title>
-        <mat-panel-description>➕ Add a new allergy entry</mat-panel-description>
+        <mat-panel-title>
+          <h2>💊 Add New Medication</h2>
+        </mat-panel-title>
+        <mat-panel-description>
+           Prescribe or record a new medication
+        </mat-panel-description>
       </mat-expansion-panel-header>
 
-    </mat-expansion-panel>
+      <form [formGroup]="medicationForm" (ngSubmit)="saveEdit()" class="section">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label>Name*</label>
+            <input type="text" formControlName="name" class="w-full" />
+          </div>
+          <div>
+            <label>Dosage*</label>
+            <input type="text" formControlName="dose" class="w-full" />
+          </div>
+          <div>
+            <label>Frequency*</label>
+            <input type="text" formControlName="frequency" class="w-full" />
+          </div>
+          <div>
+            <label>Route*</label>
+            <input type="text" formControlName="route" class="w-full" />
+          </div>
+          <div>
+            <label>Start Date*</label>
+            <input type="date" formControlName="startDate" class="w-full" />
+          </div>
+          <div>
+            <label>End Date</label>
+            <input type="date" formControlName="endDate" class="w-full" />
+          </div>
+          <div class="md:col-span-2">
+            <label>Prescribed By*</label>
+            <input type="text" formControlName="prescribedBy" class="w-full" />
+          </div>
+          <div class="md:col-span-2">
+            <label>Notes</label>
+            <textarea formControlName="notes" class="w-full"></textarea>
+          </div>
+        </div>
 
+        <div class="flex justify-end mt-4">
+          <button mat-flat-button color="primary" type="submit" [disabled]="medicationForm.invalid">
+            💾 Save Changes
+          </button>
+        </div>
+      </form>
+
+    </mat-expansion-panel>
   </mat-accordion>
 </div>

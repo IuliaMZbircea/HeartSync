@@ -18,7 +18,7 @@ export class DoctorService {
   ) {}
 
   getDoctors(): Observable<Doctor[]> {
-    return this.http.get<any>(`${this.apiUrl}/api/custom-doctors`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/custom-doctors`).pipe(
       map(response => response.member || []),
       catchError(error => {
         const errorMsg = error?.error?.message || 'Eroare la încărcarea doctorilor.';
