@@ -30,8 +30,6 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     private ?string $lastName = null;
 
-    #[ORM\Column(length: 100)]
-
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private ?bool $status = true;
 
