@@ -9,18 +9,14 @@ export type ReferralType =
 
 export interface Referral {
   id: number;
-  type: ReferralType;
-
-  patientId: number;
-
-  fromDoctor: Doctor;
-  toDoctor?: Doctor;
-
+  type: string;
   reason: string;
-  date: Date;
-
-  hl7Payload?: string;
-  fhirResponseId?: number;
-
+  date: string;
+  fromDoctor: { id: number; firstName: string; lastName: string };
+  toDoctor?: { id: number; firstName: string; lastName: string };
   isResolved: boolean;
+  isActive: boolean;
+  hl7Payload?: string;
+  fhirResponseId?: string;
+  createdAt?: string;
 }
