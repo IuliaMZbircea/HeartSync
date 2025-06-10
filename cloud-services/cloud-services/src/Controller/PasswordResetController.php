@@ -13,7 +13,6 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-#[Route('/api')]
 class PasswordResetController extends AbstractController
 {
     #[Route('/forgot-password', name: 'forgot_password', methods: ['POST'])]
@@ -39,7 +38,7 @@ class PasswordResetController extends AbstractController
         $doctor->setResetTokenExpiresAt($expiresAt);
         $em->flush();
 
-        $resetUrl = "https://frontend.heartsync.com/reset-password?token=$token";
+        $resetUrl = "http://localhost:4200/reset-password?token=$token";
 
         $emailMessage = (new Email())
             ->from(new Address('no-reply@heartsync.com', 'HeartSync Support'))
@@ -64,8 +63,11 @@ class PasswordResetController extends AbstractController
                 <small>This link is valid for 1 hour. Do not share it with anyone.</small>
             ");
 
-        $mailer->send($emailMessage);
-
+try {
+    $mailer->send($emailMessage);
+} catch (\Throwable $e) {
+    return $this->json(['error' => 'Eroare la trimiterea emailului: ' . $e->getMessage()], 500);
+}
         return $this->json(['message' => 'If the email exists, a reset link will be sent.']);
     }
 
@@ -95,4 +97,5 @@ class PasswordResetController extends AbstractController
 
         return $this->json(['message' => 'Password successfully reset']);
     }
+
 }
