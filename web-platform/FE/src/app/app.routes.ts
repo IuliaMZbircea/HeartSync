@@ -15,7 +15,16 @@ import {AddNewConsultationComponent} from "./dialogs/add-new-consultation/add-ne
 import {ViewRefferalComponent} from "./view-refferal/view-refferal.component";
 import {ViewChartsComponent} from "./view-charts/view-charts.component";
 import {RoleGuard} from "../services/auth-guard";
-import {AdminDashboardComponent} from "./admin-dashboard/admin-dashboard.component";
+import {AdminDashboardComponent} from "./admin/admin-dashboard/admin-dashboard.component";
+import {DoctorsListComponent} from "./admin/doctors-list/doctors-list.component";
+import {AuditFileComponent} from "./admin/audit-file/audit-file.component";
+import {AuditAllergiesComponent} from "./admin/audit-allergies/audit-allergies.component";
+import {AuditRecommendationComponent} from "./admin/audit-recommendation/audit-recommendation.component";
+import {AuditMedicationComponent} from "./admin/audit-medication/audit-medication.component";
+import {AuditAlarmsComponent} from "./admin/audit-alarms/audit-alarms.component";
+import {AuditRefferalComponent} from "./admin/audit-refferal/audit-refferal.component";
+import {AuditConsultationComponent} from "./admin/audit-consultation/audit-consultation.component";
+import {AuditPatientComponent} from "./admin/audit-patient/audit-patient.component";
 
 export const routes: Routes = [
   { path: '', component: PresentationPageComponent },
@@ -35,7 +44,66 @@ export const routes: Routes = [
     canActivate: [RoleGuard],
     data: {expectedRole: 'ROLE_DOCTOR'}
   },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [RoleGuard], data: { expectedRole: 'ROLE_ADMIN' } },
+  {
+    path: 'doctors-list',
+    component: DoctorsListComponent,
+    canActivate: [RoleGuard],
+    data: {expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-file',
+    component: AuditFileComponent,
+    canActivate: [RoleGuard],
+    data: {expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'admin-dashboard',
+    component: AdminDashboardComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-allergies',
+    component: AuditAllergiesComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-recommendations',
+    component: AuditRecommendationComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-medications',
+    component: AuditMedicationComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-alarms',
+    component: AuditAlarmsComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-referrals',
+    component: AuditRefferalComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-consultations',
+    component: AuditConsultationComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-patients',
+    component: AuditPatientComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
   { path: 'add-patient', component: AddPatientComponent },
   { path: 'add-consultation', component: AddNewConsultationComponent },
   { path: 'view-alerts/:id', component: ViewAlertsComponent },

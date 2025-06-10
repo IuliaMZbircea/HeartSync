@@ -40,7 +40,7 @@ export class LoginComponent implements AfterViewInit {
         this.alertService.success('Login successful!');
 
         if (user.roles && user.roles.includes('ROLE_ADMIN')) {
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/admin-dashboard']);
         } else {
           this.router.navigate(['/PatientList']);
         }

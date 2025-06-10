@@ -1,19 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { DoctorService } from '../../services/doctor.service';
-import { AlertService } from '../../services/alert.service';
-import { Doctor } from '../../shared/interfaces/doctor';
+import {Component, OnInit} from '@angular/core';
 import {FormsModule} from "@angular/forms";
+import {NgForOf} from "@angular/common";
+import {Doctor} from "../../../shared/interfaces/doctor";
+import {DoctorService} from "../../../services/doctor.service";
+import {AlertService} from "../../../services/alert.service";
 
 @Component({
-  selector: 'app-admin-dashboard',
+  selector: 'app-doctors-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  providers:[ DoctorService],
-  templateUrl: './admin-dashboard.component.html',
-  styleUrl: './admin-dashboard.component.css'
+    imports: [
+        FormsModule,
+        NgForOf
+    ],
+  templateUrl: './doctors-list.component.html',
+  styleUrl: './doctors-list.component.css'
 })
-export class AdminDashboardComponent implements OnInit {
+export class DoctorsListComponent implements OnInit {
   doctors: Doctor[] = [];
   searchTerm: string = '';
 
@@ -56,3 +58,4 @@ export class AdminDashboardComponent implements OnInit {
 
 
 }
+
