@@ -194,9 +194,9 @@ public function deactivate(int $id): JsonResponse
             return new JsonResponse(['error' => 'Unauthorized - No authenticated user'], 401);
         }
 
-        if (in_array('doctor', $user->getRoles())) {
+        if (in_array('ROLE_DOCTOR', $user->getRoles())) {
             return new JsonResponse([
-            'id' => $user->getEmail(),
+            'id' => $user->getId(),
             'email' => $user->getEmail(),
             'roles' => $user->getRoles(),
             'firstName' => $user->getFirstName(),
@@ -204,7 +204,7 @@ public function deactivate(int $id): JsonResponse
         ]);
     }else  {
             return new JsonResponse([
-                'id' => $user->getEmail(),
+                'id' => $user->getId(),
                 'email' => $user->getEmail(),
                 'roles' => $user->getRoles(),
             ]);
