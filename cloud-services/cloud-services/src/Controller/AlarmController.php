@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/api/custom-alarms')]
+#[Route('/custom-alarms')]
 class AlarmController extends AbstractController
 {
     public function __construct(
