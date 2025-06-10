@@ -10,6 +10,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import BluetoothScreen from './src/screens/BluetoothScreen';
 import PatientDetailsScreen from './src/screens/PatientDetailsScreen';
 import DataHistoryScreen from './src/screens/DataHistoryScreen';
+import AlarmsScreen from './src/screens/AlarmsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -50,6 +51,15 @@ function MainApp() {
           ),
         }}
       />
+      <Tab.Screen
+        name="Alarms"
+        component={AlarmsScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="notifications" size={size} color={color} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -85,9 +95,10 @@ function App(): React.JSX.Element {
         {!isAuthenticated ? (
           <Stack.Screen 
             name="Login" 
-            component={LoginScreen}
             options={{ headerShown: false }}
-          />
+          >
+            {props => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
+          </Stack.Screen>
         ) : (
           <Stack.Screen 
             name="MainApp" 

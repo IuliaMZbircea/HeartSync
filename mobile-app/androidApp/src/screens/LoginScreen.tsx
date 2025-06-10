@@ -15,7 +15,7 @@ const MOCK_USERS = [
   { email: 'patient@heartsync.com', password: 'patient123', role: 'patient' },
 ];
 
-const LoginScreen = ({ navigation }: any) => {
+const LoginScreen = ({ setIsAuthenticated }: { setIsAuthenticated: (isAuthenticated: boolean) => void }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -39,8 +39,8 @@ const LoginScreen = ({ navigation }: any) => {
           role: user.role,
         }));
         
-        // Navigate to main app
-        navigation.replace('MainApp');
+        // Inform parent component about successful login
+        setIsAuthenticated(true);
       } catch (error) {
         console.error('Login error:', error);
         Alert.alert('Error', 'Failed to login. Please try again.');
