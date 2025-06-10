@@ -40,12 +40,29 @@
           <div class="form-row">
             <label>First Name</label>
             <input formControlName="firstName" placeholder="First Name" class="input-field" />
+            <div *ngIf="patientForm.get('firstName')?.touched && patientForm.get('firstName')?.invalid" class="text-red-500 text-sm mt-1">
+              <div *ngIf="patientForm.get('firstName')?.errors?.['required']">First name is required.</div>
+            </div>
+
             <label>Last Name</label>
             <input formControlName="lastName" placeholder="Last Name" class="input-field" />
+            <div *ngIf="patientForm.get('lastName')?.touched && patientForm.get('lastName')?.invalid" class="text-red-500 text-sm mt-1">
+              <div *ngIf="patientForm.get('lastName')?.errors?.['required']">Last name is required.</div>
+            </div>
+
             <label>CNP</label>
             <input formControlName="cnp" placeholder="CNP" class="input-field" />
+            <div *ngIf="patientForm.get('cnp')?.touched && patientForm.get('cnp')?.invalid" class="text-red-500 text-sm mt-1">
+              <div *ngIf="patientForm.get('cnp')?.errors?.['required']">CNP is required.</div>
+              <div *ngIf="patientForm.get('cnp')?.errors?.['pattern']">CNP must be exactly 13 digits.</div>
+            </div>
+
             <label>Occupation</label>
             <input formControlName="occupation" placeholder="Occupation" class="input-field" />
+            <div *ngIf="patientForm.get('occupation')?.touched && patientForm.get('occupation')?.invalid" class="text-red-500 text-sm mt-1">
+              <div *ngIf="patientForm.get('occupation')?.errors?.['required']">Occupation is required.</div>
+            </div>
+
           </div>
           <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
         </ng-template>
@@ -75,92 +92,136 @@
         </ng-template>
       </section>
 
-    <section class="bg-purple-50 p-5 rounded-lg shadow-sm relative">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="text-lg font-semibold text-purple-700">
-          <i class="fas fa-map-marker-alt text-purple-500 mr-2"></i> Address
-        </h3>
-        <button class="text-sm text-purple-700 hover:underline" type="button" (click)="editSection('address')">
-          <i class="fas fa-edit"></i> Edit
-        </button>
-      </div>
-
-      <ng-container *ngIf="!isEditingAddress; else editAddress">
-        <p>
-          {{ patient.street }} Nr. {{ patient.number }},
-          Bl. {{ patient.block }},
-          Sc. {{ patient.staircase }},
-          Ap. {{ patient.apartment }},
-          Et. {{ patient.floor }},
-          {{ patient.locality }}
-        </p>
-      </ng-container>
-
-      <ng-template #editAddress>
-        <div class="form-row">
-          <label>City</label>
-          <input formControlName="locality" placeholder="City" class="input-field" />
-          <label>Street</label>
-          <input formControlName="street" placeholder="Street" class="input-field" />
-          <label>Number</label>
-          <input formControlName="number" placeholder="Number" class="input-field" />
-          <label>Block</label>
-          <input formControlName="block" placeholder="Block" class="input-field" />
-          <label>Staircase</label>
-          <input formControlName="staircase" placeholder="Staircase" class="input-field" />
-          <label>Apartment</label>
-          <input formControlName="apartment" placeholder="Apartment" class="input-field" />
-          <label>Floor</label>
-          <input formControlName="floor" placeholder="Floor" class="input-field" />
+      <section class="bg-purple-50 p-5 rounded-lg shadow-sm relative">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-lg font-semibold text-purple-700">
+            <i class="fas fa-map-marker-alt text-purple-500 mr-2"></i> Address
+          </h3>
+          <button class="text-sm text-purple-700 hover:underline" type="button" (click)="editSection('address')">
+            <i class="fas fa-edit"></i> Edit
+          </button>
         </div>
-        <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
-      </ng-template>
-    </section>
 
+        <ng-container *ngIf="!isEditingAddress; else editAddress">
+          <p>
+            {{ patient.street }} Nr. {{ patient.number }},
+            Bl. {{ patient.block }},
+            Sc. {{ patient.staircase }},
+            Ap. {{ patient.apartment }},
+            Et. {{ patient.floor }},
+            {{ patient.locality }}
+          </p>
+        </ng-container>
 
-    <section class="bg-red-50 p-5 rounded-lg shadow-sm relative">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="text-lg font-semibold text-red-700">
-          <i class="fas fa-heartbeat text-red-500 mr-2"></i> Medical Info
-        </h3>
-        <button class="text-sm text-red-700 hover:underline" type="button" (click)="editSection('medical')">
-          <i class="fas fa-edit"></i> Edit
-        </button>
-      </div>
+        <ng-template #editAddress>
+          <div class="form-row">
+            <div class="form-group">
+              <label>City*</label>
+              <input formControlName="locality" placeholder="City" class="input-field" />
+              <div class="error-message" *ngIf="patientForm.get('locality')?.touched && patientForm.get('locality')?.errors?.['required']">
+                City is required.
+              </div>
+            </div>
 
-      <ng-container *ngIf="!isEditingMedical; else editMedical">
-        <p><strong>Blood Group:</strong> {{ patient.bloodGroup }}</p>
-        <p><strong>Rh:</strong> {{ patient.rh }}</p>
-        <p><strong>Height:</strong> {{ patient.height }} cm</p>
-        <p><strong>Weight:</strong> {{ patient.weight }} kg</p>
-      </ng-container>
+            <div class="form-group">
+              <label>Street*</label>
+              <input formControlName="street" placeholder="Street" class="input-field" />
+              <div class="error-message" *ngIf="patientForm.get('street')?.touched && patientForm.get('street')?.errors?.['required']">
+                Street is required.
+              </div>
+            </div>
 
-      <ng-template #editMedical>
-        <div class="form-row">
-          <select formControlName="bloodGroup" class="input-field">
-            <label></label>
-            <option value="">Blood Group</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="O">O</option>
-            <option value="AB">AB</option>
-          </select>
+            <div class="form-group">
+              <label>Number*</label>
+              <input formControlName="number" placeholder="Number" class="input-field" />
+              <div class="error-message" *ngIf="patientForm.get('number')?.touched && patientForm.get('number')?.errors?.['required']">
+                Number is required.
+              </div>
+              <div class="error-message" *ngIf="patientForm.get('number')?.touched && patientForm.get('number')?.errors?.['pattern']">
+                Number must contain only digits.
+              </div>
+            </div>
 
-          <label>Rh Factor</label>
-          <select formControlName="rh" class="input-field">
-            <option value="">Rh Factor</option>
-            <option value="+">Positive</option>
-            <option value="-">Negative</option>
-          </select>
+            <div class="form-group"><label>Block</label><input formControlName="block" class="input-field" /></div>
+            <div class="form-group"><label>Staircase</label><input formControlName="staircase" class="input-field" /></div>
+            <div class="form-group"><label>Apartment</label><input formControlName="apartment" class="input-field" /></div>
+            <div class="form-group"><label>Floor</label><input formControlName="floor" class="input-field" /></div>
+          </div>
+          <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
+        </ng-template>
+      </section>
 
-          <label>Height (cm)</label>
-          <input formControlName="height" type="text" placeholder="Height (cm)" class="input-field" />
-          <label>Weight (kg)</label>
-          <input formControlName="weight" type="text" placeholder="Weight (kg)" class="input-field" />
+      <section class="bg-red-50 p-5 rounded-lg shadow-sm relative">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-lg font-semibold text-red-700">
+            <i class="fas fa-heartbeat text-red-500 mr-2"></i> Medical Info
+          </h3>
+          <button class="text-sm text-red-700 hover:underline" type="button" (click)="editSection('medical')">
+            <i class="fas fa-edit"></i> Edit
+          </button>
         </div>
-        <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
-      </ng-template>
-    </section>
+
+        <ng-container *ngIf="!isEditingMedical; else editMedical">
+          <p><strong>Blood Group:</strong> {{ patient.bloodGroup }}</p>
+          <p><strong>Rh:</strong> {{ patient.rh }}</p>
+          <p><strong>Height:</strong> {{ patient.height }} cm</p>
+          <p><strong>Weight:</strong> {{ patient.weight }} kg</p>
+        </ng-container>
+
+        <ng-template #editMedical>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Blood Group*</label>
+              <select formControlName="bloodGroup" class="input-field">
+                <option value="">Select</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="O">O</option>
+                <option value="AB">AB</option>
+              </select>
+              <div class="error-message" *ngIf="patientForm.get('bloodGroup')?.touched && patientForm.get('bloodGroup')?.errors?.['required']">
+                Blood group is required.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Rh Factor*</label>
+              <select formControlName="rh" class="input-field">
+                <option value="">Select</option>
+                <option value="+">Positive</option>
+                <option value="-">Negative</option>
+              </select>
+              <div class="error-message" *ngIf="patientForm.get('rh')?.touched && patientForm.get('rh')?.errors?.['required']">
+                Rh factor is required.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Height (cm)*</label>
+              <input formControlName="height" placeholder="Height" class="input-field" />
+              <div class="error-message" *ngIf="patientForm.get('height')?.touched && patientForm.get('height')?.errors?.['required']">
+                Height is required.
+              </div>
+              <div class="error-message" *ngIf="patientForm.get('height')?.touched && patientForm.get('height')?.errors?.['pattern']">
+                Height must be a valid number (e.g. 170 or 170.5).
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Weight (kg)*</label>
+              <input formControlName="weight" placeholder="Weight" class="input-field" />
+              <div class="error-message" *ngIf="patientForm.get('weight')?.touched && patientForm.get('weight')?.errors?.['required']">
+                Weight is required.
+              </div>
+              <div class="error-message" *ngIf="patientForm.get('weight')?.touched && patientForm.get('weight')?.errors?.['pattern']">
+                Weight must be a valid number (e.g. 70 or 70.5).
+              </div>
+            </div>
+          </div>
+          <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
+        </ng-template>
+      </section>
+
     </form>
 
   <section *ngIf="patient.consultations?.length">
@@ -221,8 +282,8 @@
     <h3><i class="fas fa-share-square"></i> Referrals</h3>
     <div *ngFor="let ref of patient.referrals" class="item">
       <p><strong>Type:</strong> {{ ref.type }}</p>
-      <p><strong>From Doctor:</strong> {{ ref.fromDoctor.firstName }} {{ ref.fromDoctor.lastName }}</p>
-      <p *ngIf="ref.toDoctor"><strong>To Doctor:</strong> {{ ref.toDoctor.firstName }} {{ ref.toDoctor.lastName }}</p>
+<!--      <p><strong>From Doctor:</strong> {{ ref.fromDoctor.firstName }} {{ ref.fromDoctor.lastName }}</p>-->
+<!--      <p *ngIf="ref.toDoctor"><strong>To Doctor:</strong> {{ ref.toDoctor.firstName }} {{ ref.toDoctor.lastName }}</p>-->
       <p><strong>Reason:</strong> {{ ref.reason }}</p>
       <p><strong>Date:</strong> {{ ref.date | date }}</p>
       <p><strong>Status:</strong> {{ ref.isResolved ? 'Resolved' : 'Pending' }}</p>
