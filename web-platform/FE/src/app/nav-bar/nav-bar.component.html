@@ -16,6 +16,18 @@
       <mat-icon>home</mat-icon> Home
     </button>
 
+    <div *ngIf="!isAuthenticated">
+      <button class="btn-auth" (click)="navigateToPatientList()">
+        <mat-icon>people</mat-icon>  Patient List
+      </button>
+    </div>
+
+    <div *ngIf="role==='ROLE_ADMIN'">
+      <button class="btn-auth" (click)="navigateToDashboard()">
+        <mat-icon>people</mat-icon> Dashboard
+      </button>
+    </div>
+
     <ng-container *ngIf="!isAuthenticated; else loggedIn">
       <button class="btn-auth" (click)="navigateToAuth()">
         <mat-icon>login</mat-icon> Authenticate
