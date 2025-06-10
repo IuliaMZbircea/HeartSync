@@ -179,7 +179,58 @@
           </button>
         </div>
       </form>
+    </mat-expansion-panel>
 
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h2>➕ Add Diagnosis / Condition</h2>
+        </mat-panel-title>
+        <mat-panel-description>
+          Register a new medical condition for the patient
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <form [formGroup]="diagnosisForm" class="diagnosis-form">
+        <div class="diagnosis-card">
+          <div class="form-row">
+            <label for="diagnosis">Diagnosis</label>
+            <app-diagnosis-code (diseaseSelected)="onDiseaseSelected($event)"></app-diagnosis-code>
+          </div>
+
+          <div class="form-row">
+            <label for="icdCode">ICD Code</label>
+            <input id="icdCode" type="text" formControlName="icdCode" readonly />
+          </div>
+
+          <div class="form-row">
+            <label for="category">Category</label>
+            <select id="category" formControlName="category">
+              <option value="">Select</option>
+              <option value="Chronic">Chronic</option>
+              <option value="Genetic">Genetic</option>
+              <option value="Acute">Acute</option>
+              <option value="Autoimmune">Autoimmune</option>
+            </select>
+          </div>
+
+          <div class="form-row full-width">
+            <label for="description">Description</label>
+            <textarea id="description" formControlName="description" placeholder="e.g. Short notes about the condition..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" (click)="saveDiagnoses()">💾 Save</button>
+        </div>
+      </form>
+
+      <ng-template #noConditions>
+        <div class="center">
+          <h3>✅ No current conditions or medications recorded.</h3>
+        </div>
+      </ng-template>
     </mat-expansion-panel>
   </mat-accordion>
 </div>

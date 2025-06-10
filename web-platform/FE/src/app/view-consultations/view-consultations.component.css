@@ -106,7 +106,6 @@ form{
   padding-right: 3%;
   padding-left: 3%;
   font-size: 1.3rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 255, 0.5);
 }
 
 .custom-toggle-group {
@@ -173,7 +172,6 @@ section {
   background: #f8f8f8;
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 255, 0.3);
   border-left: 3px solid #1a1f38;
   font-size: 1rem;
   line-height: 1.6;
@@ -359,14 +357,6 @@ input:invalid, select:invalid, textarea:invalid {
   padding-right: 7%;
   padding-top: 2%;
   padding-bottom: 2%;
-}
-
-form{
-  overflow: auto;
-  padding-right: 3%;
-  padding-left: 3%;
-  font-size: 1.3rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 255, 0.5);
 }
 
 .custom-toggle-group {
@@ -656,3 +646,60 @@ section {
   font-size: 1.3rem;
 }
 
+.diagnosis-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.diagnosis-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+input,
+select,
+textarea {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1565c0;
+}

@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatButtonToggle, MatButtonToggleGroup} from "@angular/material/button-toggle";
 import {MatDivider} from "@angular/material/divider";
 import {DatePipe, NgForOf, NgIf, TitleCasePipe} from "@angular/common";
@@ -22,6 +22,7 @@ import {Medication} from "../../shared/interfaces/medication";
 import {MedicationService} from "../../services/medication.service";
 import {ReferralService} from "../../services/refferal.service";
 import {AuthService} from "../../services/auth.service";
+import {DiagnosisCodeComponent} from "../diagnosis-code/diagnosis-code.component";
 
 @Component({
   selector: 'app-view-consultations',
@@ -42,7 +43,8 @@ import {AuthService} from "../../services/auth.service";
     MatIcon,
     DatePipe,
     TitleCasePipe,
-    MatButton
+    MatButton,
+    DiagnosisCodeComponent
   ],
   templateUrl: './view-consultations.component.html',
   styleUrl: './view-consultations.component.css'
@@ -54,6 +56,7 @@ export class ViewConsultationsComponent implements OnInit {
   availableDoctors: Doctor[] = [];
   medicationForm: FormGroup;
   private currentUserId!: number | undefined;
+  diagnosisForm!: FormGroup;
 
   constructor(private route: ActivatedRoute,
               private patientService: PatientService,
@@ -62,7 +65,8 @@ export class ViewConsultationsComponent implements OnInit {
               private medicationService: MedicationService,
               private referralService: ReferralService,
               private alertService: AlertService,
-              private authService: AuthService)
+              private authService: AuthService,
+              private diseaseService:PatientService)
   {
     this.referralForm = this.fb.group({
       reason: ['', Validators.required],
@@ -102,6 +106,14 @@ export class ViewConsultationsComponent implements OnInit {
         this.alertService.error('Pacientul nu a fost găsit.');
       });
     }
+
+    this.diagnosisForm = this.fb.group({
+      diagnosis: ['', Validators.required],
+      icdCode: [{ value: 'fsfef', disabled: true }],
+      category: ['', Validators.required],
+      description: ['']
+    });
+
   }
 
   referralTypes: ReferralType[] = [
@@ -179,5 +191,41 @@ export class ViewConsultationsComponent implements OnInit {
     });
   }
 
+  get diseases(): FormArray {
+    return this.diagnosisForm.get('diseases') as FormArray;
+  }
+
+  onDiseaseSelected(disease: { title: string, code: string }) {
+    this.diagnosisForm.patchValue({
+      diagnosis: disease.title,
+      icdCode: disease.code
+    });
+  }
+
+  saveDiagnoses(): void {
+    // if (this.diagnosisForm.invalid || !this.patient?.id) {
+    //   this.alertService.error('Please complete all required fields.');
+    //   return;
+    // }
+
+    const d = this.diagnosisForm.getRawValue();
+
+    const payload = {
+      patient_id: this.patient.id,
+      name: d.diagnosis,
+      type: d.category,
+      description: d.description
+    };
+
+    this.diseaseService.addDisease(payload).subscribe({
+      next: () => {
+        this.alertService.success(`The disease "${d.diagnosis}" was successfully added.`);
+        this.diagnosisForm.reset();
+      },
+      error: () => {
+        this.alertService.error('An error occurred while saving the disease.');
+      }
+    });
+  }
 
 }
