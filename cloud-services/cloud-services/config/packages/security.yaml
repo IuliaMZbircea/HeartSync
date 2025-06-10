@@ -2,8 +2,6 @@ security:
     password_hashers:
         App\Entity\Doctor:
             algorithm: auto
-        App\Entity\PatientUser:
-            algorithm: auto
 
     providers:
         doctor_provider:
@@ -11,56 +9,17 @@ security:
                 class: App\Entity\Doctor
                 property: email
 
-        patient_provider:
-            entity:
-                class: App\Entity\PatientUser
-                property: email
-
-        chain_provider:
-            chain:
-                providers: [doctor_provider, patient_provider]
-
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        # Login doctor
-        doctor_login:
-            pattern: ^/api/doctor/login
-            stateless: true
-            json_login:
-                check_path: /api/doctor/login
-                username_path: email
-                password_path: password
-                provider: doctor_provider
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-        # Login pacient
-        patient_login:
-            pattern: ^/api/patient/login
-            stateless: true
-            json_login:
-                check_path: /api/patient/login
-                username_path: email
-                password_path: password
-                provider: patient_provider
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-
-        # Firewall JWT – activ după login
         api:
             pattern: ^/api
             stateless: true
             jwt: ~
-            provider: chain_provider
+            provider: doctor_provider
 
     access_control:
-        - { path: ^/api/doctor/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/patient/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/patient/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/patient/forgot-password, roles: PUBLIC_ACCESS }
-        - { path: ^/api/patient/reset-password, roles: PUBLIC_ACCESS }
-        - { path: ^/api/patient/profile, roles: ROLE_PATIENT }
-        - { path: ^/api, roles: ROLE_DOCTOR }
+        - { path: ^/api,       roles: ROLE_DOCTOR }
