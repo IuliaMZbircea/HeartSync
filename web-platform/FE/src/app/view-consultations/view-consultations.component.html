@@ -117,14 +117,6 @@
             </div>
           </div>
 
-          <!-- Date -->
-          <div class="form-group">
-            <label>📅 Date*</label>
-            <input type="date" formControlName="date" class="w-full" />
-            <div *ngIf="referralForm.get('date')?.invalid && referralForm.get('date')?.touched" class="error-message">
-              Please select a valid date.
-            </div>
-          </div>
           <!-- Submit Button -->
           <div class="flex justify-end mt-4 full-width">
             <button mat-flat-button color="primary" type="submit" [disabled]="referralForm.invalid">

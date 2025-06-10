@@ -21,6 +21,7 @@ import {MatButton} from "@angular/material/button";
 import {Medication} from "../../shared/interfaces/medication";
 import {MedicationService} from "../../services/medication.service";
 import {ReferralService} from "../../services/refferal.service";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-view-consultations',
@@ -52,6 +53,7 @@ export class ViewConsultationsComponent implements OnInit {
   referralForm: FormGroup;
   availableDoctors: Doctor[] = [];
   medicationForm: FormGroup;
+  private currentUserId!: number | undefined;
 
   constructor(private route: ActivatedRoute,
               private patientService: PatientService,
@@ -59,14 +61,14 @@ export class ViewConsultationsComponent implements OnInit {
               private fb: FormBuilder,
               private medicationService: MedicationService,
               private referralService: ReferralService,
-              private alertService: AlertService)
+              private alertService: AlertService,
+              private authService: AuthService)
   {
     this.referralForm = this.fb.group({
       reason: ['', Validators.required],
       isResolved: [false],
       type: ['', Validators.required],
-      toDoctorId: [null, Validators.required],
-      date: ['', Validators.required]
+      toDoctorId: [null, Validators.required]
     });
 
     this.medicationForm = this.fb.group({
@@ -84,7 +86,10 @@ export class ViewConsultationsComponent implements OnInit {
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     const id = idParam ? Number(idParam) : null;
-
+    this.authService.getCurrentUser().subscribe((user: Doctor) => {
+      this.currentUserId = user.id;
+      console.log("USER", user)
+    });
     this.doctorsService.getDoctors().subscribe(doctors => {
       this.availableDoctors = doctors;
     })
@@ -124,11 +129,12 @@ export class ViewConsultationsComponent implements OnInit {
         reason: this.referralForm.value.reason,
         isResolved: this.referralForm.value.isResolved,
         type: this.referralForm.value.type,
-        date: this.referralForm.value.date,
+        date: new Date(),
         patient_id: this.patient.id,
-        fromDoctor: 1,
+        fromDoctor: this.currentUserId,
         toDoctor: Number(this.referralForm.value.toDoctorId)
       };
+      console.log(referral);
 
       this.referralService.createReferral(referral).subscribe({
         next: () => {
