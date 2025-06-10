@@ -6,6 +6,7 @@ import { PatientService } from '../../services/patient.service';
 import { ActivatedRoute } from '@angular/router';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import {AlertService} from "../../services/alert.service";
 
 @Component({
   selector: 'app-view-emr',
@@ -35,7 +36,8 @@ export class ViewEMRComponent implements OnInit {
   constructor(
     private patientService: PatientService,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
@@ -74,8 +76,8 @@ export class ViewEMRComponent implements OnInit {
   onSubmit(): void {
     if (this.patientForm.valid && this.patient?.id) {
       this.patientService.updatePatient(this.patient.id, this.patientForm.value).subscribe({
-        next: () => alert('Patient updated successfully'),
-        error: err => console.error('Error updating patient', err)
+        next: () => this.alertService.success('Patient updated successfully'),
+        error: err => this.alertService.error('Error updating patient')
       });
     }
   }
