@@ -127,3 +127,33 @@ i {
   background-color: #0b5ed7;
   transform: translateY(-1px);
 }
+
+.input-field {
+  display: block;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.btn-save {
+  background-color: #10b981;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-save:hover {
+  background-color: #059669;
+}
+
+
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  display: block;
+}
