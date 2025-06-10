@@ -80,6 +80,7 @@ class PasswordResetController extends AbstractController
             return $this->json(['error' => 'Token and new password are required'], 400);
         }
 
+        
         $doctor = $em->getRepository(Doctor::class)->findOneBy(['resetToken' => $token]);
 
         if (!$doctor || $doctor->getResetTokenExpiresAt() < new \DateTime()) {
