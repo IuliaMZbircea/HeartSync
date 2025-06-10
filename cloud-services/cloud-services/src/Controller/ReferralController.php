@@ -12,13 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
-
+use App\Repository\PatientRepository;
 #[Route('/api/custom-referrals')]
 class ReferralController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private ReferralRepository $referralRepository
+        private ReferralRepository $referralRepository,
+        private PatientRepository $patientRepository
     ) {}
 
     #[Route('', name: 'referral_index', methods: ['GET'])]
@@ -129,6 +130,36 @@ class ReferralController extends AbstractController
 
         return $this->json(['message' => 'Referral marked as inactive']);
     }
+
+#[Route('/patient_id/{id}', name: 'referrals_by_patient', methods: ['GET'])]
+public function getByPatient(int $id): JsonResponse
+{
+    $patient = $this->patientRepository->find($id);
+
+    if (!$patient) {
+        return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+    }
+
+    $referrals = $this->referralRepository->findBy(['patient' => $patient]);
+
+    $response = array_map(function (Referral $ref) {
+        return [
+            'id' => $ref->getId(),
+            'type' => $ref->getType(),
+            'reason' => $ref->getReason(),
+            'date' => $ref->getDate()?->format('Y-m-d'),
+            'fromDoctor' => $ref->getFromDoctor()?->getId(),
+            'toDoctor' => $ref->getToDoctor()?->getId(),
+            'isResolved' => $ref->isResolved(),
+            'isActive' => $ref->isActive(),
+            'hl7Payload' => $ref->getHl7Payload(),
+            'fhirResponseId' => $ref->getFhirResponseId(),
+            'createdAt' => $ref->getCreatedAt()?->format('Y-m-d H:i:s')
+        ];
+    }, $referrals);
+
+    return $this->json($response);
+}
 
     private function toFhir(Referral $ref): array
     {
