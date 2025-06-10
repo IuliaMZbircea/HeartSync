@@ -18,34 +18,150 @@
 
   <div #patientFileRef>
 
-  <section>
-    <h3><i class="fas fa-info-circle"></i> Personal Information</h3>
-    <p><strong>Name:</strong> {{ patient.firstName }} {{patient.lastName}}</p>
-    <p><strong>CNP:</strong> {{ patient.cnp }}</p>
-    <p><strong>Sex:</strong> {{ patient.sex }}</p>
-    <p><strong>Birth Date:</strong> {{ patient.birthDate | date }}</p>
-    <p><strong>Occupation:</strong> {{ patient.occupation }}</p>
-  </section>
+    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
 
-  <section>
-    <h3><i class="fas fa-envelope"></i> Contact</h3>
-    <p><strong>Email:</strong> {{ patient.email }}</p>
-    <p><strong>Phone:</strong> {{ patient.phone }}</p>
-  </section>
+      <section class="bg-green-50 p-5 rounded-lg shadow-sm relative">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-lg font-semibold text-green-700">
+            <i class="fas fa-info-circle text-green-500 mr-2"></i> Personal Information
+          </h3>
+          <button class="text-sm text-green-700 hover:underline" type="button" (click)="editSection('personal')">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+        </div>
+        <ng-container *ngIf="!isEditingPersonal; else editPersonal">
+          <p><strong>Name:</strong> {{ patient.firstName }} {{patient.lastName}}</p>
+          <p><strong>CNP:</strong> {{ patient.cnp }}</p>
+          <p><strong>Sex:</strong> {{ patient.sex }}</p>
+          <p><strong>Birth Date:</strong> {{ patient.birthDate | date }}</p>
+          <p><strong>Occupation:</strong> {{ patient.occupation }}</p>
+        </ng-container>
+        <ng-template #editPersonal>
+          <div class="form-row">
+            <label>First Name</label>
+            <input formControlName="firstName" placeholder="First Name" class="input-field" />
+            <label>Last Name</label>
+            <input formControlName="lastName" placeholder="Last Name" class="input-field" />
+            <label>CNP</label>
+            <input formControlName="cnp" placeholder="CNP" class="input-field" />
+            <label>Occupation</label>
+            <input formControlName="occupation" placeholder="Occupation" class="input-field" />
+          </div>
+          <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
+        </ng-template>
+      </section>
 
-  <section>
-    <h3><i class="fas fa-map-marker-alt"></i> Address</h3>
-    <p>{{ patient.street }} Nr. {{ patient.number }}, Bl. {{ patient.block }}, Sc. {{ patient.staircase }}, Ap. {{ patient.apartment }}, Et. {{ patient.floor }}, {{ patient.locality }}</p>
-  </section>
+      <section class="bg-yellow-50 p-5 rounded-lg shadow-sm relative">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-lg font-semibold text-yellow-700">
+            <i class="fas fa-envelope text-yellow-500 mr-2"></i> Contact
+          </h3>
+          <button class="text-sm text-yellow-700 hover:underline" type="button" (click)="editSection('contact')">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+        </div>
+        <ng-container *ngIf="!isEditingContact; else editContact">
+          <p><strong>Email:</strong> {{ patient.email }}</p>
+          <p><strong>Phone:</strong> {{ patient.phone }}</p>
+        </ng-container>
+        <ng-template #editContact>
+          <div class="form-row">
+            <label>Email</label>
+            <input formControlName="email" placeholder="Email" class="input-field" />
+            <label>Phone</label>
+            <input formControlName="phone" placeholder="Phone" class="input-field" />
+          </div>
+          <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
+        </ng-template>
+      </section>
 
-  <section>
-    <h3><i class="fas fa-heartbeat"></i> Medical Info</h3>
-    <p><strong>Blood Group:</strong> {{ patient.bloodGroup }}</p>
-    <p><strong>Rh:</strong> {{ patient.rh }}</p>
-    <p><strong>Height:</strong> {{ patient.height }} cm</p>
-    <p><strong>Weight:</strong> {{ patient.weight }} kg</p>
-    <p><strong>Allergies:</strong> {{ patient.allergies }}</p>
-  </section>
+    <section class="bg-purple-50 p-5 rounded-lg shadow-sm relative">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-semibold text-purple-700">
+          <i class="fas fa-map-marker-alt text-purple-500 mr-2"></i> Address
+        </h3>
+        <button class="text-sm text-purple-700 hover:underline" type="button" (click)="editSection('address')">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+      </div>
+
+      <ng-container *ngIf="!isEditingAddress; else editAddress">
+        <p>
+          {{ patient.street }} Nr. {{ patient.number }},
+          Bl. {{ patient.block }},
+          Sc. {{ patient.staircase }},
+          Ap. {{ patient.apartment }},
+          Et. {{ patient.floor }},
+          {{ patient.locality }}
+        </p>
+      </ng-container>
+
+      <ng-template #editAddress>
+        <div class="form-row">
+          <label>City</label>
+          <input formControlName="locality" placeholder="City" class="input-field" />
+          <label>Street</label>
+          <input formControlName="street" placeholder="Street" class="input-field" />
+          <label>Number</label>
+          <input formControlName="number" placeholder="Number" class="input-field" />
+          <label>Block</label>
+          <input formControlName="block" placeholder="Block" class="input-field" />
+          <label>Staircase</label>
+          <input formControlName="staircase" placeholder="Staircase" class="input-field" />
+          <label>Apartment</label>
+          <input formControlName="apartment" placeholder="Apartment" class="input-field" />
+          <label>Floor</label>
+          <input formControlName="floor" placeholder="Floor" class="input-field" />
+        </div>
+        <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
+      </ng-template>
+    </section>
+
+
+    <section class="bg-red-50 p-5 rounded-lg shadow-sm relative">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-semibold text-red-700">
+          <i class="fas fa-heartbeat text-red-500 mr-2"></i> Medical Info
+        </h3>
+        <button class="text-sm text-red-700 hover:underline" type="button" (click)="editSection('medical')">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+      </div>
+
+      <ng-container *ngIf="!isEditingMedical; else editMedical">
+        <p><strong>Blood Group:</strong> {{ patient.bloodGroup }}</p>
+        <p><strong>Rh:</strong> {{ patient.rh }}</p>
+        <p><strong>Height:</strong> {{ patient.height }} cm</p>
+        <p><strong>Weight:</strong> {{ patient.weight }} kg</p>
+      </ng-container>
+
+      <ng-template #editMedical>
+        <div class="form-row">
+          <select formControlName="bloodGroup" class="input-field">
+            <label></label>
+            <option value="">Blood Group</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="O">O</option>
+            <option value="AB">AB</option>
+          </select>
+
+          <label>Rh Factor</label>
+          <select formControlName="rh" class="input-field">
+            <option value="">Rh Factor</option>
+            <option value="+">Positive</option>
+            <option value="-">Negative</option>
+          </select>
+
+          <label>Height (cm)</label>
+          <input formControlName="height" type="text" placeholder="Height (cm)" class="input-field" />
+          <label>Weight (kg)</label>
+          <input formControlName="weight" type="text" placeholder="Weight (kg)" class="input-field" />
+        </div>
+        <button class="btn-save" type="submit" [disabled]="patientForm.invalid">Save</button>
+      </ng-template>
+    </section>
+    </form>
 
   <section *ngIf="patient.consultations?.length">
     <h3><i class="fas fa-user-md"></i> Consultations</h3>
@@ -72,7 +188,7 @@
       <p><strong>Activity:</strong> {{ rec.activityType }}</p>
       <p><strong>Duration:</strong> {{ rec.dailyDuration }} min/day</p>
       <p><strong>From:</strong> {{ rec.startDate | date }} to {{ rec.endDate ? (rec.endDate | date) : 'N/A' }}</p>
-      <p *ngIf="rec.additionalNotes"><strong>Notes:</strong> {{ rec.additionalNotes }}</p>
+
     </div>
   </section>
 
@@ -113,5 +229,4 @@
     </div>
   </section>
   </div>
-
 </div>

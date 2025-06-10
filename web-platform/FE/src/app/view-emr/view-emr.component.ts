@@ -1,44 +1,82 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {DatePipe, NgForOf, NgIf} from "@angular/common";
-import {Patient} from "../../shared/interfaces/patient";
-import {PatientService} from "../../services/patient.service";
-import {ActivatedRoute} from "@angular/router";
-import {jsPDF} from "jspdf";
-import html2canvas from "html2canvas";
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { DatePipe, NgForOf, NgIf } from '@angular/common';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import { Patient } from '../../shared/interfaces/patient';
+import { PatientService } from '../../services/patient.service';
+import { ActivatedRoute } from '@angular/router';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-view-emr',
   standalone: true,
-    imports: [
-        DatePipe,
-        NgForOf,
-        NgIf
-    ],
+  imports: [
+    DatePipe,
+    NgForOf,
+    NgIf,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './view-emr.component.html',
   styleUrl: './view-emr.component.css'
 })
 export class ViewEMRComponent implements OnInit {
 
-  patient!:Patient;
+  isEditingPersonal = false;
+  isEditingContact = false;
+  isEditingAddress = false;
+  isEditingMedical = false;
+
+  patient!: Patient;
+  patientForm!: FormGroup;
+
   @ViewChild('patientFileRef', { static: false }) patientFileRef!: ElementRef;
 
-  constructor(private patientService:PatientService,private route: ActivatedRoute,){}
+  constructor(
+    private patientService: PatientService,
+    private route: ActivatedRoute,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
-    const id = idParam && !isNaN(+idParam) ? Number(idParam) : null;
+    const id = idParam ? Number(idParam) : null;
 
     if (id !== null) {
-      this.patientService.getPatients().subscribe((patients: Patient[]) => {
-        const found = patients.find(p => p.id === id);
-        if (found) {
-          this.patient = found;
-        } else {
-          console.warn(`Patient with ID ${id} not found.`);
-        }
+      this.patientService.getPatientById(id).subscribe(patient => {
+        this.patient = patient;
+
+        this.patientForm = this.fb.group({
+          email: [patient.email, [Validators.required, Validators.email]],
+          phone: [patient.phone, Validators.required],
+          firstName: [patient.firstName, Validators.required],
+          lastName: [patient.lastName, Validators.required],
+          cnp: [patient.cnp, [Validators.required, Validators.pattern(/^[0-9]{13}$/)]],
+          sex: [patient.sex],
+          birthDate: [patient.birthDate],
+          occupation: [patient.occupation, Validators.required],
+          locality: [patient.locality, Validators.required],
+          street: [patient.street, Validators.required],
+          number: [patient.number, [Validators.required, Validators.pattern(/^[0-9]+$/)]],
+          block: [patient.block],
+          staircase: [patient.staircase],
+          apartment: [patient.apartment],
+          floor: [patient.floor],
+          bloodGroup: [patient.bloodGroup, Validators.required],
+          rh: [patient.rh, Validators.required],
+          weight: [patient.weight, [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
+          height: [patient.height, [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
+        });
       });
-    } else {
-      console.error('Invalid or missing patient ID in route.');
+    }
+  }
+
+  onSubmit(): void {
+    if (this.patientForm.valid && this.patient?.id) {
+      this.patientService.updatePatient(this.patient.id, this.patientForm.value).subscribe({
+        next: () => alert('Patient updated successfully'),
+        error: err => console.error('Error updating patient', err)
+      });
     }
   }
 
@@ -57,7 +95,6 @@ export class ViewEMRComponent implements OnInit {
     clone.style.boxShadow = 'none';
 
     document.body.appendChild(clone);
-
     document.body.style.overflow = 'hidden';
 
     html2canvas(clone, {
@@ -67,16 +104,13 @@ export class ViewEMRComponent implements OnInit {
       backgroundColor: '#ffffff',
       scale: 1
     }).then(canvas => {
-
       document.body.style.overflow = originalBodyOverflow;
-
       clone.remove();
 
       const imgData = canvas.toDataURL('image/jpeg', 0.9);
       const pdf = new jsPDF('p', 'mm', 'a4');
-
-      const pageWidth = 210; // mm
-      const pageHeight = 297; // mm
+      const pageWidth = 210;
+      const pageHeight = 297;
       const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -93,7 +127,7 @@ export class ViewEMRComponent implements OnInit {
         heightLeft -= pageHeight;
       }
 
-      pdf.save(`patient_file.pdf`);
+      pdf.save('patient_file.pdf');
     }).catch(err => {
       console.error('Eroare la generarea PDF:', err);
       document.body.style.overflow = originalBodyOverflow;
@@ -101,4 +135,17 @@ export class ViewEMRComponent implements OnInit {
     });
   }
 
+  capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  editSection(section: string): void {
+    const key = 'isEditing' + this.capitalize(section);
+    (this as any)[key] = true;
+  }
+
+  saveSection(section: string): void {
+    const key = 'isEditing' + this.capitalize(section);
+    (this as any)[key] = false;
+  }
 }
