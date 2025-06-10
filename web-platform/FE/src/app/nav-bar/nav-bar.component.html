@@ -16,7 +16,7 @@
       <mat-icon>home</mat-icon> Home
     </button>
 
-    <div *ngIf="!isAuthenticated">
+    <div *ngIf="isAuthenticated">
       <button class="btn-auth" (click)="navigateToPatientList()">
         <mat-icon>people</mat-icon>  Patient List
       </button>
