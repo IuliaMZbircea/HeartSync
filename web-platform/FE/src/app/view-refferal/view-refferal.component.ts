@@ -148,7 +148,7 @@ export class ViewRefferalComponent implements OnInit{
     this.referralService.updateReferral(referral.id, updatedReferral).subscribe({
       next: () => {
         this.alertService.success('Referral updated successfully!');
-        this.loadReferrals(); // Reload the referrals to reflect changes
+        this.loadReferrals();
         this.editingReferrals[referral.id] = false;
         delete this.editForms[referral.id];
       },

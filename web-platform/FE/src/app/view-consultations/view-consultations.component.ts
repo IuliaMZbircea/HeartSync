@@ -20,6 +20,7 @@ import {Doctor} from "../../shared/interfaces/doctor";
 import {MatButton} from "@angular/material/button";
 import {Medication} from "../../shared/interfaces/medication";
 import {MedicationService} from "../../services/medication.service";
+import {ReferralService} from "../../services/refferal.service";
 
 @Component({
   selector: 'app-view-consultations',
@@ -54,16 +55,17 @@ export class ViewConsultationsComponent implements OnInit {
 
   constructor(private route: ActivatedRoute,
               private patientService: PatientService,
-              private alertService:AlertService,
               private doctorsService:DoctorService,
               private fb: FormBuilder,
-              private medicationService: MedicationService)
+              private medicationService: MedicationService,
+              private referralService: ReferralService,
+              private alertService: AlertService)
   {
     this.referralForm = this.fb.group({
       reason: ['', Validators.required],
       isResolved: [false],
       type: ['', Validators.required],
-      toDoctorId: ['', Validators.required],
+      toDoctorId: [null, Validators.required],
       date: ['', Validators.required]
     });
 
@@ -117,11 +119,29 @@ export class ViewConsultationsComponent implements OnInit {
   }
 
   submitReferral(): void {
-    if (this.referralForm.valid) {
-      const referral = this.referralForm.value;
-      console.log('Referral submitted:', referral);
-      this.alertService.success('Referral submitted successfully.');
-      this.referralForm.reset({ isResolved: false });
+    if (this.referralForm.valid && this.patient?.id) {
+      const referral = {
+        reason: this.referralForm.value.reason,
+        isResolved: this.referralForm.value.isResolved,
+        type: this.referralForm.value.type,
+        date: this.referralForm.value.date,
+        patient_id: this.patient.id,
+        fromDoctor: 1,
+        toDoctor: Number(this.referralForm.value.toDoctorId)
+      };
+
+      this.referralService.createReferral(referral).subscribe({
+        next: () => {
+          this.alertService.success('Referral submitted successfully.');
+          this.referralForm.reset({ isResolved: false });
+          this.patientService.getPatientById(this.patient.id).subscribe(updated => {
+            this.patient = updated;
+          });
+        },
+        error: () => {
+          this.alertService.error('Eroare la trimiterea trimiterii.');
+        }
+      });
     } else {
       this.alertService.error('Please fill all required fields correctly.');
     }

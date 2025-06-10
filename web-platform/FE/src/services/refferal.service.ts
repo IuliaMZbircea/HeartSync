@@ -25,7 +25,7 @@ export class ReferralService {
     );
   }
 
-  createReferral(referral: Partial<Referral>): Observable<Referral> {
+  createReferral(referral: Partial<any>): Observable<Referral> {
     return this.http.post<Referral>(this.apiUrl, referral).pipe(
       catchError(error => this.handleError(error, 'Eroare la crearea trimiterii.'))
     );
