@@ -264,6 +264,22 @@ private function serializePatient(Patient $patient): array
     'isActive' => $r->isActive(),
 ])->toArray(),
 
+//Thresholds
+'sensorAlertThresholds' => array_map(function ($t) {
+    return [
+        'id' => $t->getId(),
+        'parameter' => $t->getParameter(),
+        'minValue' => $t->getMinValue(),
+        'maxValue' => $t->getMaxValue(),
+        'durationMinutes' => $t->getDurationMinutes(),
+        'message' => $t->getMessage(),
+        'isActive' => $t->isActive()
+    ];
+}, array_filter(
+    $patient->getSensorAlertThresholds()->toArray(),
+    fn($t) => $t->isActive()
+)),
+
     ];
 
 }

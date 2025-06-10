@@ -15,7 +15,7 @@ use App\Entity\Medication;
 use App\Entity\Consultation;
 use App\Entity\Referral;
 use App\Entity\Recommendation;
-
+use App\Entity\SensorAlertThresholds;
 #[ApiResource]
 #[ORM\Entity(repositoryClass: PatientRepository::class)]
 #[ORM\Table(name: 'patient')]
@@ -116,6 +116,9 @@ class Patient
     #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Recommendation::class, cascade: ['remove'])]
     private Collection $recommendations;
 
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: SensorAlertThreshold::class, cascade: ['remove'])]
+    private Collection $sensorAlertThresholds;
+
     public function __construct()
     {
         $this->allergies = new ArrayCollection();
@@ -125,6 +128,7 @@ class Patient
         $this->consultations = new ArrayCollection();
         $this->referrals = new ArrayCollection();
         $this->recommendations = new ArrayCollection();
+        $this->sensorAlertThresholds = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -337,6 +341,31 @@ public function removeRecommendation(Recommendation $recommendation): self
     if ($this->recommendations->removeElement($recommendation)) {
         if ($recommendation->getPatient() === $this) {
             $recommendation->setPatient(null);
+        }
+    }
+    return $this;
+}
+
+//Thresholds
+public function getSensorAlertThresholds(): Collection
+{
+    return $this->sensorAlertThresholds;
+}
+
+public function addSensorAlertThreshold(SensorAlertThreshold $threshold): self
+{
+    if (!$this->sensorAlertThresholds->contains($threshold)) {
+        $this->sensorAlertThresholds[] = $threshold;
+        $threshold->setPatient($this);
+    }
+    return $this;
+}
+
+public function removeSensorAlertThreshold(SensorAlertThreshold $threshold): self
+{
+    if ($this->sensorAlertThresholds->removeElement($threshold)) {
+        if ($threshold->getPatient() === $this) {
+            $threshold->setPatient(null);
         }
     }
     return $this;
