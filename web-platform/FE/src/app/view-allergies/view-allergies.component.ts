@@ -1,21 +1,21 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   MatAccordion,
   MatExpansionPanel,
   MatExpansionPanelDescription,
   MatExpansionPanelTitle
 } from "@angular/material/expansion";
-import {DatePipe, NgForOf, NgIf, TitleCasePipe} from "@angular/common";
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MatButton, MatIconButton} from "@angular/material/button";
+import { DatePipe, NgForOf, NgIf, TitleCasePipe } from "@angular/common";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButton, MatIconButton } from "@angular/material/button";
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
-import {Patient} from "../../shared/interfaces/patient";
-import {ActivatedRoute} from "@angular/router";
-import {PatientService} from "../../services/patient.service";
-import {Allergy} from "../../shared/interfaces/allergies";
-import {AlertService} from "../../services/alert.service";
-import {AllergyService} from "../../services/allergies.service";
+import { Patient } from "../../shared/interfaces/patient";
+import { ActivatedRoute } from "@angular/router";
+import { PatientService } from "../../services/patient.service";
+import { Allergy } from "../../shared/interfaces/allergies";
+import { AlertService } from "../../services/alert.service";
+import { AllergyService } from "../../services/allergies.service";
 
 @Component({
   selector: 'app-view-allergies',
@@ -35,12 +35,10 @@ import {AllergyService} from "../../services/allergies.service";
     DatePipe,
     MatIconButton
   ],
-  providers: [AlertService, AllergyService
-  ],
+  providers: [AlertService, AllergyService],
   templateUrl: './view-allergies.component.html',
-  styleUrl: './view-allergies.component.css'
+  styleUrls: ['./view-allergies.component.css']
 })
-
 export class ViewAllergiesComponent implements OnInit {
 
   allergies: Allergy[] = [];
@@ -81,20 +79,26 @@ export class ViewAllergiesComponent implements OnInit {
     const id = idParam ? Number(idParam) : null;
 
     if (id !== null) {
-      this.patientService.getPatientById(id).subscribe(patient => {
-        this.patient = patient;
-        this.loadAllergies();
-      }, error => {
-        this.alertService.error('Pacientul nu a fost găsit.');
+      this.patientService.getPatientById(id).subscribe({
+        next: patient => {
+          this.patient = patient;
+          this.loadAllergies();
+        },
+        error: () => {
+          this.alertService.error('Patient not found.');
+        }
       });
     }
   }
 
   loadAllergies() {
-    this.allergyService.getAllergiesByPatient(this.patient.id).subscribe(allergies => {
-      this.allergies = allergies;
-    }, error => {
-      this.alertService.error('Eroare la încărcarea alergiilor.');
+    this.allergyService.getAllergiesByPatient(this.patient.id).subscribe({
+      next: allergies => {
+        this.allergies = allergies;
+      },
+      error: () => {
+        this.alertService.error('Error loading allergies.');
+      }
     });
   }
 
@@ -115,18 +119,23 @@ export class ViewAllergiesComponent implements OnInit {
     if (this.allergiesForm.valid && this.editAllergy) {
       const updatedAllergy = {
         ...this.allergiesForm.value,
-        recordedDate: this.allergiesForm.value.recordedDate ? new Date(this.allergiesForm.value.recordedDate).toISOString().split('T')[0] : null
+        recordedDate: this.allergiesForm.value.recordedDate
+          ? new Date(this.allergiesForm.value.recordedDate).toISOString().split('T')[0]
+          : null
       };
-      console.log('Updated Allergy:', updatedAllergy);
-      this.allergyService.updateAllergy(this.editAllergy.id!, updatedAllergy).subscribe(() => {
-        this.alertService.success('Alergia a fost actualizată cu succes!');
-        this.isEditingAllergies = false;
-        this.loadAllergies();
-      }, () => {
-        this.alertService.error('Eroare la actualizarea alergiei.');
+
+      this.allergyService.updateAllergy(this.editAllergy.id!, updatedAllergy).subscribe({
+        next: () => {
+          this.alertService.success('Allergy updated successfully!');
+          this.isEditingAllergies = false;
+          this.loadAllergies();
+        },
+        error: () => {
+          this.alertService.error('Error updating allergy.');
+        }
       });
     } else {
-      this.alertService.error('Completează toate câmpurile obligatorii corect.');
+      this.alertService.error('Please fill in all required fields correctly.');
     }
   }
 
@@ -137,20 +146,23 @@ export class ViewAllergiesComponent implements OnInit {
         patient_id: this.patient.id,
         recordedDate: new Date().toISOString().split('T')[0]
       };
-      this.allergyService.createAllergy(newAllergyPayload).subscribe(() => {
-        this.alertService.success('Alergia nouă a fost adăugată!');
-        this.newAllergyForm.reset();
-        this.loadAllergies();
-      }, () => {
-        this.alertService.error('Eroare la adăugarea alergiei.');
+
+      this.allergyService.createAllergy(newAllergyPayload).subscribe({
+        next: () => {
+          this.alertService.success('New allergy added!');
+          this.newAllergyForm.reset();
+          this.loadAllergies();
+        },
+        error: () => {
+          this.alertService.error('Error adding allergy.');
+        }
       });
     } else {
-      this.alertService.error('Completează toate câmpurile obligatorii corect.');
+      this.alertService.error('Please fill in all required fields correctly.');
     }
   }
 
   get activeAllergies(): Allergy[] {
     return this.allergies.filter(a => a.isActive);
   }
-
 }
