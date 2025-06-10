@@ -22,18 +22,40 @@ class ReferralController extends AbstractController
         private PatientRepository $patientRepository
     ) {}
 
-    #[Route('', name: 'referral_index', methods: ['GET'])]
-    public function index(): JsonResponse
-    {
-        $referrals = $this->referralRepository->findAll();
-        $fhirBundle = [
-            'resourceType' => 'Bundle',
-            'type' => 'collection',
-            'entry' => array_map(fn($r) => ['resource' => $this->toFhir($r)], $referrals)
-        ];
+   #[Route('', name: 'referral_index', methods: ['GET'])]
+public function index(): JsonResponse
+{
+    $referrals = $this->referralRepository->findBy(['isActive' => true]);
 
-        return $this->json($fhirBundle);
-    }
+    $response = array_map(function (Referral $ref) {
+        $fromDoctor = $ref->getFromDoctor();
+        $toDoctor = $ref->getToDoctor();
+
+        return [
+            'id' => $ref->getId(),
+            'type' => $ref->getType(),
+            'reason' => $ref->getReason(),
+            'date' => $ref->getDate()?->format('Y-m-d'),
+            'fromDoctor' => [
+                'id' => $fromDoctor?->getId(),
+                'firstName' => $fromDoctor?->getFirstName(),
+                'lastName' => $fromDoctor?->getLastName(),
+            ],
+            'toDoctor' => [
+                'id' => $toDoctor?->getId(),
+                'firstName' => $toDoctor?->getFirstName(),
+                'lastName' => $toDoctor?->getLastName(),
+            ],
+            'isResolved' => $ref->isResolved(),
+            'isActive' => $ref->isActive(),
+            'hl7Payload' => $ref->getHl7Payload(),
+            'fhirResponseId' => $ref->getFhirResponseId(),
+            'createdAt' => $ref->getCreatedAt()?->format('Y-m-d H:i:s')
+        ];
+    }, $referrals);
+
+    return $this->json($response);
+}
 
     #[Route('', name: 'referral_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
