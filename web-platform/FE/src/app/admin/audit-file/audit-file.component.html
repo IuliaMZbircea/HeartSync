@@ -1,0 +1,14 @@
+<div class="container pt-60">
+  <h1 class="title">AUDIT FILE</h1>
+<div class="folder-menu ">
+  <div class="folder-container">
+    <a *ngFor="let folder of folders"
+       [routerLink]="folder.route"
+       routerLinkActive="active-link"
+       class="folder-icon">
+      <mat-icon>folder</mat-icon>
+      <span>{{folder.name}}</span>
+    </a>
+  </div>
+</div>
+</div>

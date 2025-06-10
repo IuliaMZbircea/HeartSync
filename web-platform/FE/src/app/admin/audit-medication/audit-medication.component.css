@@ -1,0 +1,69 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.entity-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-select {
+  width: auto;
+}
+
+.badge {
+  font-size: 0.8em;
+  padding: 0.35em 0.65em;
+}
+
+.table {
+  font-size: 0.9rem;
+}
+
+.table th {
+  white-space: nowrap;
+}
+
+.text-danger {
+  text-decoration: line-through;
+  margin-right: 0.5rem;
+}
+
+.text-success {
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .entity-selector {
+    width: 100%;
+  }
+
+  .form-select {
+    width: 100%;
+  }
+}
+.title {
+  color: #3f51b5;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  font-weight: 800;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: nowrap;
+}

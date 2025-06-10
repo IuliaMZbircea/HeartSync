@@ -1,0 +1,56 @@
+<h1 class="title pt-16">Alarms history</h1>
+<div class="container mt-4">
+  <div class="card">
+
+    <div class="card-body">
+      <div *ngIf="isLoading" class="text-center my-4">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading">
+        <div *ngIf="auditLogs.length === 0" class="alert alert-info">
+          No audit logs found for {{ currentEntity }}.
+        </div>
+
+        <div *ngIf="auditLogs.length > 0" class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+              <th>Action</th>
+              <th>Object ID</th>
+              <th>Changes</th>
+              <th>User</th>
+              <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let log of auditLogs; trackBy: trackByLogId">
+              <td>
+                  <span class="badge" [ngClass]="'bg-' + getActionColor(log.type)">
+                    {{ log.type | uppercase }}
+                  </span>
+              </td>
+              <td>{{ log.object_id }}</td>
+              <td>
+                <div *ngFor="let key of objectKeys(log.parsedDiffs || {})">
+                  <strong>{{ key }}:</strong>
+                  <span *ngIf="log.parsedDiffs[key].old" class="text-danger">
+                      {{ log.parsedDiffs[key].old }} →
+                    </span>
+                  <span class="text-success">
+                      {{ log.parsedDiffs[key].new }}
+                    </span>
+                </div>
+              </td>
+              <td>{{ log.blame_user }}</td>
+              <td>{{ log.formattedDate }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

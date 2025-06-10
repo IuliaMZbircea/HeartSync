@@ -1,0 +1,52 @@
+.folder-menu {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.folder-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem; /* Spațiu între foldere */
+  max-width: 1200px; /* Sau orice lățime maximă dorești */
+}
+
+.folder-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 1rem;
+  transition: transform 0.2s;
+}
+
+.folder-icon:hover {
+  transform: scale(1.05);
+}
+
+.folder-icon mat-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.5rem;
+  color: #d3b58b;
+}
+
+.active-link {
+  font-weight: bold;
+  color: #3f51b5;
+}
+.title {
+  color: #3f51b5;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  font-weight: 800;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: nowrap;
+}
+
+
