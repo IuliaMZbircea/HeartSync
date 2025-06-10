@@ -44,8 +44,8 @@ class ReferralController extends AbstractController
         }
 
         $patient = $this->em->getRepository(Patient::class)->find($data['patient_id'] ?? null);
-        $fromDoctor = $this->em->getRepository(Doctor::class)->find($data['from_doctor_id'] ?? null);
-        $toDoctor = isset($data['to_doctor_id']) ? $this->em->getRepository(Doctor::class)->find($data['to_doctor_id']) : null;
+        $fromDoctor = $this->em->getRepository(Doctor::class)->find($data['fromDoctor'] ?? null);
+        $toDoctor = isset($data['toDoctor']) ? $this->em->getRepository(Doctor::class)->find($data['toDoctor']) : null;
 
         if (!$patient || !$fromDoctor) {
             return $this->json(['error' => 'Invalid patient_id or from_doctor_id'], Response::HTTP_BAD_REQUEST);
@@ -60,7 +60,7 @@ class ReferralController extends AbstractController
         $referral->setDate(new \DateTime($data['date']));
         $referral->setHl7Payload($data['hl7_payload'] ?? null);
         $referral->setFhirResponseId($data['fhir_response_id'] ?? null);
-        $referral->setIsResolved($data['is_resolved'] ?? false);
+        $referral->setIsResolved($data['isResolved'] ?? false);
         $referral->setIsActive(true);
         $referral->setCreatedAt(new \DateTime());
 
@@ -99,19 +99,23 @@ class ReferralController extends AbstractController
             $patient = $this->em->getRepository(Patient::class)->find($data['patient_id']);
             if ($patient) $referral->setPatient($patient);
         }
-        if (isset($data['from_doctor_id'])) {
-            $fromDoctor = $this->em->getRepository(Doctor::class)->find($data['from_doctor_id']);
-            if ($fromDoctor) $referral->setFromDoctor($fromDoctor);
-        }
-        if (array_key_exists('to_doctor_id', $data)) {
-            $toDoctor = $this->em->getRepository(Doctor::class)->find($data['to_doctor_id']);
+        $doctor = $this->getUser();
+            if (!$doctor instanceof Doctor) {
+                return new JsonResponse(['error' => 'Unauthorized - No authenticated user'], 401);
+            }
+
+        $fromDoctor = $doctor->getId();
+        $referral->setFromDoctor($doctor);
+
+        if (array_key_exists('toDoctor', $data)) {
+            $toDoctor = $this->em->getRepository(Doctor::class)->find($data['toDoctor']);
             $referral->setToDoctor($toDoctor);
         }
         if (isset($data['reason'])) $referral->setReason($data['reason']);
         if (isset($data['date'])) $referral->setDate(new \DateTime($data['date']));
         if (array_key_exists('hl7_payload', $data)) $referral->setHl7Payload($data['hl7_payload']);
         if (isset($data['fhir_response_id'])) $referral->setFhirResponseId($data['fhir_response_id']);
-        if (isset($data['is_resolved'])) $referral->setIsResolved($data['is_resolved']);
+        if (isset($data['isResolved'])) $referral->setIsResolved($data['isResolved']);
 
         $this->em->flush();
         return $this->json($this->toFhir($referral));
@@ -140,16 +144,28 @@ public function getByPatient(int $id): JsonResponse
         return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
     }
 
+
     $referrals = $this->referralRepository->findBy(['patient' => $patient]);
 
     $response = array_map(function (Referral $ref) {
+        $fromDoctor = $ref->getFromDoctor();
+        $toDoctor = $ref->getToDoctor();
+
         return [
             'id' => $ref->getId(),
             'type' => $ref->getType(),
             'reason' => $ref->getReason(),
             'date' => $ref->getDate()?->format('Y-m-d'),
-            'fromDoctor' => $ref->getFromDoctor()?->getId(),
-            'toDoctor' => $ref->getToDoctor()?->getId(),
+            'fromDoctor' => [
+                 'id' => $fromDoctor?->getId(),
+                'firstName' => $fromDoctor?->getFirstName(),
+                'lastName' => $fromDoctor?->getLastName(),
+            ],
+            'toDoctor' => [
+                'id' => $ref->getToDoctor()?->getId(),
+                'firstName' => $ref->getToDoctor()?->getFirstName(),
+                'lastName' => $ref->getToDoctor()?->getLastName(),
+            ],
             'isResolved' => $ref->isResolved(),
             'isActive' => $ref->isActive(),
             'hl7Payload' => $ref->getHl7Payload(),
@@ -168,6 +184,8 @@ public function getByPatient(int $id): JsonResponse
             'id' => $ref->getId(),
             'status' => $ref->isActive() ? 'active' : 'inactive',
             'intent' => 'order',
+            'isResolved' => $ref->isResolved() ? 'true' : 'false',
+            'toDoctor' => $ref->getToDoctor() ? ['reference' => 'Practitioner/' . $ref->getToDoctor()->getId()] : null,
             'code' => ['text' => $ref->getType()],
             'subject' => ['reference' => 'Patient/' . $ref->getPatient()->getId()],
             'requester' => ['reference' => 'Practitioner/' . $ref->getFromDoctor()->getId()],
