@@ -31,8 +31,12 @@
                   <div class="text-center pt-1 pb-1">
                     <button data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3" type="submit" class="register">Login</button>
                   </div>
-                  <div class="text-center px-1 mx-5 mb-3 ">
-                      <a routerLink="/reset-password" style="color: #9ca1c4; font-size: 12px; text-decoration: underline;">Forgot Password?</a>
+                  <div class="text-center">
+                    <button type="button"
+                            (click)="forgotPasswordUser()"
+                            style="background:none; border:none; color: #9ca1c4; font-size: 12px; text-decoration: underline; cursor:pointer;">
+                      Forgot Password?
+                    </button>
                   </div>
                 </form>
                 <div class="d-flex align-items-center justify-content-center pb-4">

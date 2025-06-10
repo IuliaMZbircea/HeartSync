@@ -62,7 +62,7 @@ export class ViewMedicationComponent implements OnInit {
       route: ['', Validators.required],
       startDate: ['', Validators.required],
       endDate: [''],
-      prescribedBy: ['', Validators.required],
+      prescribedBy: [''],
       notes: ['']
     });
   }

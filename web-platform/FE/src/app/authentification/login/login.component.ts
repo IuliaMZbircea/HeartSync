@@ -14,6 +14,7 @@ import {AlertService} from "../../../services/alert.service";
     MatIcon,
     RouterLink
   ],
+  providers: [AlertService],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -40,7 +41,7 @@ export class LoginComponent implements AfterViewInit {
         this.alertService.success('Login successful!');
 
         if (user.roles && user.roles.includes('ROLE_ADMIN')) {
-          this.router.navigate(['/admin-dashboard']);
+          this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['/PatientList']);
         }
@@ -55,6 +56,19 @@ export class LoginComponent implements AfterViewInit {
     setTimeout(() => {
       const elements = document.querySelectorAll('.sign-in-section');
       elements.forEach(el => el.classList.add('page-turn'));
+    });
+  }
+  forgotPasswordUser(): void {
+
+    this.authService.forgotPassword(this.email).subscribe({
+
+      next: () => {
+        this.alertService.success('A reset email has been sent. Please check your inbox.');
+      },
+      error: (errMessage) => {
+        this.alertService.error(errMessage);
+        console.error(errMessage);
+      }
     });
   }
 
