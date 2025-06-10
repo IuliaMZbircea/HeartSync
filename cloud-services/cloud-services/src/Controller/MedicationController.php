@@ -89,9 +89,8 @@ class MedicationController extends AbstractController
         if (isset($data['dose'])) $medication->setDose($data['dose']);
         if (isset($data['frequency'])) $medication->setFrequency($data['frequency']);
         if (isset($data['route'])) $medication->setRoute($data['route']);
-        if (isset($data['start_date'])) $medication->setStartDate(new \DateTime($data['start_date']));
-        if (isset($data['end_date'])) $medication->setEndDate(new \DateTime($data['end_date']));
-        if (isset($data['prescribed_by'])) $medication->setPrescribedBy($data['prescribed_by']);
+        if (isset($data['startDate'])) $medication->setStartDate(new \DateTime($data['startDate']));
+        if (isset($data['endDate'])) $medication->setEndDate(new \DateTime($data['endDate']));
         if (array_key_exists('notes', $data)) $medication->setNotes($data['notes']);
         if (isset($data['patient_id'])) {
             $patient = $this->patientRepository->find($data['patient_id']);
@@ -154,6 +153,7 @@ public function getByPatient(int $id, PatientRepository $patientRepository): Jso
             'resourceType' => 'MedicationRequest',
             'id' => $medication->getId(),
             'status' => $medication->isIsActive() ? 'active' : 'inactive',
+            'prescribedBy' => $medication->getPrescribedBy(),
             'subject' => [
                 'reference' => '/api/patients/' . $medication->getPatient()?->getId()
             ],

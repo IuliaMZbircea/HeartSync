@@ -65,4 +65,8 @@ export class PatientService {
       })
     );
   }
+
+  addDisease(diseaseData: any): Observable<any> {
+    return this.http.post('http://localhost:8000/api/custom-diseases', diseaseData);
+  }
 }

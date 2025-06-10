@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {Patient} from "../../shared/interfaces/patient";
-import {Alarm} from "../../shared/interfaces/alarm";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute} from "@angular/router";
 import {PatientService} from "../../services/patient.service";
@@ -34,10 +33,11 @@ import {AlertService} from "../../services/alert.service";
 })
 export class ViewAlertsComponent implements OnInit {
   patient!: Patient;
-  alarms: Alarm[] = [];
+  alarms: any[] = [];
   alarmForm: FormGroup;
   editForm: FormGroup;
   isEditing = false;
+  editingAlarmIndex: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -47,19 +47,17 @@ export class ViewAlertsComponent implements OnInit {
   ) {
     this.alarmForm = this.fb.group({
       parameter: ['', Validators.required],
-      condition: ['', Validators.required],
-      threshold: [null, [Validators.required, Validators.min(0)]],
-      duration: [null, [Validators.required, Validators.min(1)]],
-      afterActivity: ['false', Validators.required],
+      minValue: [null, [Validators.required, Validators.min(0)]],
+      maxValue: [null, [Validators.required, Validators.min(0)]],
+      durationMinutes: [null, [Validators.required, Validators.min(1)]],
       message: ['', [Validators.required, Validators.minLength(5)]]
     });
 
     this.editForm = this.fb.group({
       parameter: ['', Validators.required],
-      condition: ['', Validators.required],
-      threshold: [null, [Validators.required, Validators.min(0)]],
-      duration: [null, [Validators.required, Validators.min(1)]],
-      afterActivity: ['false', Validators.required],
+      minValue: [null, [Validators.required, Validators.min(0)]],
+      maxValue: [null, [Validators.required, Validators.min(0)]],
+      durationMinutes: [null, [Validators.required, Validators.min(1)]],
       message: ['', [Validators.required, Validators.minLength(5)]]
     });
   }
@@ -72,7 +70,7 @@ export class ViewAlertsComponent implements OnInit {
       this.patientService.getPatientById(id).subscribe((patient: Patient) => {
         if (patient) {
           this.patient = patient;
-          this.alarms = (patient.alarms || []).map(alarm => ({...alarm}));
+          this.alarms = (patient.sensorAlertThresholds || []).map(alarm => ({...alarm}));
         } else {
           console.warn(`Patient with ID ${id} not found.`);
         }
@@ -80,20 +78,12 @@ export class ViewAlertsComponent implements OnInit {
     }
   }
 
-  get activeAlarms(): Alarm[] {
+  get activeAlarms(): any[] {
     return this.alarms.filter(a => a.isActive);
   }
 
-  get inactiveAlarms(): Alarm[] {
+  get inactiveAlarms(): any[] {
     return this.alarms.filter(a => !a.isActive);
-  }
-
-  toggleActive(alarm: Alarm): void {
-    alarm.isActive = false;
-  }
-
-  get latestAlarm(): Alarm | null {
-    return this.alarms.length > 0 ? this.alarms[this.alarms.length - 1] : null;
   }
 
   onSubmit(): void {
@@ -104,10 +94,9 @@ export class ViewAlertsComponent implements OnInit {
     const alarmPayload = {
       patient_id: this.patient.id,
       parameter: formValue.parameter,
-      conditionType: formValue.condition,
-      threshold: formValue.threshold,
-      duration: formValue.duration,
-      afterActivity: formValue.afterActivity === 'true',
+      minValue: formValue.minValue,
+      maxValue: formValue.maxValue,
+      durationMinutes: formValue.durationMinutes,
       message: formValue.message,
       isActive: true
     };
@@ -125,39 +114,51 @@ export class ViewAlertsComponent implements OnInit {
     });
   }
 
-  enableEdit(): void {
-    const latest = this.latestAlarm;
-    if (!latest) return;
+  enableEdit(index: number): void {
+    const alarm = this.activeAlarms[index];
+    if (!alarm) return;
 
     this.editForm.setValue({
-      parameter: latest.parameter,
-      condition: latest.condition,
-      threshold: latest.threshold,
-      duration: latest.duration,
-      afterActivity: latest.afterActivity ? 'true' : 'false',
-      message: latest.message
+      parameter: alarm.parameter,
+      minValue: alarm.minValue,
+      maxValue: alarm.maxValue,
+      durationMinutes: alarm.durationMinutes,
+      message: alarm.message
     });
 
-    this.isEditing = true;
+    this.editingAlarmIndex = index;
   }
 
   saveEdit(): void {
-    if (this.editForm.invalid || !this.latestAlarm) return;
+    if (this.editForm.invalid || this.editingAlarmIndex === null) return;
 
     const updated = this.editForm.value;
-    const index = this.alarms.indexOf(this.latestAlarm);
+    const alarm = this.activeAlarms[this.editingAlarmIndex];
 
-    const updatedAlarm: Alarm = {
-      ...this.latestAlarm,
-      ...updated,
-      afterActivity: updated.afterActivity === 'true',
+    const updatedAlarm: any = {
+      ...alarm,
+      ...updated
     };
 
-    if (index !== -1) {
-      this.alarms[index] = updatedAlarm;
-      this.patient.alarms = this.alarms;
+    if (!alarm.id) {
+      console.error('Alarm does not have an ID.');
+      return;
     }
 
-    this.isEditing = false;
+    this.alertService.updateAlarm(alarm.id, updatedAlarm).subscribe({
+      next: (response) => {
+        const globalIndex = this.alarms.indexOf(alarm);
+        if (globalIndex !== -1) {
+          this.alarms[globalIndex] = response;
+        }
+        this.alertService.success('Alarm updated successfully!');
+        this.editingAlarmIndex = null;
+      },
+      error: (err) => {
+        console.error(err);
+        this.alertService.error('Failed to update the alarm.');
+      }
+    });
   }
+
 }

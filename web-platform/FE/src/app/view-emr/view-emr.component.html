@@ -181,13 +181,13 @@
     </div>
   </section>
 
-  <section *ngIf="patient.alarms?.length">
+  <section *ngIf="patient.sensorAlertThresholds?.length">
     <h3><i class="fas fa-exclamation-triangle"></i> Alarms</h3>
-    <div *ngFor="let alarm of patient.alarms" class="item">
+    <div *ngFor="let alarm of patient.sensorAlertThresholds" class="item">
       <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
-      <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
-      <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
+      <p><strong>Duration:</strong> {{ alarm.durationMinutes }} sec</p>
       <p><strong>Message:</strong> {{ alarm.message }}</p>
+      <p><strong>Is Active:</strong> {{ alarm.isActive ? 'Yes' : 'No' }}</p>
     </div>
   </section>
 

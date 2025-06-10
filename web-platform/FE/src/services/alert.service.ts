@@ -34,11 +34,16 @@ export class AlertService {
   }
 
   createAlarm(alarmData: any): Observable<any> {
-    const url = 'http://localhost:8000/api/custom-alarms';
+    const url = 'http://localhost:8000/api/thresholds';
     return this.http.post<any>(url, alarmData);
   }
 
   updateAlarm(id: number, updatedData: any): Observable<any> {
-    return this.http.put<any>(`http://localhost:8000/api/custom-alarms/${id}`, updatedData);
+    return this.http.put<any>(`http://localhost:8000/api/thresholds/${id}`, updatedData);
   }
+
+  getAlarms(): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:8000/api/thresholds`);
+  }
+
 }

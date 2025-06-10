@@ -18,37 +18,26 @@
     </mat-panel-title>
     <mat-panel-description>
       🔔 Active alarms configuration
-      <button
-        mat-icon-button
-        aria-label="Edit"
-        (click)="enableEdit(); $event.stopPropagation()"
-        *ngIf="!isEditing && alarms.length > 0"
-        style="margin-left: 8px;"
-      >
-        <mat-icon>edit</mat-icon>
-      </button>
     </mat-panel-description>
   </mat-expansion-panel-header>
 
   <ng-container *ngIf="alarms.length > 0; else noCurrentAlarms">
-    <div *ngFor="let alarm of activeAlarms">
-      <section *ngIf="!isEditing">
+    <div *ngFor="let alarm of activeAlarms; let i = index">
+      <section *ngIf="editingAlarmIndex !== i">
         <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
-        <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
-        <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
-        <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}</p>
+        <p><strong>Min:</strong> {{ alarm.minValue }}</p>
+        <p><strong>Max:</strong> {{ alarm.maxValue }}</p>
+        <p><strong>Duration:</strong> {{ alarm.durationMinutes }} sec</p>
         <p><strong>Message:</strong> {{ alarm.message }}</p>
         <p><strong>Is Active:</strong> {{ alarm.isActive ? 'Yes' : 'No' }}</p>
-      </section>
-      <button
-        mat-button
-        color="{{ alarm.isActive ? 'warn' : 'primary' }}"
-        (click)="toggleActive(alarm)"
-      >
-        {{ alarm.isActive ? 'Mark as Read' : 'Already Read' }}
-      </button>
 
-      <form *ngIf="isEditing" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
+        <button mat-icon-button aria-label="Edit" (click)="enableEdit(i)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </section>
+
+      <!-- Edit form -->
+      <form *ngIf="editingAlarmIndex === i" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="section">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label>Parameter*</label>
@@ -61,30 +50,18 @@
           </div>
 
           <div>
-            <label>Condition*</label>
-            <select formControlName="condition" class="w-full">
-              <option value=">">Greater than</option>
-              <option value="<">Less than</option>
-              <option value="=">Equal to</option>
-            </select>
+            <label>Min value*</label>
+            <input type="number" formControlName="minValue" class="w-full" />
           </div>
 
           <div>
-            <label>Threshold*</label>
-            <input type="number" formControlName="threshold" class="w-full" />
+            <label>Max value*</label>
+            <input type="number" formControlName="maxValue" class="w-full" />
           </div>
 
           <div>
             <label>Duration (sec)*</label>
-            <input type="number" formControlName="duration" class="w-full" />
-          </div>
-
-          <div>
-            <label>After Activity?</label>
-            <select formControlName="afterActivity" class="w-full">
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
+            <input type="number" formControlName="durationMinutes" class="w-full" />
           </div>
 
           <div class="md:col-span-2">
@@ -93,9 +70,12 @@
           </div>
         </div>
 
-        <div class="flex justify-end mt-4">
+        <div class="flex justify-end mt-4 space-x-2">
           <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid">
-            💾 Save Changes
+            💾 Save
+          </button>
+          <button mat-flat-button color="warn" type="button" (click)="editingAlarmIndex = null">
+            ❌ Cancel
           </button>
         </div>
       </form>
@@ -125,23 +105,12 @@
         <div *ngFor="let alarm of inactiveAlarms">
           <section>
             <p><strong>Parameter:</strong> {{ alarm.parameter }}</p>
-            <p><strong>Condition:</strong> {{ alarm.condition }} {{ alarm.threshold }}</p>
-            <p><strong>Duration:</strong> {{ alarm.duration }} sec</p>
-            <p><strong>After Activity:</strong> {{ alarm.afterActivity ? 'Yes' : 'No' }}
-            </p>
+            <p><strong>Min:</strong> {{ alarm.minValue }}</p>
+            <p><strong>Max:</strong> {{ alarm.maxValue }}</p>
+            <p><strong>Duration:</strong> {{ alarm.durationMinutes }} sec</p>
             <p><strong>Message:</strong> {{ alarm.message }}</p>
-            <p><strong>Is Active:</strong> {{ alarm.isActive }}</p>
-
+            <p><strong>Is Active:</strong> {{ alarm.isActive ? 'Yes' : 'No' }}</p>
           </section>
-
-          <button
-            mat-button
-            color="{{ alarm.isActive ? 'warn' : 'primary' }}"
-            (click)="toggleActive(alarm)"
-          >
-            {{ alarm.isActive ? 'Mark as Read' : 'Already Read' }}
-          </button>
-
         </div>
     </div>
 
@@ -176,30 +145,18 @@
         </div>
 
         <div>
-          <label>Condition*</label>
-          <select formControlName="condition" class="w-full">
-            <option value=">">Greater than</option>
-            <option value="<">Less than</option>
-            <option value="=">Equal to</option>
-          </select>
+          <label>Min value*</label>
+          <input type="number" formControlName="minValue" placeholder="Enter threshold" class="w-full" />
         </div>
 
         <div>
-          <label>Threshold*</label>
-          <input type="number" formControlName="threshold" placeholder="Enter threshold" class="w-full" />
+          <label>Max value*</label>
+          <input type="number" formControlName="maxValue" placeholder="Enter threshold" class="w-full" />
         </div>
 
         <div>
           <label>Duration (sec)*</label>
-          <input type="number" formControlName="duration" placeholder="e.g. 30" class="w-full" />
-        </div>
-
-        <div>
-          <label>After Activity?</label>
-          <select formControlName="afterActivity" class="w-full">
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
+          <input type="number" formControlName="durationMinutes" placeholder="e.g. 30" class="w-full" />
         </div>
 
         <div class="md:col-span-2">

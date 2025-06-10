@@ -15,6 +15,7 @@ import { DoctorI } from "../../shared/interfaces/doctor";
 export class NavBarComponent implements OnInit {
   isAuthenticated: boolean = false;
   fullName: string = '';
+  role:string='';
 
   constructor(private router: Router, private authService: AuthService) {}
 
@@ -22,8 +23,16 @@ export class NavBarComponent implements OnInit {
     this.router.navigate(['/Home']);
   }
 
+  navigateToDashboard() {
+    this.router.navigate(['/admin-dashboard']);
+  }
+
   navigateToAuth() {
     this.router.navigate(['/Login']);
+  }
+
+  navigateToPatientList() {
+    this.router.navigate(['/PatientList']);
   }
 
   navigateToHelpSection() {
@@ -40,13 +49,11 @@ export class NavBarComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user: DoctorI) => {
-      console.log(user);
       this.isAuthenticated = !!user?.id;
+      this.role=user.roles[1]
       this.fullName = user?.firstName && user?.lastName
         ? `${user.firstName} ${user.lastName}`
         : '';
     });
   }
-
-
 }

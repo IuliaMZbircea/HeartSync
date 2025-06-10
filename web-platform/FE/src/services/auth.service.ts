@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
+import {Injectable, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ErrorService } from './error.service';
 import { environment } from '../shared/env';
-import { BehaviorSubject, catchError, map, switchMap, throwError } from 'rxjs';
+import {BehaviorSubject, catchError, map, Observable, switchMap, throwError} from 'rxjs';
 import {Doctor, DoctorI} from "../shared/interfaces/doctor";
+import {error} from "@angular/compiler-cli/src/transformers/util";
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthService  {
 
   private apiUrl = `${environment.apiUrl}`;
   private currentUser: DoctorI = new Doctor();
@@ -106,5 +106,28 @@ export class AuthService {
     }
     return this.currentUser$;
   }
+
+  forgotPassword(email: string): Observable<string> {
+    return this.http.post<string>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, {
+      token,
+      password: newPassword
+    }).pipe(
+      map(response => {
+        this.errorService.errorSubject.next('Password successfully reset.');
+        return response;
+      }),
+      catchError(error => {
+        const errorMessage = error?.error?.message || 'Password reset failed.';
+        this.errorService.errorSubject.next(errorMessage);
+        return throwError(() => error);
+      })
+    );
+  }
+
+
 
 }
