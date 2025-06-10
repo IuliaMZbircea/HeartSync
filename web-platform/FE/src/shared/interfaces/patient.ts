@@ -33,6 +33,7 @@ export interface Patient {
 
   allergies?: Allergy[];
   alarms?: Alarm[];
+  sensorAlertThresholds?: any[];
 
   consultations?: Consultation[];
   recommendations?: Recommendation[];
