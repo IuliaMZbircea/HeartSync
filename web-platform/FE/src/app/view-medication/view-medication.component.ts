@@ -36,7 +36,7 @@ import { AlertService } from "../../services/alert.service";
   ],
   providers: [MedicationService, AlertService],
   templateUrl: './view-medication.component.html',
-  styleUrl: './view-medication.component.css'
+  styleUrls: ['./view-medication.component.css']
 })
 export class ViewMedicationComponent implements OnInit {
   readonly panelOpenState = signal(false);
@@ -72,28 +72,31 @@ export class ViewMedicationComponent implements OnInit {
     const id = idParam && !isNaN(+idParam) ? Number(idParam) : null;
 
     if (id !== null) {
-      this.patientService.getPatients().subscribe((patients: Patient[]) => {
-        const found = patients.find(p => p.id === id);
-        if (found) {
-          this.patient = found;
+      this.patientService.getPatients().subscribe({
+        next: (patients: Patient[]) => {
+          const found = patients.find(p => p.id === id);
+          if (found) {
+            this.patient = found;
 
-          this.medicationService.getMedicationsByPatient(this.patient.id!).subscribe({
-            next: (meds: Medication[]) => {
-              this.medications = meds;
-            },
-            error: (err: any) => {
-              this.alertService.error('Eroare la încărcarea medicației.');
-              console.error(err);
-            }
-          });
-        } else {
-          this.alertService.error(`Pacientul cu ID ${id} nu a fost găsit.`);
+            this.medicationService.getMedicationsByPatient(this.patient.id!).subscribe({
+              next: (meds: Medication[]) => {
+                this.medications = meds;
+              },
+              error: (err) => {
+                this.alertService.error('Error loading medications.');
+                console.error(err);
+              }
+            });
+          } else {
+            this.alertService.error(`Patient with ID ${id} not found.`);
+          }
+        },
+        error: () => {
+          this.alertService.error('Error loading patients.');
         }
-      }, error => {
-        this.alertService.error('Eroare la încărcarea pacienților.');
       });
     } else {
-      this.alertService.error('ID-ul pacientului este invalid sau lipsește din URL.');
+      this.alertService.error('Invalid or missing patient ID in URL.');
     }
   }
 
@@ -101,9 +104,7 @@ export class ViewMedicationComponent implements OnInit {
     if (this.medications.length === 0) return null;
 
     const currentDate = new Date();
-    const activeMedications = this.medications.filter(med => {
-      return !med.endDate || new Date(med.endDate) >= currentDate;
-    });
+    const activeMedications = this.medications.filter(med => !med.endDate || new Date(med.endDate) >= currentDate);
 
     if (activeMedications.length === 0) return null;
 
@@ -113,7 +114,7 @@ export class ViewMedicationComponent implements OnInit {
   enableEdit(): void {
     const latest = this.latestMedication;
     if (!latest) {
-      this.alertService.error('Nu există o medicație activă pentru a fi editată.');
+      this.alertService.error('No active medication available to edit.');
       return;
     }
 
@@ -133,7 +134,7 @@ export class ViewMedicationComponent implements OnInit {
 
   saveEdit(): void {
     if (this.editForm.invalid || !this.latestMedication) {
-      this.alertService.error('Formularul este invalid sau nu există o medicație selectată.');
+      this.alertService.error('Form is invalid or no medication selected.');
       return;
     }
 
@@ -155,10 +156,10 @@ export class ViewMedicationComponent implements OnInit {
           } as Medication;
         }
         this.isEditing = false;
-        this.alertService.success('Medicația a fost actualizată cu succes!');
+        this.alertService.success('Medication updated successfully!');
       },
       error: err => {
-        this.alertService.error('Eroare la actualizarea medicației.');
+        this.alertService.error('Error updating medication.');
         console.error(err);
       }
     });
@@ -206,7 +207,7 @@ export class ViewMedicationComponent implements OnInit {
       const medName = medication.name.replace(/\s+/g, '_');
       doc.save(`medication_${medName}.pdf`);
     }).catch(err => {
-      console.error('Eroare la export PDF:', err);
+      console.error('Error exporting PDF:', err);
     });
   }
 }
