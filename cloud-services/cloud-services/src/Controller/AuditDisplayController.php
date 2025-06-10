@@ -18,30 +18,44 @@ class AuditDisplayController extends AbstractController
         $schemaManager = $this->connection->createSchemaManager();
         $tables = $schemaManager->listTableNames();
 
-        $auditTables = array_filter($tables, fn($name) => str_starts_with($name, 'audit_'));
-        $entityNames = array_values(array_map(fn($table) => str_replace('audit_', '', $table), $auditTables));
+        $auditTables = array_filter($tables, fn($name) => str_starts_with($name, 'audit_') && str_ends_with($name, '_audit'));
 
-        
-        return $this->json(['available_entities' => $entityNames]);
+        $entityNames = array_map(
+            fn($table) => str_replace(['audit_', '_audit'], '', $table),
+            $auditTables
+        );
+
+        return $this->json([
+            'available_entities' => array_values($entityNames)
+        ]);
     }
 
     #[Route('/{entity}', name: 'audit_modifications_entity', methods: ['GET'])]
     public function getAuditForEntity(string $entity): JsonResponse
     {
-        $tableName = 'audit_' . strtolower($entity) . '_audit';
-
         $schemaManager = $this->connection->createSchemaManager();
         $tables = $schemaManager->listTableNames();
 
-        if (!in_array($tableName, $tables)) {
+        // Caută tabelul audit corespunzător (ex: audit_alarm_audit)
+        $matchedTable = null;
+        foreach ($tables as $table) {
+            if (strtolower($table) === 'audit_' . strtolower($entity) . '_audit') {
+                $matchedTable = $table;
+                break;
+            }
+        }
+
+        if (!$matchedTable) {
             return $this->json(['error' => "Audit table for '$entity' not found"], 404);
         }
 
         try {
             $entries = $this->connection->fetchAllAssociative("
-                SELECT * FROM `$tableName` ORDER BY created_at DESC LIMIT 10
+                SELECT * FROM `$matchedTable` ORDER BY created_at DESC LIMIT 10
             ");
-            return $this->json([$entity => $entries]);
+            return $this->json([
+                strtolower($entity) => $entries
+            ]);
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 500);
         }
