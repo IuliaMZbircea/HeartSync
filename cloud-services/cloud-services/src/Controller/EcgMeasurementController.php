@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\EcgMeasurement;
-use App\Repository\EcgMeasurementRepository;
 use App\Repository\PatientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,8 +13,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 #[Route('/api/ecg')]
 class EcgMeasurementController extends AbstractController
 {
-    #[Route('', name: 'post_ecg', methods: ['POST'])]
-    public function post(
+    private const BUFFER_DIR = __DIR__ . '/../../var/ecg_buffers';
+
+    #[Route('/single', name: 'post_single_waveform', methods: ['POST'])]
+    public function postWaveform(
         Request $request,
         PatientRepository $patientRepository,
         EntityManagerInterface $em
@@ -26,70 +27,61 @@ class EcgMeasurementController extends AbstractController
             return $this->json(['error' => 'Missing parameters'], 400);
         }
 
-        $patient = $patientRepository->find($data['patient_id']);
+        $patientId = (int)$data['patient_id'];
+        $waveform = (float)$data['waveform'];
+        $sendAlarm = isset($data['send_alarm']) ? (bool)$data['send_alarm'] : false;
+
+        $patient = $patientRepository->find($patientId);
         if (!$patient) {
             return $this->json(['error' => 'Patient not found'], 404);
         }
 
-        $ecg = new EcgMeasurement();
-        $ecg->setPatient($patient);
-        $ecg->setWaveform($data['waveform']);
-        $ecg->setSendAlarm(isset($data['send_alarm']) ? (bool)$data['send_alarm'] : false);
-
-        $em->persist($ecg);
-        $em->flush();
-
-        return $this->json([
-            'success' => true,
-            'id' => $ecg->getId(),
-            'timestamp' => $ecg->getCreatedAt()->format('Y-m-d H:i:s'),
-            'send_alarm' => $ecg->isSendAlarm()
-        ]);
-    }
-
-    #[Route('', name: 'get_all_ecg', methods: ['GET'])]
-    public function getAll(EcgMeasurementRepository $repo): JsonResponse
-    {
-        $all = $repo->findAll();
-
-        $data = array_map(function (EcgMeasurement $e) {
-            return [
-                'id' => $e->getId(),
-                'patient_id' => $e->getPatient()->getId(),
-                'waveform' => $e->getWaveform(),
-                'created_at' => $e->getCreatedAt()->format('Y-m-d H:i:s'),
-                'send_alarm' => $e->isSendAlarm()
-            ];
-        }, $all);
-
-        return $this->json($data);
-    }
-
-    #[Route('/{patientId}', name: 'get_ecg_by_patient', methods: ['GET'])]
-    public function getByPatient(
-        int $patientId,
-        EcgMeasurementRepository $ecgRepo,
-        PatientRepository $patientRepo
-    ): JsonResponse {
-        $patient = $patientRepo->find($patientId);
-        if (!$patient) {
-            return $this->json(['error' => 'Patient not found'], 404);
+        // Ensure buffer directory exists
+        if (!is_dir(self::BUFFER_DIR)) {
+            mkdir(self::BUFFER_DIR, 0777, true);
         }
 
-        $items = $ecgRepo->findBy(
-            ['patient' => $patient],
-            ['createdAt' => 'DESC']
-        );
+        $bufferFile = self::BUFFER_DIR . "/patient_{$patientId}.json";
 
-        $data = array_map(function (EcgMeasurement $e) {
-            return [
-                'id' => $e->getId(),
-                'waveform' => $e->getWaveform(),
-                'created_at' => $e->getCreatedAt()->format('Y-m-d H:i:s'),
-                'send_alarm' => $e->isSendAlarm()
-            ];
-        }, $items);
+        // Read current buffer
+        $buffer = [];
+        if (file_exists($bufferFile)) {
+            $json = file_get_contents($bufferFile);
+            $buffer = json_decode($json, true) ?? [];
+        }
 
-        return $this->json($data);
+        // Add new waveform
+        $buffer[] = $waveform;
+
+        if (count($buffer) >= 5) {
+            // Save to DB
+            $ecg = new EcgMeasurement();
+            $ecg->setPatient($patient);
+            $ecg->setWaveforms($buffer);
+            $ecg->setSendAlarm($sendAlarm);
+
+            $em->persist($ecg);
+            $em->flush();
+
+            // Clear buffer
+            unlink($bufferFile);
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Measurement saved',
+                'waveforms' => $buffer,
+                'timestamp' => $ecg->getCreatedAt()->format('Y-m-d H:i:s'),
+                'send_alarm' => $ecg->isSendAlarm()
+            ]);
+        } else {
+            // Save buffer back
+            file_put_contents($bufferFile, json_encode($buffer));
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Waveform buffered',
+                'current_count' => count($buffer)
+            ]);
+        }
     }
 }
