@@ -135,6 +135,35 @@ class PatientController extends AbstractController
         return $this->json(['message' => 'Patient deactivated']);
     }
 
+    #[Route('/{id}/thresholds', name: 'patient_thresholds', methods: ['GET'])]
+public function getThresholdsByPatient(int $id): JsonResponse
+{
+    $patient = $this->patientRepository->find($id);
+
+    if (!$patient || !$patient->isIsActive()) {
+        return $this->json(['error' => 'Patient not found'], Response::HTTP_NOT_FOUND);
+    }
+
+    $thresholds = array_filter(
+        $patient->getSensorAlertThresholds()->toArray(),
+        fn($t) => $t->isActive()
+    );
+
+    $response = array_map(function ($t) {
+        return [
+            'id' => $t->getId(),
+            'parameter' => $t->getParameter(),
+            'minValue' => $t->getMinValue(),
+            'maxValue' => $t->getMaxValue(),
+            'durationMinutes' => $t->getDurationMinutes(),
+            'message' => $t->getMessage(),
+            'isActive' => $t->isActive()
+        ];
+    }, $thresholds);
+
+    return $this->json($response);
+}
+
 private function serializePatient(Patient $patient): array
 {
     return [

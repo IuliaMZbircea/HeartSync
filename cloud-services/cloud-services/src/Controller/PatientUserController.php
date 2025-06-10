@@ -42,35 +42,6 @@ class PatientUserController extends AbstractController
         ]);
     }
 
-    #[Route('', name: 'patient_user_register', methods: ['POST'])]
-    public function register(Request $request): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-
-        if (!isset($data['email'], $data['password'], $data['patient_id'])) {
-            return $this->json(['error' => 'email, password and patient_id are required'], 400);
-        }
-
-        $existing = $this->patientUserRepo->findOneBy(['email' => $data['email']]);
-        if ($existing) {
-            return $this->json(['error' => 'Email already exists'], 409);
-        }
-
-        $patient = $this->em->getRepository(\App\Entity\Patient::class)->find($data['patient_id']);
-        if (!$patient) {
-            return $this->json(['error' => 'Invalid patient ID'], 404);
-        }
-
-        $user = new PatientUser();
-        $user->setEmail($data['email']);
-        $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
-        $user->setPatient($patient);
-
-        $this->em->persist($user);
-        $this->em->flush();
-
-        return $this->json(['message' => 'Account created'], 201);
-    }
 
     #[Route('/{id}', name: 'patient_user_delete', methods: ['DELETE'])]
     public function softDelete(int $id): JsonResponse
