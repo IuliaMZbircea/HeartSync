@@ -44,19 +44,6 @@
               <div *ngIf="patientForm.get('firstName')?.errors?.['required']">First name is required.</div>
             </div>
 
-            <label>Last Name</label>
-            <input formControlName="lastName" placeholder="Last Name" class="input-field" />
-            <div *ngIf="patientForm.get('lastName')?.touched && patientForm.get('lastName')?.invalid" class="text-red-500 text-sm mt-1">
-              <div *ngIf="patientForm.get('lastName')?.errors?.['required']">Last name is required.</div>
-            </div>
-
-            <label>CNP</label>
-            <input formControlName="cnp" placeholder="CNP" class="input-field" />
-            <div *ngIf="patientForm.get('cnp')?.touched && patientForm.get('cnp')?.invalid" class="text-red-500 text-sm mt-1">
-              <div *ngIf="patientForm.get('cnp')?.errors?.['required']">CNP is required.</div>
-              <div *ngIf="patientForm.get('cnp')?.errors?.['pattern']">CNP must be exactly 13 digits.</div>
-            </div>
-
             <label>Occupation</label>
             <input formControlName="occupation" placeholder="Occupation" class="input-field" />
             <div *ngIf="patientForm.get('occupation')?.touched && patientForm.get('occupation')?.invalid" class="text-red-500 text-sm mt-1">
@@ -83,8 +70,6 @@
         </ng-container>
         <ng-template #editContact>
           <div class="form-row">
-            <label>Email</label>
-            <input formControlName="email" placeholder="Email" class="input-field" />
             <label>Phone</label>
             <input formControlName="phone" placeholder="Phone" class="input-field" />
           </div>
@@ -170,43 +155,6 @@
 
         <ng-template #editMedical>
           <div class="form-row">
-            <div class="form-group">
-              <label>Blood Group*</label>
-              <select formControlName="bloodGroup" class="input-field">
-                <option value="">Select</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="O">O</option>
-                <option value="AB">AB</option>
-              </select>
-              <div class="error-message" *ngIf="patientForm.get('bloodGroup')?.touched && patientForm.get('bloodGroup')?.errors?.['required']">
-                Blood group is required.
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Rh Factor*</label>
-              <select formControlName="rh" class="input-field">
-                <option value="">Select</option>
-                <option value="+">Positive</option>
-                <option value="-">Negative</option>
-              </select>
-              <div class="error-message" *ngIf="patientForm.get('rh')?.touched && patientForm.get('rh')?.errors?.['required']">
-                Rh factor is required.
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Height (cm)*</label>
-              <input formControlName="height" placeholder="Height" class="input-field" />
-              <div class="error-message" *ngIf="patientForm.get('height')?.touched && patientForm.get('height')?.errors?.['required']">
-                Height is required.
-              </div>
-              <div class="error-message" *ngIf="patientForm.get('height')?.touched && patientForm.get('height')?.errors?.['pattern']">
-                Height must be a valid number (e.g. 170 or 170.5).
-              </div>
-            </div>
-
             <div class="form-group">
               <label>Weight (kg)*</label>
               <input formControlName="weight" placeholder="Weight" class="input-field" />

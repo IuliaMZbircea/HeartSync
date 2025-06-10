@@ -143,11 +143,7 @@ export class ViewEMRComponent implements OnInit {
 
   editSection(section: string): void {
     const key = 'isEditing' + this.capitalize(section);
-    (this as any)[key] = true;
+    (this as any)[key] = !(this as any)[key];
   }
 
-  saveSection(section: string): void {
-    const key = 'isEditing' + this.capitalize(section);
-    (this as any)[key] = false;
-  }
 }
