@@ -89,3 +89,6 @@ input[matInput] {
 .inactive-patient {
   opacity: 0.5;
 }
+.new-patient-row {
+  background-color: rgba(181, 234, 181, 0.43);
+}

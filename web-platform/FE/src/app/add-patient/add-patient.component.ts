@@ -12,6 +12,7 @@ import { NgIf } from '@angular/common';
 import { IcdService } from "../../services/diagnosis.code.service";
 import { PatientService } from "../../services/patient.service";
 import { AlertService } from "../../services/alert.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-add-new-consultation',
@@ -33,7 +34,8 @@ export class AddPatientComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private patientService: PatientService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -176,12 +178,12 @@ export class AddPatientComponent implements OnInit {
 
   onSubmit(): void {
     if (this.patientForm.valid) {
-
       const patientData = this.patientForm.getRawValue();
       this.patientService.createPatient(patientData).subscribe({
         next: (response) => {
           this.alertService.success('Patient successfully created!');
           this.patientForm.reset();
+          this.router.navigate(['/PatientList']);
         },
         error: (error) => {
           this.alertService.error('Failed to create patient. Please try again.');
