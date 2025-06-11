@@ -21,12 +21,13 @@ import {MatIconModule} from "@angular/material/icon";
 export class AuditFileComponent {
   folders = [
     { name: 'PATIENT', route: '/audit-patients', icon: 'folder' },
-    { name: 'ALARM', route: '/audit-alarms', icon: 'folder' },
-    { name: 'ALLERGY', route: '/audit-allergies', icon: 'folder' },
+    { name: 'DOCTORS', route: '/audit-doctors', icon: 'folder' },
+    { name: 'CONSULTATION', route: '/audit-consultations', icon: 'folder' },
+    { name: 'MEDICATION', route: '/audit-medications', icon: 'folder' },
     { name: 'REFERRAL', route: '/audit-referrals', icon: 'folder' },
     { name: 'RECOMMENDATION', route: '/audit-recommendations', icon: 'folder' },
-    { name: 'CONSULTATION', route: '/audit-consultations', icon: 'folder' },
-    { name: 'MEDICATION', route: '/audit-medications', icon: 'folder' }
+    { name: 'ALLERGY', route: '/audit-allergies', icon: 'folder' },
+    { name: 'ALARM', route: '/audit-alarms', icon: 'folder' }
 
   ];
 
