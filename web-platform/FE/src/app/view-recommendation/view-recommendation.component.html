@@ -41,12 +41,9 @@
               <div>
                 <label>Activity Type*</label>
                 <select formControlName="activityType" class="w-full">
-                  <option value="bicycle">Bicycle</option>
-                  <option value="walk">Walk</option>
-                  <option value="run">Run</option>
-                  <option value="exercise">Physical Exercise</option>
-                  <option value="other">Other</option>
+                  <option *ngFor="let type of activityTypes" [value]="type.value">{{ type.label }}</option>
                 </select>
+
               </div>
 
               <div>
@@ -130,12 +127,9 @@
           <div>
             <label>Activity Type*</label>
             <select formControlName="activityType" class="w-full">
-              <option value="bicycle">Bicycle</option>
-              <option value="walk">Walk</option>
-              <option value="run">Run</option>
-              <option value="exercise">Physical Exercise</option>
-              <option value="other">Other</option>
+              <option *ngFor="let type of activityTypes" [value]="type.value">{{ type.label }}</option>
             </select>
+
             <div class="error-message" *ngIf="recommendationForm.get('activityType')?.invalid && recommendationForm.get('activityType')?.touched">
               Activity type is required.
             </div>

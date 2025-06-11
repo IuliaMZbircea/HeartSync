@@ -41,6 +41,18 @@ export class ViewRecommendationComponent implements OnInit {
     endDate: [''],
     additionalNotes: ['']
   });
+  activityTypes = [
+    { value: 'bicycle', label: 'Bicycle' },
+    { value: 'walk', label: 'Walk' },
+    { value: 'run', label: 'Run' },
+    { value: 'exercise', label: 'Listening Exercise' },
+    { value: 'rest', label: 'Rest/Relaxation' },
+    { value: 'meditation', label: 'Meditation' },
+    { value: 'reading', label: 'Reading' },
+    { value: 'listening-music', label: 'Listening to Music' },
+    { value: 'breathing-exercises', label: 'Breathing Exercises' },
+    { value: 'other', label: 'Other' }
+  ];
 
   editForm: FormGroup;
   isEditing = false;
@@ -142,6 +154,7 @@ export class ViewRecommendationComponent implements OnInit {
 
     this.isEditing = true;
   }
+
 
   saveEdit(): void {
     if (this.editForm.invalid || !this.editingRecommendation) return;
