@@ -1,0 +1,58 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding: 2rem;
+  animation: fadeIn 1s ease-in;
+}
+
+h1 {
+  font-size: 2.5rem;
+  text-align: center;
+  color: #2a2f4c ;
+  margin-bottom: 1rem;
+}
+
+.image-section {
+  width: 100%;
+}
+
+.image-section img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.image-section img:hover {
+  transform: scale(1.02);
+}
+
+.description {
+  background-color: #2a2f4c;
+  border-radius: 20px;
+  padding: 2rem;
+  line-height: 1.7;
+  font-size: 1rem;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.highlight {
+  color: #9ca1c4;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .description {
+    font-size: 0.95rem;
+    padding: 1.5rem;
+  }
+}
