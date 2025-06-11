@@ -92,21 +92,21 @@ export class ViewAlertsComponent implements OnInit {
   }
 
 
-  // get activeAlarms(): any[] {
-  //   return this.alarms.filter(a => a.isActive);
-  // }
-  //
-  // get inactiveAlarms(): any[] {
-  //   return this.alarms.filter(a => !a.isActive);
-  // }
-
   get activeAlarms(): any[] {
-    return this.alarms.filter(a => a.isActive && !this.isAlarmExpired(a));
+    return this.alarms.filter(a => a.isActive);
   }
 
   get inactiveAlarms(): any[] {
-    return this.alarms.filter(a => this.isAlarmExpired(a));
+    return this.alarms.filter(a => !a.isActive);
   }
+
+  // get activeAlarms(): any[] {
+  //   return this.alarms.filter(a => !this.isAlarmExpired(a));
+  // }
+  //
+  // get inactiveAlarms(): any[] {
+  //   return this.alarms.filter(a => this.isAlarmExpired(a));
+  // }
 
   onSubmit(): void {
     if (this.alarmForm.invalid || !this.patient?.id) return;
