@@ -195,8 +195,11 @@
       <form [formGroup]="diagnosisForm" class="diagnosis-form">
         <div class="diagnosis-card">
           <div class="form-row">
-            <label for="diagnosis">Diagnosis</label>
-            <app-diagnosis-code (diseaseSelected)="onDiseaseSelected($event)"></app-diagnosis-code>
+
+            <app-diagnosis-code
+              formControlName="diagnosis"
+              (diseaseSelected)="onDiseaseSelected($event)">
+            </app-diagnosis-code>
           </div>
 
           <div class="form-row">
