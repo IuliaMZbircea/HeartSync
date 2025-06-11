@@ -408,3 +408,11 @@ section {
 .status-icon {
   font-size: 1.3rem;
 }
+
+
+h3{
+  color: #1a1f38;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
