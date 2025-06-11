@@ -302,9 +302,7 @@ private function serializePatient(Patient $patient): array
         'maxValue' => $t->getMaxValue(),
         'durationMinutes' => $t->getDurationMinutes(),
         'message' => $t->getMessage(),
-        'isActive' => $t->isActive(),
-        'createdAt' => $alarm->getCreatedAt()?->format('Y-m-d H:i:s'),
-
+        'isActive' => $t->isActive()
     ];
 }, array_filter(
     $patient->getSensorAlertThresholds()->toArray(),
