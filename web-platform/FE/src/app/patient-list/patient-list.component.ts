@@ -42,9 +42,10 @@ export class PatientListComponent implements OnInit, AfterViewInit {
       this.dataSource.data = patients.map(patient => ({
         ...patient,
         age: calculateAge(patient.birthDate),
-        alert: patient.sensorAlertThresholds
+        alert: Array.isArray(patient.sensorAlertThresholds)
           ? patient.sensorAlertThresholds.filter((a: any) => a.isActive).length
           : 0
+
       }));
 
       this.dataSource.sortingDataAccessor = (item, property) => {
