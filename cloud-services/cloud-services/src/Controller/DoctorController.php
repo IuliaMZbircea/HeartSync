@@ -213,4 +213,30 @@ public function deactivate(int $id): JsonResponse
         }
     }
 
+    #[Route('/api/doctors/{id}/role', name: 'doctor_update_role', methods: ['PATCH'])]
+    public function updateRole(Request $request, int $id): JsonResponse
+    {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            return $this->json(['error' => 'Access denied.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $doctor = $this->doctorRepository->find($id);
+        if (!$doctor) {
+            return $this->json(['error' => 'Doctor not found.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!$data || !isset($data['roles']) || !is_array($data['roles'])) {
+            return $this->json(['error' => 'Invalid roles data.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $doctor->setRoles($data['roles']);
+        $this->em->flush();
+
+        return $this->json([
+            'message' => 'Roles updated successfully.',
+            'roles' => $doctor->getRoles()
+        ]);
+    }
+
 }
