@@ -38,4 +38,14 @@ export class DoctorService {
     );
   }
 
+  updateDoctorRoles(doctorId: number, roles: string[]): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/api/doctors/${doctorId}/role`, { roles }).pipe(
+      catchError(error => {
+        const errorMsg = error?.error?.error || 'Eroare la actualizarea rolurilor doctorului.';
+        this.errorService.errorSubject.next(errorMsg);
+        return throwError(() => error);
+      })
+    );
+  }
+
 }

@@ -24,10 +24,32 @@
       <td>{{ doctor.id }}</td>
       <td>{{ doctor.firstName }} {{ doctor.lastName }}</td>
       <td>{{ doctor.email }}</td>
-      <td>{{ doctor.roles.join(', ') }}</td>
+      <td>
+        <ng-container *ngIf="editingDoctorId !== doctor.id; else editRoles">
+          {{ doctor.roles.join(', ') }}
+          <button (click)="startEdit(doctor)" title="Edit roles" style="margin-left: 5px;">✏️</button>
+        </ng-container>
+
+        <ng-template #editRoles>
+          <div style="display: flex; flex-direction: column;">
+            <div *ngFor="let role of availableRoles">
+              <label>
+                <input type="checkbox"
+                       [checked]="editedRoles.includes(role)"
+                       (change)="toggleRole(role)" />
+                {{ role }}
+              </label>
+            </div>
+            <div style="margin-top: 5px;">
+              <button (click)="saveRoles(doctor)" class="save">Save</button>
+              <button (click)="cancelEdit()" style="margin-left: 10px;" class="cancel">Cancel</button>
+            </div>
+          </div>
+        </ng-template>
+      </td>
       <td>{{ doctor.lastLoginAt | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
       <td>
-        <button (click)="deactivateDoctor(doctor.id)">🗑️ Delete</button>
+        <button (click)="deactivateDoctor(doctor.id)" class="delete">🗑️ Delete</button>
       </td>
     </tr>
     </tbody>
