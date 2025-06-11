@@ -21,6 +21,7 @@ import { MedicationService } from "../../services/medication.service";
 import { ReferralService } from "../../services/refferal.service";
 import { AuthService } from "../../services/auth.service";
 import { DiagnosisCodeComponent } from "../diagnosis-code/diagnosis-code.component";
+import {IcdService} from "../../services/diagnosis.code.service";
 
 @Component({
   selector: 'app-view-consultations',
@@ -44,6 +45,7 @@ import { DiagnosisCodeComponent } from "../diagnosis-code/diagnosis-code.compone
     MatButton,
     DiagnosisCodeComponent
   ],
+  providers: [IcdService],
   templateUrl: './view-consultations.component.html',
   styleUrl: './view-consultations.component.css'
 })
@@ -201,12 +203,11 @@ export class ViewConsultationsComponent implements OnInit {
       icdCode: disease.code
     });
   }
-
   saveDiagnoses(): void {
-    // if (this.diagnosisForm.invalid || !this.patient?.id) {
-    //   this.alertService.error('Please complete all required fields.');
-    //   return;
-    // }
+    if (this.diagnosisForm.invalid || !this.patient?.id) {
+      this.alertService.error('Please complete all required fields.');
+      return;
+    }
 
     const d = this.diagnosisForm.getRawValue();
 
@@ -221,10 +222,15 @@ export class ViewConsultationsComponent implements OnInit {
       next: () => {
         this.alertService.success(`The disease "${d.diagnosis}" was successfully added.`);
         this.diagnosisForm.reset();
+
+        this.patientService.getPatientById(this.patient.id).subscribe(updatedPatient => {
+          this.patient = updatedPatient;
+        });
       },
       error: () => {
         this.alertService.error('An error occurred while saving the disease.');
       }
     });
   }
+
 }
