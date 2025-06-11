@@ -1,25 +1,53 @@
 security:
     password_hashers:
-        App\Entity\Doctor:
-            algorithm: auto
+        App\Entity\Doctor: auto
+        App\Entity\User: auto
 
     providers:
         doctor_provider:
             entity:
                 class: App\Entity\Doctor
                 property: email
+        user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
 
     firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
+        # Autentificare Doctor
+        login_doctor:
+            pattern: ^/api/doctor/login
+            stateless: true
+            json_login:
+                check_path: /api/doctor/login
+                username_path: email
+                password_path: password
+            provider: doctor_provider
 
+        # Autentificare User (pacient)
+        login_user:
+            pattern: ^/api/user/login
+            stateless: true
+            json_login:
+                check_path: /api/user/login
+                username_path: email
+                password_path: password
+            provider: user_provider
 
+        # Firewall general pentru API
         api:
             pattern: ^/api
             stateless: true
             jwt: ~
             provider: doctor_provider
 
+            # Dev firewall pentru consola Symfony & profiler
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
     access_control:
-        - { path: ^/api,       roles: ROLE_DOCTOR }
+        # Reguli de acces
+        - { path: ^/api/doctor, roles: ROLE_DOCTOR }
+        - { path: ^/api/user, roles: ROLE_PATIENT }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
