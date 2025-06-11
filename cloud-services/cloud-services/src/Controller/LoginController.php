@@ -21,7 +21,7 @@ class LoginController extends AbstractController
 
     #[Route('/login', name: 'api_login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
-    { 
+    {
         $data = json_decode($request->getContent(), true);
         if (!$data || empty($data['email']) || empty($data['password'])) {
             return $this->json(['error' => 'Email and password are required'], 400);
@@ -36,6 +36,8 @@ class LoginController extends AbstractController
         if (!$this->passwordHasher->isPasswordValid($doctor, $data['password'])) {
             return $this->json(['error' => 'Invalid credentials'], 401);
         }
+        $doctor->setLastLoginAt(new \DateTime());
+             $this->em->flush();
 
         $token = $this->jwtManager->create($doctor);
 

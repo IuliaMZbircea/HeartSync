@@ -41,6 +41,7 @@ class DoctorController extends AbstractController
                     'email' => $doc->getEmail(),
                     'firstName' => $doc->getFirstName(),
                     'lastName' => $doc->getLastName(),
+                    'lastLoginAt' => $doc->getLastLoginAt()?->format(DATE_ATOM),
                     'roles' => $doc->getRoles(),
                     'isActive' => $doc->isActive(),
                     'createdAt' => $doc->getCreatedAt()?->format(DATE_ATOM),
@@ -73,7 +74,7 @@ class DoctorController extends AbstractController
         $doctor->setRoles(['ROLE_DOCTOR']);
         $doctor->setIsActive(true);
         $doctor->setCreatedAt(new \DateTime());
-
+        $doctor->setLastLoginAt(new \DateTime());
         $this->em->persist($doctor);
         $this->em->flush();
 
@@ -108,6 +109,7 @@ class DoctorController extends AbstractController
             'lastName' => $doctor->getLastName(),
             'roles' => $doctor->getRoles(),
             'isActive' => $doctor->isActive(),
+            'lastLoginAt' => $doctor->getLastLoginAt()?->format(DATE_ATOM),
             'createdAt' => $doctor->getCreatedAt()?->format(DATE_ATOM),
             'hl7' => [
                 'resourceType' => 'Practitioner',
