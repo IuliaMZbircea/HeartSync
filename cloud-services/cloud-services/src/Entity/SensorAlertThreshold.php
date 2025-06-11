@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: SensorAlertThresholdRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class SensorAlertThreshold
 {
     #[ORM\Id]
@@ -37,6 +38,15 @@ class SensorAlertThreshold
 
     #[ORM\Column(type: Types::BOOLEAN, options: ["default" => true])]
     private bool $isActive = true;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -117,6 +127,17 @@ class SensorAlertThreshold
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
         return $this;
     }
 }

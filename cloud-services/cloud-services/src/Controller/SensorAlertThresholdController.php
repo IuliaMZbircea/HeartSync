@@ -19,7 +19,22 @@ class SensorAlertThresholdController extends AbstractController
     public function index(SensorAlertThresholdRepository $repository): JsonResponse
     {
         $thresholds = $repository->findBy(['isActive' => true]);
-        return $this->json($thresholds);
+
+        $response = array_map(function (SensorAlertThreshold $threshold) {
+            return [
+                'id' => $threshold->getId(),
+                'patient_id' => $threshold->getPatient()->getId(),
+                'parameter' => $threshold->getParameter(),
+                'minValue' => $threshold->getMinValue(),
+                'maxValue' => $threshold->getMaxValue(),
+                'durationMinutes' => $threshold->getDurationMinutes(),
+                'message' => $threshold->getMessage(),
+                'isActive' => $threshold->isActive(),
+                'createdAt' => $threshold->getCreatedAt()->format('Y-m-d H:i:s'),
+            ];
+        }, $thresholds);
+
+        return $this->json($response);
     }
 
     #[Route('/{id}', methods: ['GET'])]
@@ -31,7 +46,17 @@ class SensorAlertThresholdController extends AbstractController
             return $this->json(['error' => 'Not found'], 404);
         }
 
-        return $this->json($threshold);
+        return $this->json([
+            'id' => $threshold->getId(),
+            'patient_id' => $threshold->getPatient()->getId(),
+            'parameter' => $threshold->getParameter(),
+            'minValue' => $threshold->getMinValue(),
+            'maxValue' => $threshold->getMaxValue(),
+            'durationMinutes' => $threshold->getDurationMinutes(),
+            'message' => $threshold->getMessage(),
+            'isActive' => $threshold->isActive(),
+            'createdAt' => $threshold->getCreatedAt()->format('Y-m-d H:i:s'),
+        ]);
     }
 
     #[Route('', methods: ['POST'])]
@@ -56,7 +81,17 @@ class SensorAlertThresholdController extends AbstractController
         $em->persist($threshold);
         $em->flush();
 
-        return $this->json($threshold, 201);
+        return $this->json([
+            'id' => $threshold->getId(),
+            'patient_id' => $threshold->getPatient()->getId(),
+            'parameter' => $threshold->getParameter(),
+            'minValue' => $threshold->getMinValue(),
+            'maxValue' => $threshold->getMaxValue(),
+            'durationMinutes' => $threshold->getDurationMinutes(),
+            'message' => $threshold->getMessage(),
+            'isActive' => $threshold->isActive(),
+            'createdAt' => $threshold->getCreatedAt()->format('Y-m-d H:i:s'),
+        ], 201);
     }
 
     #[Route('/{id}', methods: ['PUT'])]
@@ -85,7 +120,18 @@ class SensorAlertThresholdController extends AbstractController
         }
 
         $em->flush();
-        return $this->json($threshold);
+
+        return $this->json([
+            'id' => $threshold->getId(),
+            'patient_id' => $threshold->getPatient()->getId(),
+            'parameter' => $threshold->getParameter(),
+            'minValue' => $threshold->getMinValue(),
+            'maxValue' => $threshold->getMaxValue(),
+            'durationMinutes' => $threshold->getDurationMinutes(),
+            'message' => $threshold->getMessage(),
+            'isActive' => $threshold->isActive(),
+            'createdAt' => $threshold->getCreatedAt()->format('Y-m-d H:i:s'),
+        ]);
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
