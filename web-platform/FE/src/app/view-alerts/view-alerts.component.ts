@@ -70,7 +70,10 @@ export class ViewAlertsComponent implements OnInit {
       this.patientService.getPatientById(id).subscribe((patient: Patient) => {
         if (patient) {
           this.patient = patient;
-          this.alarms = (patient.sensorAlertThresholds || []).map(alarm => ({...alarm}));
+          this.alarms = (patient.sensorAlertThresholds || []).map(alarm => ({
+            ...alarm,
+            expired: this.isAlarmExpired(alarm)
+          }));
         } else {
           console.warn(`Patient with ID ${id} not found.`);
         }
@@ -78,12 +81,31 @@ export class ViewAlertsComponent implements OnInit {
     }
   }
 
+  isAlarmExpired(alarm: any): boolean {
+    if (!alarm.createdAt || !alarm.durationMinutes) return false;
+
+    const created = new Date(alarm.createdAt);
+    const now = new Date();
+    const diffMinutes = (now.getTime() - created.getTime()) / (1000 * 60);
+
+    return diffMinutes > alarm.durationMinutes;
+  }
+
+
+  // get activeAlarms(): any[] {
+  //   return this.alarms.filter(a => a.isActive);
+  // }
+  //
+  // get inactiveAlarms(): any[] {
+  //   return this.alarms.filter(a => !a.isActive);
+  // }
+
   get activeAlarms(): any[] {
-    return this.alarms.filter(a => a.isActive);
+    return this.alarms.filter(a => a.isActive && !this.isAlarmExpired(a));
   }
 
   get inactiveAlarms(): any[] {
-    return this.alarms.filter(a => !a.isActive);
+    return this.alarms.filter(a => this.isAlarmExpired(a));
   }
 
   onSubmit(): void {
