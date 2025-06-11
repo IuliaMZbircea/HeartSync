@@ -69,4 +69,8 @@ export class PatientService {
   addDisease(diseaseData: any): Observable<any> {
     return this.http.post('http://localhost:8000/api/custom-diseases', diseaseData);
   }
+
+  getPulseById(id: number): Observable<any> {
+    return this.http.get(`http://localhost:8000/api/pulse/${id}`);
+  }
 }

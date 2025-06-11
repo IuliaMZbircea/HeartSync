@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import { Patient } from "../../shared/interfaces/patient";
 import { ActivatedRoute } from "@angular/router";
 import { PatientService } from "../../services/patient.service";
@@ -36,7 +36,7 @@ Chart.register(
 })
 export class ViewChartsComponent implements OnInit {
   patient!: Patient;
-  patientHistory: any = null;
+  pulseData: any;
 
   public lineChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
@@ -71,6 +71,8 @@ export class ViewChartsComponent implements OnInit {
     }
   };
 
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   constructor(
     private route: ActivatedRoute,
     private patientService: PatientService
@@ -85,10 +87,21 @@ export class ViewChartsComponent implements OnInit {
         const found = patients.find(p => p.id === id);
         if (found) {
           this.patient = found;
-          this.patientHistory = found.diseases || null;
-          if (this.patientHistory && this.patientHistory.pulse) {
-            this.updatePulseChart(this.patientHistory.pulse);
-          }
+          this.patientService.getPulseById(id).subscribe(
+            data => {
+              this.pulseData = data.slice(0, 5);
+
+              this.lineChartData.labels = this.pulseData.map((entry: any) => {
+                const time = new Date(entry.created_at);
+                return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+              });
+
+              this.lineChartData.datasets[0].data = this.pulseData.map((entry: any) => entry.pulse);
+
+              this.chart?.update();
+            },
+            error => console.error('Eroare la preluarea datelor:', error)
+          );
         } else {
           console.warn(`Patient with ID ${id} not found.`);
         }
@@ -96,15 +109,5 @@ export class ViewChartsComponent implements OnInit {
     } else {
       console.error('Invalid or missing patient ID in route.');
     }
-  }
-
-  updatePulseChart(pulseData: any[]) {
-    if (!pulseData.length) return;
-
-    const todayPulse = pulseData[0];
-    const hours = Array.from({ length: 24 }, (_, i) => i.toString());
-
-    this.lineChartData.labels = hours;
-    this.lineChartData.datasets[0].data = todayPulse.hourly;
   }
 }
