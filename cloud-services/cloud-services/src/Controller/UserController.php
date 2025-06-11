@@ -38,4 +38,73 @@ class UserController extends AbstractController
 
         return new JsonResponse(['message' => 'Password changed successfully']);
     }
+
+    #[Route('/register', name: 'user_register', methods: ['POST'])]
+    public function register(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+
+        $email = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+        $patientId = $data['patientId'] ?? null;
+
+        if (!$email || !$password) {
+            return new JsonResponse(['error' => 'Email and password are required'], 400);
+        }
+
+        $existing = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+        if ($existing) {
+            return new JsonResponse(['error' => 'Email already registered'], 409);
+        }
+
+        $user = new User();
+        $user->setEmail($email);
+        $user->setPassword($hasher->hashPassword($user, $password));
+        $user->setRoles(['ROLE_PATIENT']);
+        $user->setIsActive(true);
+        $user->setPatientId($patientId);
+        $user->setCreatedAt(new \DateTime('now', new \DateTimeZone('Europe/Bucharest')));
+
+
+        $em->persist($user);
+        $em->flush();
+
+        return new JsonResponse(['message' => 'User registered successfully'], 201);
+}
+    #[Route('/login', name: 'user_login', methods: ['POST'])]
+    public function login(
+    Request $request,
+    UserRepository $userRepository,
+    UserPasswordHasherInterface $passwordHasher,
+    \Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface $jwtManager
+): JsonResponse {
+    $data = json_decode($request->getContent(), true);
+
+    $email = $data['email'] ?? null;
+    $password = $data['password'] ?? null;
+
+    if (!$email || !$password) {
+        return new JsonResponse(['error' => 'Email and password are required'], 400);
+    }
+
+    $user = $userRepository->findOneBy(['email' => $email]);
+    if (!$user) {
+        return new JsonResponse(['error' => 'Invalid credentials'], 401);
+    }
+
+    if (!$passwordHasher->isPasswordValid($user, $password)) {
+        return new JsonResponse(['error' => 'Invalid credentials'], 401);
+    }
+
+    $token = $jwtManager->create($user);
+
+    return new JsonResponse([
+        'token' => $token,
+        'user' => [
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'roles' => $user->getRoles(),
+        ]
+    ]);
+}
+
 }
