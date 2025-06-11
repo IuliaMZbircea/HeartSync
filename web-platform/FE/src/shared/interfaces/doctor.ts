@@ -6,6 +6,7 @@ export interface DoctorI {
   lastName: string;
   isActive?: boolean;
   roles: string[]
+  lastLoginAt?: Date;
 }
 
 export class Doctor implements DoctorI {
@@ -16,6 +17,7 @@ export class Doctor implements DoctorI {
   lastName: string;
   isActive?: boolean;
   roles: string[]
+  lastLoginAt?: Date;
 
   constructor() {
     this.email = '';

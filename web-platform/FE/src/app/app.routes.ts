@@ -26,6 +26,7 @@ import {AuditRefferalComponent} from "./admin/audit-refferal/audit-refferal.comp
 import {AuditConsultationComponent} from "./admin/audit-consultation/audit-consultation.component";
 import {AuditPatientComponent} from "./admin/audit-patient/audit-patient.component";
 import {ResetPasswordComponent} from "./reset-password/reset-password.component";
+import {AuditDoctorsComponent} from "./admin/audit-doctors/audit-doctors.component";
 
 export const routes: Routes = [
   { path: '', component: PresentationPageComponent },
@@ -102,6 +103,12 @@ export const routes: Routes = [
   {
     path: 'audit-patients',
     component: AuditPatientComponent,
+    canActivate: [RoleGuard],
+    data: { expectedRole: 'ROLE_ADMIN'}
+  },
+  {
+    path: 'audit-doctors',
+    component: AuditDoctorsComponent,
     canActivate: [RoleGuard],
     data: { expectedRole: 'ROLE_ADMIN'}
   },

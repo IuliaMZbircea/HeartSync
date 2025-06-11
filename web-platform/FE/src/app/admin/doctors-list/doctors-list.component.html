@@ -15,6 +15,7 @@
       <th>Name</th>
       <th>Email</th>
       <th>Roles</th>
+      <th>Last login</th>
       <th>Actions</th>
     </tr>
     </thead>
@@ -24,6 +25,7 @@
       <td>{{ doctor.firstName }} {{ doctor.lastName }}</td>
       <td>{{ doctor.email }}</td>
       <td>{{ doctor.roles.join(', ') }}</td>
+      <td>{{ doctor.lastLoginAt | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
       <td>
         <button (click)="deactivateDoctor(doctor.id)">🗑️ Delete</button>
       </td>

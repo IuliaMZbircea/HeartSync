@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule} from "@angular/forms";
-import {NgForOf} from "@angular/common";
+import {DatePipe, NgForOf} from "@angular/common";
 import {Doctor} from "../../../shared/interfaces/doctor";
 import {DoctorService} from "../../../services/doctor.service";
 import {AlertService} from "../../../services/alert.service";
@@ -8,10 +8,11 @@ import {AlertService} from "../../../services/alert.service";
 @Component({
   selector: 'app-doctors-list',
   standalone: true,
-    imports: [
-        FormsModule,
-        NgForOf
-    ],
+  imports: [
+    FormsModule,
+    NgForOf,
+    DatePipe
+  ],
   templateUrl: './doctors-list.component.html',
   styleUrl: './doctors-list.component.css'
 })
