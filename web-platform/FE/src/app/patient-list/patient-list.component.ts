@@ -62,6 +62,10 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+    this.sort.active = 'id';
+    this.sort.direction = 'desc';
+    this.sort.sortChange.emit({active: this.sort.active, direction: this.sort.direction});
   }
 
   applyFilter(event: Event) {
@@ -136,17 +140,24 @@ export class PatientListComponent implements OnInit, AfterViewInit {
     }
   }
 
-
   loadPatients(): void {
     this.patientService.getPatients().subscribe({
       next: patients => {
         const activePatients = patients.filter(p => p.isActive);
+
+        const today = new Date();
+        const isSameDay = (d1: Date, d2: Date) =>
+          d1.getFullYear() === d2.getFullYear() &&
+          d1.getMonth() === d2.getMonth() &&
+          d1.getDate() === d2.getDate();
+
         this.dataSource.data = activePatients.map(patient => ({
           ...patient,
           age: calculateAge(patient.birthDate),
           alert: Array.isArray(patient.sensorAlertThresholds)
             ? patient.sensorAlertThresholds.filter((a: any) => a.isActive).length
-            : 0
+            : 0,
+          isCreatedToday: patient.createdAt ? isSameDay(new Date(patient.createdAt), today) : false
         }));
       },
       error: () => {
