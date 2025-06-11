@@ -9,7 +9,6 @@ import {
   Validators
 } from '@angular/forms';
 import { NgIf } from '@angular/common';
-import { DiagnosisCodeComponent } from "../diagnosis-code/diagnosis-code.component";
 import { IcdService } from "../../services/diagnosis.code.service";
 import { PatientService } from "../../services/patient.service";
 import { AlertService } from "../../services/alert.service";
@@ -70,12 +69,8 @@ export class AddPatientComponent implements OnInit {
     this.sex = null;
     this.cnpError = null;
 
-    // if (!/^\d{13}$/.test(cnp)) {
-    //   this.cnpError = 'CNP must contain exactly 13 digits.';
-      this.patientForm.patchValue({ birthDate: '', sex: '' });
-    //   this.alertService.error(this.cnpError);
-    //   return;
-    // }
+    this.patientForm.patchValue({ birthDate: '', sex: '' });
+
 
     const genderCode = parseInt(cnp[0], 10);
     const year = parseInt(cnp.slice(1, 3), 10);
@@ -85,14 +80,12 @@ export class AddPatientComponent implements OnInit {
     if (month < 1 || month > 12) {
       this.cnpError = 'Invalid month in CNP.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
-      this.alertService.error(this.cnpError);
       return;
     }
 
     if (day < 1 || day > 31) {
       this.cnpError = 'Invalid day in CNP.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
-      this.alertService.error(this.cnpError);
       return;
     }
 
@@ -128,7 +121,6 @@ export class AddPatientComponent implements OnInit {
       default:
         this.cnpError = 'Unknown gender code in CNP.';
         this.patientForm.patchValue({ birthDate: '', sex: '' });
-        this.alertService.error(this.cnpError);
         return;
     }
 
@@ -141,7 +133,6 @@ export class AddPatientComponent implements OnInit {
     ) {
       this.cnpError = 'Invalid birth date in CNP.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
-      this.alertService.error(this.cnpError);
       return;
     }
 
@@ -155,7 +146,6 @@ export class AddPatientComponent implements OnInit {
     if (age < 0 || age > 120) {
       this.cnpError = 'Age derived from CNP is out of valid range.';
       this.patientForm.patchValue({ birthDate: '', sex: '' });
-      this.alertService.error(this.cnpError);
       return;
     }
 

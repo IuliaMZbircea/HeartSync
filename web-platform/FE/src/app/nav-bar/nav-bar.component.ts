@@ -50,7 +50,7 @@ export class NavBarComponent implements OnInit {
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user: DoctorI) => {
       this.isAuthenticated = !!user?.id;
-      this.role=user.roles[1]
+      this.role = user.roles.includes('ROLE_ADMIN') ? 'ROLE_ADMIN' : user.roles[0];
       this.fullName = user?.firstName && user?.lastName
         ? `${user.firstName} ${user.lastName}`
         : '';
