@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -13,7 +14,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', unique: true)]
@@ -23,7 +24,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(type: 'json')]
+
     private array $roles = [];
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $patientId = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
@@ -36,9 +41,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $resetTokenExpiresAt = null;
-
-    #[ORM\Column(type: 'integer')]
-    private ?int $patientId = null;
 
     public function __construct()
     {
@@ -76,6 +78,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getResetTokenExpiresAt(): ?\DateTimeInterface { return $this->resetTokenExpiresAt; }
     public function setResetTokenExpiresAt(?\DateTimeInterface $expires): self { $this->resetTokenExpiresAt = $expires; return $this; }
+
 
     public function getPatientId(): ?int { return $this->patientId; }
     public function setPatientId(?int $patientId): self { $this->patientId = $patientId; return $this; }
