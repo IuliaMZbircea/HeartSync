@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/api/temperature')]
+#[Route('/temperature')]
 class TemperatureMeasurementController extends AbstractController
 {
     #[Route('', name: 'post_temperature', methods: ['POST'])]

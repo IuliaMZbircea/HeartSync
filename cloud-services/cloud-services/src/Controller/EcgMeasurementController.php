@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/api/ecg')]
+#[Route('/ecg')]
 class EcgMeasurementController extends AbstractController
 {
     private const BUFFER_DIR = __DIR__ . '/../../var/ecg_buffers';

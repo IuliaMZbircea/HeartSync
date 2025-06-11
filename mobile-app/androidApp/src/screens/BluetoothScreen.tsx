@@ -5,6 +5,7 @@ import {
 import { LineChart } from 'react-native-chart-kit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNBluetoothClassic, { BluetoothDevice } from 'react-native-bluetooth-classic';
+import measurementService from '../services/measurementService';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -130,18 +131,18 @@ const BluetoothScreen = () => {
       const timestamp = new Date().toISOString();
       const existing = await AsyncStorage.getItem('bluetooth_data');
       const dataArray = existing ? JSON.parse(existing) : [];
-
+  
       const [tempRaw, humidityRaw, pulseRaw, ecgRaw] = newData.trim().split(',').map(Number);
-
+  
       const temp = isNaN(tempRaw) ? Math.random() * 5 + 36 : tempRaw;
       const humidity = isNaN(humidityRaw) ? Math.random() * 20 + 40 : humidityRaw;
       const pulse = isNaN(pulseRaw) ? Math.floor(Math.random() * 30 + 60) : pulseRaw;
-
+  
       const t = Date.now() / 100;
       const ecg = isNaN(ecgRaw)
         ? Math.sin(t * 0.2) * 0.5 + (Math.random() < 0.03 ? Math.random() * 1.5 + 0.5 : 0)
         : ecgRaw;
-
+  
       // Add to buffers for averaging
       setPulseBuffer(prev => [...prev, pulse]);
       setHumidityBuffer(prev => [...prev, humidity]);
@@ -149,8 +150,16 @@ const BluetoothScreen = () => {
 
       const updatedData = [...dataArray, { timestamp, data: `${temp},${humidity},${pulse},${ecg}` }];
       await AsyncStorage.setItem('bluetooth_data', JSON.stringify(updatedData));
-
+  
       setChartData(prev => [...prev.slice(-29), { temp, humidity, pulse, ecg }]);
+
+      // Send all measurements to the API endpoints
+      try {
+        await measurementService.sendAllMeasurements(temp, humidity, pulse, ecg);
+        console.log(`All measurements sent successfully at ${timestamp}`);
+      } catch (error) {
+        console.error('Failed to send measurements:', error);
+      }
     } catch (error) {
       console.error('Saving data error:', error);
     }

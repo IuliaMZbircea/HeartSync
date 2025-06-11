@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,10 +8,32 @@ import {
   Alert,
   ScrollView,
   Linking,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar, DateData } from 'react-native-calendars';
+import patientService, { Patient, PatientAllergy, PatientDisease } from '../services/patient.service';
+import medicationService, { MedicationRequest } from '../services/medication.service';
+import recommendationService, { Recommendation } from '../services/recommendation.service';
+
+type Severity = 'mild' | 'moderate' | 'severe';
+type DiseaseType = 'chronic' | 'infectious' | 'degenerative';
+type MedicationStatus = 'active' | 'completed' | 'stopped' | 'cancelled';
+
+interface StylesType extends Record<string, any> {
+  severitymild: any;
+  severitymoderate: any;
+  severitysevere: any;
+  typechronic: any;
+  typeinfectious: any;
+  typedegenerative: any;
+  statusactive: any;
+  statuscompleted: any;
+  statusstopped: any;
+  statuscancelled: any;
+}
 
 // Mock data for recommendations
 const MOCK_RECOMMENDATIONS = [
@@ -64,6 +86,49 @@ const getMarkedDates = () => {
 
 const PatientDetailsScreen = ({ navigation }: any) => {
   const [selectedDate, setSelectedDate] = useState('');
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [medications, setMedications] = useState<Medication[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAllData = async () => {
+    try {
+      setError(null);
+      console.log('Fetching all patient data...');
+      
+      const [patientData, medicationsData, recommendationsData] = await Promise.all([
+        patientService.getPatientDetails(),
+        medicationService.getPatientMedications(),
+        recommendationService.getPatientRecommendations(),
+      ]);
+      
+      console.log('Fetched patient data:', patientData);
+      console.log('Fetched medications:', medicationsData);
+      console.log('Fetched recommendations:', recommendationsData);
+      
+      setPatient(patientData);
+      setMedications(medicationsData);
+      setRecommendations(recommendationsData);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message;
+      setError(`Error loading data: ${errorMessage}`);
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchAllData();
+  };
 
   const handleLogout = async () => {
     Alert.alert(
@@ -127,6 +192,227 @@ const PatientDetailsScreen = ({ navigation }: any) => {
     }
   };
 
+  const PatientInfoCard = () => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Icon name="person" size={24} color="#2196F3" />
+        <Text style={styles.cardTitle}>Patient Information</Text>
+      </View>
+      <View style={styles.cardContent}>
+        <Text style={styles.name}>{patient?.firstName} {patient?.lastName}</Text>
+        
+        <View style={styles.infoSection}>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>CNP:</Text>
+            <Text style={styles.value}>{patient?.cnp}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Birth Date:</Text>
+            <Text style={styles.value}>
+              {patient?.birthDate ? new Date(patient.birthDate).toLocaleDateString() : 'N/A'}
+            </Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Sex:</Text>
+            <Text style={styles.value}>{patient?.sex || 'N/A'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Contact</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Email:</Text>
+            <Text style={styles.value}>{patient?.email}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Phone:</Text>
+            <Text style={styles.value}>{patient?.phone}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Occupation:</Text>
+            <Text style={styles.value}>{patient?.occupation}</Text>
+          </View>
+        </View>
+
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Address</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Locality:</Text>
+            <Text style={styles.value}>{patient?.locality}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Street:</Text>
+            <Text style={styles.value}>{patient?.street} {patient?.number}</Text>
+          </View>
+          {(patient?.block || patient?.staircase || patient?.apartment || patient?.floor) && (
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Details:</Text>
+              <Text style={styles.value}>
+                {[
+                  patient.block && `Block ${patient.block}`,
+                  patient.staircase && `Staircase ${patient.staircase}`,
+                  patient.apartment && `Apt ${patient.apartment}`,
+                  patient.floor && `Floor ${patient.floor}`,
+                ].filter(Boolean).join(', ')}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Medical Info</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Blood Type:</Text>
+            <Text style={styles.value}>{patient?.bloodGroup}{patient?.rh}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Height:</Text>
+            <Text style={styles.value}>{patient?.height} cm</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Weight:</Text>
+            <Text style={styles.value}>{patient?.weight} kg</Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+
+  const AllergyCard = ({ allergy }: { allergy: PatientAllergy }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Icon name="warning" size={20} color="#FF9800" />
+        <Text style={styles.allergyName}>{allergy.name}</Text>
+        <View style={[
+          styles.severityTag,
+          styles[`severity${allergy.severity as Severity}`] as any
+        ]}>
+          <Text style={styles.severityText}>{allergy.severity}</Text>
+        </View>
+      </View>
+      <View style={styles.cardContent}>
+        <Text style={styles.allergyInfo}>Reaction: {allergy.reaction}</Text>
+        <Text style={styles.allergyInfo}>Notes: {allergy.notes}</Text>
+        <Text style={styles.allergyDate}>
+          Recorded: {new Date(allergy.recordedDate).toLocaleDateString()}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const DiseaseCard = ({ disease }: { disease: PatientDisease }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Icon name="local-hospital" size={20} color="#F44336" />
+        <Text style={styles.diseaseName}>{disease.name}</Text>
+        <View style={[
+          styles.typeTag,
+          styles[`type${disease.type as DiseaseType}`] as any
+        ]}>
+          <Text style={styles.typeText}>{disease.type}</Text>
+        </View>
+      </View>
+      <View style={styles.cardContent}>
+        <Text style={styles.diseaseDescription}>{disease.description}</Text>
+      </View>
+    </View>
+  );
+
+  const MedicationCard = ({ medication }: { medication: MedicationRequest }) => (
+    <View style={styles.card}>
+      <View style={styles.medicationHeader}>
+        <View style={styles.medicationTitleContainer}>
+          <Icon name="medication" size={20} color="#2196F3" />
+          <Text style={styles.medicationName}>
+            {medication.medicationCodeableConcept.text}
+          </Text>
+        </View>
+        <View style={[
+          styles.statusTag,
+          styles[`status${medication.status as MedicationStatus}`] as any
+        ]}>
+          <Text style={styles.statusText}>{medication.status}</Text>
+        </View>
+      </View>
+      
+      <View style={styles.medicationDetails}>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Dosage:</Text>
+          <Text style={styles.value}>{medication.dosageInstruction[0]?.text || 'N/A'}</Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Route:</Text>
+          <Text style={styles.value}>{medication.route.text}</Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Prescribed:</Text>
+          <Text style={styles.value}>{new Date(medication.authoredOn).toLocaleDateString()}</Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Doctor:</Text>
+          <Text style={styles.value}>{medication.prescribedBy}</Text>
+        </View>
+
+        {medication.note?.length > 0 && (
+          <View style={styles.notesContainer}>
+            <Text style={styles.notesLabel}>Notes:</Text>
+            {medication.note.map((note, index) => (
+              <Text key={index} style={styles.noteText}>• {note.text}</Text>
+            ))}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+
+  const RecommendationCard = ({ recommendation }: { recommendation: Recommendation }) => (
+    <View style={styles.card}>
+      <View style={styles.recommendationHeader}>
+        <View style={styles.recommendationTitleContainer}>
+          <Icon name="lightbulb" size={20} color="#2196F3" />
+          <Text style={styles.recommendationType}>{recommendation.type}</Text>
+        </View>
+        <View style={[styles.priorityTag, styles[`priority${recommendation.priority}`]]}>
+          <Text style={styles.priorityText}>{recommendation.priority}</Text>
+        </View>
+      </View>
+      <Text style={styles.recommendationDescription}>{recommendation.description}</Text>
+      <View style={styles.recommendationFooter}>
+        <Text style={styles.recommendationDate}>
+          Created: {new Date(recommendation.createdAt).toLocaleDateString()}
+        </Text>
+        {recommendation.followUpDate && (
+          <Text style={styles.recommendationDate}>
+            Follow-up: {new Date(recommendation.followUpDate).toLocaleDateString()}
+          </Text>
+        )}
+        <View style={[styles.statusTag, styles[`status${recommendation.status}`]]}>
+          <Text style={styles.statusText}>{recommendation.status}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2196F3" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Icon name="error-outline" size={48} color="#FF3B30" />
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -139,88 +425,56 @@ const PatientDetailsScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <PatientInfoCard />
+
         <View style={styles.section}>
-          <Text style={styles.welcomeText}>Hello, John!</Text>
-          <View style={styles.personalInfoCard}>
-            <View style={styles.personalInfoRow}>
-              <Icon name="person" size={20} color="#2196F3" style={styles.infoIcon} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Age</Text>
-                <Text style={styles.infoValue}>45 years old</Text>
-              </View>
-            </View>
-            <View style={styles.personalInfoRow}>
-              <Icon name="medical-services" size={20} color="#2196F3" style={styles.infoIcon} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Primary Doctor</Text>
-                <Text style={styles.infoValue}>Dr. Sarah Smith</Text>
-              </View>
-            </View>
-          </View>
+          <Text style={styles.sectionTitle}>Allergies ({patient?.allergies.length || 0})</Text>
+          {patient?.allergies.length === 0 ? (
+            <Text style={styles.emptyText}>No known allergies</Text>
+          ) : (
+            patient?.allergies.map((allergy) => (
+              <AllergyCard key={allergy.id} allergy={allergy} />
+            ))
+          )}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Medical Recommendations</Text>
-          {MOCK_RECOMMENDATIONS.map((recommendation) => (
-            <View key={recommendation.id} style={styles.recommendationItem}>
-              <View style={styles.recommendationHeader}>
-                <Text style={styles.recommendationTitle}>{recommendation.title}</Text>
-                <View style={[styles.priorityIndicator, { backgroundColor: getPriorityColor(recommendation.priority) }]} />
-              </View>
-              <Text style={styles.recommendationDescription}>
-                {recommendation.description}
-              </Text>
-              <Text style={styles.recommendationDate}>
-                Date: {recommendation.date}
-              </Text>
-            </View>
-          ))}
+          <Text style={styles.sectionTitle}>Medical Conditions ({patient?.diseases.length || 0})</Text>
+          {patient?.diseases.length === 0 ? (
+            <Text style={styles.emptyText}>No medical conditions recorded</Text>
+          ) : (
+            patient?.diseases.map((disease) => (
+              <DiseaseCard key={disease.id} disease={disease} />
+            ))
+          )}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Current Medications</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Medication 1:</Text>
-            <Text style={styles.value}>Lisinopril 10mg</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Medication 2:</Text>
-            <Text style={styles.value}>Metformin 500mg</Text>
-          </View>
+          <Text style={styles.sectionTitle}>Medications ({medications.length})</Text>
+          {medications.length === 0 ? (
+            <Text style={styles.emptyText}>No medications prescribed</Text>
+          ) : (
+            medications.map((medication) => (
+              <MedicationCard key={medication.id} medication={medication} />
+            ))
+          )}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Events</Text>
-          <View style={styles.agendaContainer}>
-            {MOCK_EVENTS
-              .sort((a, b) => a.date.localeCompare(b.date))
-              .map((event, index) => (
-                <View key={index} style={styles.agendaItem}>
-                  <View style={styles.agendaDate}>
-                    <Text style={styles.agendaDay}>{new Date(event.date).toLocaleDateString('en-US', { weekday: 'short' })}</Text>
-                    <Text style={styles.agendaDateNumber}>{new Date(event.date).getDate()}</Text>
-                    <Text style={styles.agendaMonth}>{new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}</Text>
-                  </View>
-                  <View style={styles.agendaContent}>
-                    <View style={styles.agendaHeader}>
-                      <Text style={styles.agendaTitle}>{event.title}</Text>
-                      <View style={[styles.eventType, { backgroundColor: getPriorityColor(event.priority) }]} />
-                    </View>
-                    <View style={styles.agendaDetails}>
-                      <View style={styles.agendaDetailRow}>
-                        <Icon name="access-time" size={16} color="#666" />
-                        <Text style={styles.agendaDetailText}>{event.time}</Text>
-                      </View>
-                      <View style={styles.agendaDetailRow}>
-                        <Icon name="location-on" size={16} color="#666" />
-                        <Text style={styles.agendaDetailText}>{event.location}</Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              ))}
-          </View>
+          <Text style={styles.sectionTitle}>Recommendations ({recommendations.length})</Text>
+          {recommendations.length === 0 ? (
+            <Text style={styles.emptyText}>No recommendations available</Text>
+          ) : (
+            recommendations.map((recommendation) => (
+              <RecommendationCard key={recommendation.id} recommendation={recommendation} />
+            ))
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -457,6 +711,245 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginLeft: 4,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  inactiveCard: {
+    opacity: 0.7,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 8,
+    color: '#212121',
+  },
+  cardContent: {
+    gap: 8,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#212121',
+    marginBottom: 8,
+  },
+  medicationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  medicationTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  medicationName: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
+    color: '#212121',
+  },
+  medicationDetails: {
+    gap: 4,
+  },
+  medicationInfo: {
+    fontSize: 14,
+    color: '#424242',
+  },
+  instructions: {
+    fontSize: 14,
+    color: '#616161',
+    marginTop: 8,
+    fontStyle: 'italic',
+  },
+  inactiveTag: {
+    backgroundColor: '#EEEEEE',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  inactiveText: {
+    fontSize: 12,
+    color: '#757575',
+  },
+  recommendationTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recommendationType: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
+    color: '#212121',
+  },
+  priorityTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  prioritylow: {
+    backgroundColor: '#E8F5E9',
+  },
+  prioritymedium: {
+    backgroundColor: '#FFF3E0',
+  },
+  priorityhigh: {
+    backgroundColor: '#FFEBEE',
+  },
+  priorityText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  statusTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusactive: {
+    backgroundColor: '#E8F5E9',
+  },
+  statuscompleted: {
+    backgroundColor: '#E3F2FD',
+  },
+  statusstopped: {
+    backgroundColor: '#FFF3E0',
+  },
+  statuscancelled: {
+    backgroundColor: '#FFEBEE',
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#212121',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: '#757575',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#FF3B30',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  infoSection: {
+    marginTop: 16,
+    gap: 8,
+  },
+  allergyName: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
+    color: '#212121',
+    flex: 1,
+  },
+  severityTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  severitymild: {
+    backgroundColor: '#E8F5E9',
+  },
+  severitymoderate: {
+    backgroundColor: '#FFF3E0',
+  },
+  severitysevere: {
+    backgroundColor: '#FFEBEE',
+  },
+  severityText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#212121',
+  },
+  allergyInfo: {
+    fontSize: 14,
+    color: '#424242',
+  },
+  allergyDate: {
+    fontSize: 12,
+    color: '#757575',
+    marginTop: 8,
+  },
+  diseaseName: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
+    color: '#212121',
+    flex: 1,
+  },
+  typeTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  typechronic: {
+    backgroundColor: '#E3F2FD',
+  },
+  typeinfectious: {
+    backgroundColor: '#FFF3E0',
+  },
+  typedegenerative: {
+    backgroundColor: '#F3E5F5',
+  },
+  typeText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#212121',
+  },
+  diseaseDescription: {
+    fontSize: 14,
+    color: '#424242',
+    lineHeight: 20,
+  },
+  notesContainer: {
+    marginTop: 8,
+  },
+  notesLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#212121',
+  },
+  noteText: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 16,
+  },
+  recommendationFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
   },
 });
 
