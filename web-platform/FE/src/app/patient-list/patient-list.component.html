@@ -134,7 +134,11 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns" class="min-h-12"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="min-h-12"></tr>
+        <tr mat-row
+            *matRowDef="let row; columns: displayedColumns;"
+            [ngClass]="{ 'inactive-patient': !row.isActive }"
+            class="min-h-12">
+        </tr>
       </table>
       <div class="pt-1">
         <mat-paginator

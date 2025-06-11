@@ -85,3 +85,7 @@ input[matInput] {
 .table{
   width: 80%;
 }
+
+.inactive-patient {
+  opacity: 0.5;
+}
