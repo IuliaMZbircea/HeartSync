@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/api/humidity')]
+#[Route('/humidity')]
 class HumidityMeasurementController extends AbstractController
 {
     #[Route('', name: 'post_humidity', methods: ['POST'])]

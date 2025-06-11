@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/api/custom-recommendations')]
+#[Route('/custom-recommendations')]
 class RecommendationController extends AbstractController
 {
     public function __construct(

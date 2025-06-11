@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api/thresholds')]
+#[Route('/thresholds')]
 class SensorAlertThresholdController extends AbstractController
 {
     #[Route('', methods: ['GET'])]
