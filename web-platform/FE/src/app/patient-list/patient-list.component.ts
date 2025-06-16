@@ -10,6 +10,7 @@ import {Router, RouterLink} from "@angular/router";
 import calculateAge from "../utils/calculate-age";
 import {MatTooltip} from "@angular/material/tooltip";
 import {Patient} from "../../shared/interfaces/patient";
+import {AlertService} from "../../services/alert.service";
 
 @Component({
   selector: 'app-patient-list',
@@ -35,41 +36,36 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private patientService: PatientService, private router: Router) {}
+  constructor(private patientService: PatientService, private router: Router, private alertService: AlertService) {}
 
   ngOnInit() {
-    this.patientService.getPatients().subscribe(patients => {
-      this.dataSource.data = patients.map(patient => ({
-        ...patient,
-        age: calculateAge(patient.birthDate),
-        alert: patient.sensorAlertThresholds ? patient.sensorAlertThresholds.length : 0
-      }));
+    this.loadPatients();
 
-      this.dataSource.sortingDataAccessor = (item, property) => {
-        switch (property) {
-          case 'id': return +item.id;
-          case 'patient': return (item.firstName + ' ' + item.lastName).toLowerCase();
-          case 'alerts': return item.alert || 0;
-          case 'risk':
-            const risk = this.getRiskType(item);
-            return risk === 'high' ? 3 : risk === 'medium' ? 2 : 1;
-          default: return (item as any)[property];
-        }
-      };
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'id': return +item.id;
+        case 'patient': return (item.firstName + ' ' + item.lastName).toLowerCase();
+        case 'alerts': return item.alert || 0;
+        case 'risk':
+          const risk = this.getRiskType(item);
+          return risk === 'high' ? 3 : risk === 'medium' ? 2 : 1;
+        default: return (item as any)[property];
+      }
+    };
 
-      this.dataSource.filterPredicate = (data, filter) => {
-        const fullName = `${data.firstName} ${data.lastName}`.toLowerCase();
-        return fullName.includes(filter);
-      };
-
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    });
+    this.dataSource.filterPredicate = (data, filter) => {
+      const fullName = `${data.firstName} ${data.lastName}`.toLowerCase();
+      return fullName.includes(filter);
+    };
   }
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+    this.sort.active = 'id';
+    this.sort.direction = 'desc';
+    this.sort.sortChange.emit({active: this.sort.active, direction: this.sort.direction});
   }
 
   applyFilter(event: Event) {
@@ -127,6 +123,50 @@ export class PatientListComponent implements OnInit, AfterViewInit {
   openChartsDialog(id:string){
     this.router.navigate([`/view-charts`, id]);
   }
+
+  deletePatient(patientId: number): void {
+    if (confirm('Are you sure you want to delete this patient?')) {
+      this.patientService.deletePatient(patientId).subscribe({
+        next: () => {
+          this.alertService.success('Patient was deleted successfully.');
+
+          // elimină pacientul local din dataSource.data
+          this.dataSource.data = this.dataSource.data.filter(p => p.id !== patientId);
+        },
+        error: () => {
+          this.alertService.error('Failed to delete patient.');
+        }
+      });
+    }
+  }
+
+  loadPatients(): void {
+    this.patientService.getPatients().subscribe({
+      next: patients => {
+        const activePatients = patients.filter(p => p.isActive);
+
+        const today = new Date();
+        const isSameDay = (d1: Date, d2: Date) =>
+          d1.getFullYear() === d2.getFullYear() &&
+          d1.getMonth() === d2.getMonth() &&
+          d1.getDate() === d2.getDate();
+
+        this.dataSource.data = activePatients.map(patient => ({
+          ...patient,
+          age: calculateAge(patient.birthDate),
+          alert: Array.isArray(patient.sensorAlertThresholds)
+            ? patient.sensorAlertThresholds.filter((a: any) => a.isActive).length
+            : 0,
+          isCreatedToday: patient.createdAt ? isSameDay(new Date(patient.createdAt), today) : false
+        }));
+      },
+      error: () => {
+        this.alertService.error('Failed to load patients.');
+      }
+    });
+  }
+
+
 }
 
 

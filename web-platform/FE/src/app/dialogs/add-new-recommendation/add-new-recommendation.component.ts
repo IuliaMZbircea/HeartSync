@@ -6,6 +6,7 @@ import {DatePipe, NgForOf, NgIf} from "@angular/common";
 import {MatButtonToggle, MatButtonToggleGroup} from "@angular/material/button-toggle";
 import {PatientService} from "../../../services/patient.service";
 import {Patient} from "../../../shared/interfaces/patient";
+import {Recommendation} from "../../../shared/interfaces/recommendation";
 
 @Component({
   selector: 'app-add-new-recommendation',
@@ -40,7 +41,7 @@ export class AddNewRecommendationComponent implements OnInit {
 
   selectedOption: string | undefined = 'add';
   patient!: Patient;
-  recommendations: any[] = [];
+  recommendations: Recommendation[] | undefined = [];
 
   onToggleChange(event: any): void {
     console.log('Selected:', event.value);

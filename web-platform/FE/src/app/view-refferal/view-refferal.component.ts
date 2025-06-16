@@ -199,19 +199,47 @@ export class ViewRefferalComponent implements OnInit{
       }
     });
   }
-
   exportReferralToPdf(referral: Referral): void {
     try {
       const doc = new jsPDF();
-      doc.setFontSize(16);
-      doc.text(`Referral #${referral.id}`, 10, 10);
+
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Medical Referral #${referral.id}`, 10, 15);
+
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.5);
+      doc.line(10, 18, 200, 18);
+
       doc.setFontSize(12);
-      doc.text(`From Doctor: ${referral.fromDoctor.firstName} ${referral.fromDoctor.lastName}`, 10, 20);
-      doc.text(`To Doctor: ${referral.toDoctor?.firstName} ${referral.toDoctor?.lastName}`, 10, 30);
-      doc.text(`Type: ${this.getReferralTypeLabel(referral.type)}`, 10, 40);
-      doc.text(`Reason: ${referral.reason}`, 10, 50);
-      doc.text(`Date: ${referral.date ? new Date(referral.date).toLocaleDateString() : ''}`, 10, 60);
-      doc.text(`Status: ${referral.isResolved ? 'Resolved' : 'Pending'}`, 10, 70);
+      doc.setFont("helvetica", "normal");
+
+      let y = 30;
+
+      const addLabelValue = (label: string, value: string | undefined, indent = 10) => {
+        const labelText = `${label}: `;
+        const valueText = value ?? 'N/A';
+
+        doc.setFont("helvetica", "bold");
+        doc.text(labelText, indent, y);
+
+        const labelWidth = doc.getTextWidth(labelText);
+
+        doc.setFont("helvetica", "normal");
+        doc.text(valueText, indent + labelWidth, y);
+
+        y += 10;
+      };
+
+      addLabelValue('From Doctor', `${referral.fromDoctor.firstName ?? 'N/A'} ${referral.fromDoctor.lastName ?? ''}`);
+      addLabelValue('To Doctor', referral.toDoctor ? `${referral.toDoctor.firstName ?? 'N/A'} ${referral.toDoctor.lastName ?? ''}` : 'N/A');
+      addLabelValue('Type', this.getReferralTypeLabel(referral.type));
+      addLabelValue('Reason', referral.reason);
+      addLabelValue('Created at', referral.createdAt ? new Date(referral.createdAt).toLocaleDateString() : 'N/A');
+
+      const status = referral.isResolved ? 'Resolved' : 'Pending';
+      addLabelValue('Status', status);
+
       doc.save(`referral_${referral.id}.pdf`);
       this.alertService.success('PDF exported successfully!');
     } catch (error) {
@@ -219,4 +247,6 @@ export class ViewRefferalComponent implements OnInit{
       this.alertService.error('Failed to export PDF');
     }
   }
+
+
 }
