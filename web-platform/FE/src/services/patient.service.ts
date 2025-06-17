@@ -82,4 +82,8 @@ export class PatientService {
   getECGById(id: number): Observable<any> {
     return this.http.get(`http://localhost:8000/api/ecg/${id}`);
   }
+
+  getHumidityById(id: number): Observable<any> {
+    return this.http.get(`http://localhost:8000/humidity/${id}`);
+  }
 }

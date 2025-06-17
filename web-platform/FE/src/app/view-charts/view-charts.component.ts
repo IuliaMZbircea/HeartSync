@@ -37,7 +37,6 @@ Chart.register(
 export class ViewChartsComponent implements OnInit {
   patient!: Patient;
   pulseData: any;
-
   temperatureData: any;
 
   public ecgChartData: ChartConfiguration<'line'>['data'] = {
@@ -139,9 +138,44 @@ export class ViewChartsComponent implements OnInit {
     }
   };
 
+  public humidityChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Umiditate (%)',
+        fill: false,
+        borderColor: 'purple',
+        tension: 0.3,
+      }
+    ]
+  };
+
+  public humidityChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    scales: {
+      y: {
+        min: 0,
+        max: 100,
+        title: {
+          display: true,
+          text: 'Umiditate (%)'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Ora'
+        }
+      }
+    }
+  };
+
+
   @ViewChild('pulseChart') pulseChart?: BaseChartDirective;
   @ViewChild('temperatureChart') temperatureChart?: BaseChartDirective;
   @ViewChild('ecgChart') ecgChart?: BaseChartDirective;
+  @ViewChild('humidityChart') humidityChart?: BaseChartDirective;
 
   constructor(
     private route: ActivatedRoute,
@@ -193,6 +227,21 @@ export class ViewChartsComponent implements OnInit {
         error => console.error('Eroare la preluarea ECG:', error)
       );
 
+      this.patientService.getHumidityById(id).subscribe(
+        humidityData => {
+          const sliced = humidityData.slice(0, 100);
+
+          this.humidityChartData.labels = sliced.map((entry: any) => {
+            const time = new Date(entry.created_at);
+            return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+          });
+
+          this.humidityChartData.datasets[0].data = sliced.map((entry: any) => entry.humidity);
+
+          this.humidityChart?.update();
+        },
+        error => console.error('Eroare la preluarea umidității:', error)
+      );
 
     } else {
       console.error('Invalid or missing patient ID in route.');
