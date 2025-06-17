@@ -38,6 +38,42 @@ export class ViewChartsComponent implements OnInit {
   patient!: Patient;
   pulseData: any;
 
+  temperatureData: any;
+
+  public temperatureChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Temperatură (°C)',
+        fill: false,
+        borderColor: 'blue',
+        tension: 0.3,
+      }
+    ]
+  };
+
+  public temperatureChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    scales: {
+      y: {
+        min: 20,
+        max: 40,
+        title: {
+          display: true,
+          text: 'Temperatură (°C)'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Ora'
+        }
+      }
+    }
+  };
+
+
   public lineChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: [
@@ -71,7 +107,8 @@ export class ViewChartsComponent implements OnInit {
     }
   };
 
-  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+  @ViewChild('pulseChart') pulseChart?: BaseChartDirective;
+  @ViewChild('temperatureChart') temperatureChart?: BaseChartDirective;
 
   constructor(
     private route: ActivatedRoute,
@@ -83,29 +120,37 @@ export class ViewChartsComponent implements OnInit {
     const id = idParam && !isNaN(+idParam) ? Number(idParam) : null;
 
     if (id !== null) {
-      this.patientService.getPatients().subscribe((patients: Patient[]) => {
-        const found = patients.find(p => p.id === id);
-        if (found) {
-          this.patient = found;
-          this.patientService.getPulseById(id).subscribe(
-            data => {
-              this.pulseData = data.slice(0, 5);
+      this.patientService.getPulseById(id).subscribe(
+        data => {
+          this.pulseData = data.slice(0, 500);
 
-              this.lineChartData.labels = this.pulseData.map((entry: any) => {
-                const time = new Date(entry.created_at);
-                return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
-              });
+          this.lineChartData.labels = this.pulseData.map((entry: any) => {
+            const time = new Date(entry.created_at);
+            return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+          });
 
-              this.lineChartData.datasets[0].data = this.pulseData.map((entry: any) => entry.pulse);
+          this.lineChartData.datasets[0].data = this.pulseData.map((entry: any) => entry.pulse);
 
-              this.chart?.update();
-            },
-            error => console.error('Eroare la preluarea datelor:', error)
-          );
-        } else {
-          console.warn(`Patient with ID ${id} not found.`);
-        }
-      });
+          this.pulseChart?.update(); // 👈 important
+        },
+        error => console.error('Eroare la preluarea datelor:', error)
+      );
+
+      this.patientService.getTemperatureById(id).subscribe(
+        tempData => {
+          this.temperatureData = tempData.slice(0, 100);
+
+          this.temperatureChartData.labels = this.temperatureData.map((entry: any) => {
+            const time = new Date(entry.created_at);
+            return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+          });
+
+          this.temperatureChartData.datasets[0].data = this.temperatureData.map((entry: any) => entry.temperature);
+
+          this.temperatureChart?.update(); // 👈 important
+        },
+        error => console.error('Eroare la preluarea temperaturii:', error)
+      );
     } else {
       console.error('Invalid or missing patient ID in route.');
     }

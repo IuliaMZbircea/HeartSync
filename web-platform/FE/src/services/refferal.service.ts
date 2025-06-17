@@ -9,7 +9,7 @@ import {Referral} from "../shared/interfaces/referral";
   providedIn: 'root'
 })
 export class ReferralService {
-  private apiUrl = `${environment.apiUrl}/api/custom-referrals`;
+  private apiUrl = `${environment.apiUrl}/custom-referrals`;
 
   constructor(private http: HttpClient, private errorService: ErrorService) {}
 

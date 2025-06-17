@@ -25,7 +25,7 @@ export class AlertService {
     });
   }
 
-  private apiUrl = 'http://localhost:8000/api/alarms';
+  private apiUrl = 'http://localhost:8000/alarms';
 
   constructor(private http: HttpClient) {}
 
@@ -34,16 +34,16 @@ export class AlertService {
   }
 
   createAlarm(alarmData: any): Observable<any> {
-    const url = 'http://localhost:8000/api/thresholds';
+    const url = 'http://localhost:8000/thresholds';
     return this.http.post<any>(url, alarmData);
   }
 
   updateAlarm(id: number, updatedData: any): Observable<any> {
-    return this.http.put<any>(`http://localhost:8000/api/thresholds/${id}`, updatedData);
+    return this.http.put<any>(`http://localhost:8000/thresholds/${id}`, updatedData);
   }
 
   getAlarms(): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:8000/api/thresholds`);
+    return this.http.get<any[]>(`http://localhost:8000/thresholds`);
   }
 
 }

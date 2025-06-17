@@ -67,7 +67,7 @@ export class AuthService  {
 
   fetchCurrentUser(): Observable<DoctorI> {
 
-    return this.http.get<DoctorI>(`${this.apiUrl}/api/doctors/auth/user`).pipe(
+    return this.http.get<DoctorI>(`${this.apiUrl}/doctors/auth/user`).pipe(
       map(response => {
         this.currentUser = response;
         this.currentUserSubject.next(this.currentUser);

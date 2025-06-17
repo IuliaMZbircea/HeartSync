@@ -9,12 +9,13 @@ import { Patient } from '../shared/interfaces/patient';
   providedIn: 'root'
 })
 export class PatientService {
-  private apiUrl = `${environment.apiUrl}/api/custom-patients`;
+  private apiUrl = `${environment.apiUrl}/custom-patients`;
 
   constructor(
     private http: HttpClient,
     private errorService: ErrorService
-  ) {}
+  ) {
+  }
 
   getPatients(): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${this.apiUrl}`).pipe(
@@ -67,10 +68,14 @@ export class PatientService {
   }
 
   addDisease(diseaseData: any): Observable<any> {
-    return this.http.post('http://localhost:8000/api/custom-diseases', diseaseData);
+    return this.http.post('http://localhost:8000/custom-diseases', diseaseData);
   }
 
   getPulseById(id: number): Observable<any> {
-    return this.http.get(`http://localhost:8000/api/pulse/${id}`);
+    return this.http.get(`http://localhost:8000/pulse/${id}`);
+  }
+
+  getTemperatureById(id: number): Observable<any> {
+    return this.http.get(`http://localhost:8000/temperature/${id}`);
   }
 }

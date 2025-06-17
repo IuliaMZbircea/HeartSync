@@ -10,7 +10,7 @@ import {catchError, Observable, throwError} from "rxjs";
 })
 export class RecommendationService {
 
-  private apiUrl = `${environment.apiUrl}/api/custom-recommendations`;
+  private apiUrl = `${environment.apiUrl}/custom-recommendations`;
 
   constructor(private http: HttpClient, private errorService: ErrorService) {}
 
