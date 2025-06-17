@@ -87,7 +87,7 @@ const getMarkedDates = () => {
 const PatientDetailsScreen = ({ navigation }: any) => {
   const [selectedDate, setSelectedDate] = useState('');
   const [patient, setPatient] = useState<Patient | null>(null);
-  const [medications, setMedications] = useState<Medication[]>([]);
+  const [medications, setMedications] = useState<MedicationRequest[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

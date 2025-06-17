@@ -1,7 +1,7 @@
 import axios from 'axios';
 import authService from './authService';
 
-const API_URL = 'https://1234-2a02-2f09-3315-ed00-74a3-304e-8145-9ebf.ngrok-free.app';
+const API_URL = 'https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app';
 
 // Thresholds for normal ranges
 const NORMAL_RANGES = {

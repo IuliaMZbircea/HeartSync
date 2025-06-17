@@ -6,6 +6,9 @@ declare module 'react-native-bluetooth-serial' {
   }
 
   interface BluetoothSerial {
+    requestEnable(): unknown;
+    addListener(arg0: string, arg1: (data: any) => void): any;
+    withDelimiter(arg0: string): unknown;
     isEnabled(): Promise<boolean>;
     enable(): Promise<boolean>;
     disable(): Promise<boolean>;

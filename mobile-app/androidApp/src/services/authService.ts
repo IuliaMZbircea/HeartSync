@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'https://1234-2a02-2f09-3315-ed00-74a3-304e-8145-9ebf.ngrok-free.app';
+const API_URL = 'https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app';
 
 // Default token for patient ID 1
 const DEFAULT_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTAzMjY4MDAsImV4cCI6MTcxMDkzMTYwMCwicm9sZXMiOlsiUk9MRV9QQVRJRU5UIl0sInVzZXJuYW1lIjoicGF0aWVudEBleGFtcGxlLmNvbSJ9.XyZ123...'; // Replace with your actual token

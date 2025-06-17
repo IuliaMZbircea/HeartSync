@@ -11,7 +11,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import alarmService, { Alarm } from '../services/alarm.service';
 
-const API_URL = 'https://1234-2a02-2f09-3315-ed00-74a3-304e-8145-9ebf.ngrok-free.app';
+const API_URL = 'http://https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app:8000';
 
 export default function AlarmsScreen() {
   const [alarms, setAlarms] = useState<Alarm[]>([]);

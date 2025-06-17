@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import { Alert } from 'react-native';
 
 // Replace 192.168.1.x with your actual IP address
-const API_URL = 'https://1234-2a02-2f09-3315-ed00-74a3-304e-8145-9ebf.ngrok-free.app';
+const API_URL = 'https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app';
 
 export interface Alarm {
   id?: number;
@@ -60,7 +60,7 @@ getAlarms: async (): Promise<Alarm[]> => {
 
   getAlarmById: async (id: number): Promise<Alarm> => {
     try {
-      const response = await axios.get(`${API_URL}/${id}`);
+      const response = await axios.get(`${API_URL}/custom-alarms/${id}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching alarm ${id}:`, error);
