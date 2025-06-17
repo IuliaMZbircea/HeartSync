@@ -5,7 +5,12 @@
 <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="patient-form">
 
   <section class="form-section">
-    <h3>📞 Contact Information</h3>
+    <div class="section-header">
+      <h3>📞 Contact Information</h3>
+      <button type="button" (click)="startSectionRecording('contact')" [disabled]="isRecording && currentRecordingSection !== 'contact'">
+        {{ currentRecordingSection === 'contact' ? '⏹️ Stop Recording' : '🎤 Record Section' }}
+      </button>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label>Email</label>
@@ -25,7 +30,12 @@
   </section>
 
   <section class="form-section">
-    <h3>🧍 Personal Information</h3>
+    <div class="section-header">
+      <h3>🧍 Personal Information</h3>
+      <button type="button" (click)="startSectionRecording('personal')" [disabled]="isRecording && currentRecordingSection !== 'personal'">
+        {{ currentRecordingSection === 'personal' ? '⏹️ Stop Recording' : '🎤 Record Section' }}
+      </button>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label>First Name*</label>
@@ -74,7 +84,12 @@
   </section>
 
   <section class="form-section">
-    <h3>🏠 Address</h3>
+    <div class="section-header">
+      <h3>🏠 Address</h3>
+      <button type="button" (click)="startSectionRecording('address')" [disabled]="isRecording && currentRecordingSection !== 'address'">
+        {{ currentRecordingSection === 'address' ? '⏹️ Stop Recording' : '🎤 Record Section' }}
+      </button>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label>City*</label>
@@ -111,7 +126,12 @@
   </section>
 
   <section class="form-section">
-    <h3>🩺 Medical Information</h3>
+    <div class="section-header">
+      <h3>🩺 Medical Information</h3>
+      <button type="button" (click)="startSectionRecording('medical')" [disabled]="isRecording && currentRecordingSection !== 'medical'">
+        {{ currentRecordingSection === 'medical' ? '⏹️ Stop Recording' : '🎤 Record Section' }}
+      </button>
+    </div>
     <div class="form-row">
 
       <div class="form-group">
