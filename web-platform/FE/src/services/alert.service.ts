@@ -24,7 +24,17 @@ export class AlertService {
       text: message,
     });
   }
-
+  info(message: string) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Info ℹ️',
+      text: message,
+      showConfirmButton: false,
+      timer: 2000,
+      toast: true,
+      position: 'top-end',
+    });
+  }
   private apiUrl = 'http://localhost:8000/alarms';
 
   constructor(private http: HttpClient) {}
