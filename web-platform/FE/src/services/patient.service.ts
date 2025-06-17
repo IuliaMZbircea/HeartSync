@@ -78,4 +78,8 @@ export class PatientService {
   getTemperatureById(id: number): Observable<any> {
     return this.http.get(`http://localhost:8000/temperature/${id}`);
   }
+
+  getECGById(id: number): Observable<any> {
+    return this.http.get(`http://localhost:8000/api/ecg/${id}`);
+  }
 }

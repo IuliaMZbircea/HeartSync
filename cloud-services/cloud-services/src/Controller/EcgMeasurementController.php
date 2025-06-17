@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\EcgMeasurement;
+use App\Repository\EcgMeasurementRepository;
 use App\Repository\PatientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -10,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/ecg')]
+#[Route('/api/ecg')]
 class EcgMeasurementController extends AbstractController
 {
     private const BUFFER_DIR = __DIR__ . '/../../var/ecg_buffers';
@@ -36,25 +37,21 @@ class EcgMeasurementController extends AbstractController
             return $this->json(['error' => 'Patient not found'], 404);
         }
 
-        // Ensure buffer directory exists
         if (!is_dir(self::BUFFER_DIR)) {
             mkdir(self::BUFFER_DIR, 0777, true);
         }
 
         $bufferFile = self::BUFFER_DIR . "/patient_{$patientId}.json";
 
-        // Read current buffer
         $buffer = [];
         if (file_exists($bufferFile)) {
             $json = file_get_contents($bufferFile);
             $buffer = json_decode($json, true) ?? [];
         }
 
-        // Add new waveform
         $buffer[] = $waveform;
 
         if (count($buffer) >= 5) {
-            // Save to DB
             $ecg = new EcgMeasurement();
             $ecg->setPatient($patient);
             $ecg->setWaveforms($buffer);
@@ -63,7 +60,6 @@ class EcgMeasurementController extends AbstractController
             $em->persist($ecg);
             $em->flush();
 
-            // Clear buffer
             unlink($bufferFile);
 
             return $this->json([
@@ -74,7 +70,6 @@ class EcgMeasurementController extends AbstractController
                 'send_alarm' => $ecg->isSendAlarm()
             ]);
         } else {
-            // Save buffer back
             file_put_contents($bufferFile, json_encode($buffer));
 
             return $this->json([
@@ -83,5 +78,65 @@ class EcgMeasurementController extends AbstractController
                 'current_count' => count($buffer)
             ]);
         }
+    }
+
+    #[Route('', name: 'get_all_ecg', methods: ['GET'])]
+    public function getAll(EcgMeasurementRepository $repo): JsonResponse
+    {
+        $list = $repo->findAll();
+
+        $data = array_map(function (EcgMeasurement $e) {
+            return [
+                'id' => $e->getId(),
+                'patient_id' => $e->getPatient()->getId(),
+                'waveforms' => $e->getWaveforms(),
+                'created_at' => $e->getCreatedAt()->format('Y-m-d H:i:s'),
+                'send_alarm' => $e->isSendAlarm()
+            ];
+        }, $list);
+
+        return $this->json($data);
+    }
+
+    #[Route('/{id}', name: 'get_ecg_by_id', methods: ['GET'])]
+    public function getById(EcgMeasurement $ecg): JsonResponse
+    {
+        return $this->json([
+            'id' => $ecg->getId(),
+            'patient_id' => $ecg->getPatient()->getId(),
+            'waveforms' => $ecg->getWaveforms(),
+            'created_at' => $ecg->getCreatedAt()->format('Y-m-d H:i:s'),
+            'send_alarm' => $ecg->isSendAlarm()
+        ]);
+    }
+
+    #[Route('/{id}', name: 'update_ecg', methods: ['PUT'])]
+    public function update(
+        Request $request,
+        EcgMeasurement $ecg,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['waveforms']) && is_array($data['waveforms'])) {
+            $ecg->setWaveforms($data['waveforms']);
+        }
+
+        if (isset($data['send_alarm'])) {
+            $ecg->setSendAlarm((bool)$data['send_alarm']);
+        }
+
+        $em->flush();
+
+        return $this->json(['success' => true]);
+    }
+
+    #[Route('/{id}', name: 'delete_ecg', methods: ['DELETE'])]
+    public function delete(EcgMeasurement $ecg, EntityManagerInterface $em): JsonResponse
+    {
+        $em->remove($ecg);
+        $em->flush();
+
+        return $this->json(['success' => true]);
     }
 }

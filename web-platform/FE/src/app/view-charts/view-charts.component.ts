@@ -40,6 +40,38 @@ export class ViewChartsComponent implements OnInit {
 
   temperatureData: any;
 
+  public ecgChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'ECG waveform',
+        fill: false,
+        borderColor: 'green',
+        tension: 0.1,
+      }
+    ]
+  };
+
+  public ecgChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: 'Tensiune (mV)'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Timp (eșantioane)'
+        }
+      }
+    }
+  };
+
+
   public temperatureChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: [
@@ -109,6 +141,7 @@ export class ViewChartsComponent implements OnInit {
 
   @ViewChild('pulseChart') pulseChart?: BaseChartDirective;
   @ViewChild('temperatureChart') temperatureChart?: BaseChartDirective;
+  @ViewChild('ecgChart') ecgChart?: BaseChartDirective;
 
   constructor(
     private route: ActivatedRoute,
@@ -151,6 +184,16 @@ export class ViewChartsComponent implements OnInit {
         },
         error => console.error('Eroare la preluarea temperaturii:', error)
       );
+
+      this.patientService.getECGById(id).subscribe(
+        ecg => {
+          this.ecgChartData.labels = ecg.waveforms.map((value: number, index: number) => index + 1);
+          this.ecgChartData.datasets[0].data = ecg.waveforms;
+        },
+        error => console.error('Eroare la preluarea ECG:', error)
+      );
+
+
     } else {
       console.error('Invalid or missing patient ID in route.');
     }
