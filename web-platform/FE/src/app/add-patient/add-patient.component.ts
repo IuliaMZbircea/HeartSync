@@ -121,13 +121,15 @@ export class AddPatientComponent implements OnInit {
       fieldQuestions.push(
         { question: "Please say the first name.", field: "firstName" },
         { question: "Now please say the last name.", field: "lastName" },
-        { question: "Finally, please say the CNP number.", field: "cnp" }
+        { question: "Please say the CNP number.", field: "cnp" },
+        { question: "Please say the occupation.", field: "occupation" }
+
       );
     } else if (section === 'address') {
       fieldQuestions.push(
         { question: "Please say the city.", field: "locality" },
         { question: "Now please say the street name.", field: "street" },
-        { question: "Finally, please say the number.", field: "number" }
+        { question: "Please say the number.", field: "number" }
       );
     } else if (section === 'medical') {
       fieldQuestions.push(
@@ -200,11 +202,26 @@ export class AddPatientComponent implements OnInit {
               transcript = transcript.replace(/\s+/g, '').replace(/[^\d]/g, '');
               break;
             case 'bloodGroup':
-              if (!['A', 'B', 'O', 'AB'].includes(transcript)) {
-                this.alertService.error('Invalid blood group. Please say A, B, O, or AB.');
-                resolve();
+              transcript = transcript.toUpperCase().trim();
+
+              const validGroups = ['A', 'B', 'O', 'AB'];
+              let matchedGroup = validGroups.find(group =>
+                transcript.includes(group) ||
+                (group === 'AB' && (transcript.includes('a b') || transcript.includes('ay bee')))
+              );
+
+              if (!matchedGroup) {
+                const errorMsg = new SpeechSynthesisUtterance(
+                  'Invalid blood group. Please say A, B, O, or A B.'
+                );
+                synth.speak(errorMsg);
+                errorMsg.onend = () => {
+                  this.askAndFillFieldWithPauseDetection(question, formField);
+                };
                 return;
               }
+
+              transcript = matchedGroup;
               break;
             case 'rh':
               transcript = transcript.includes('positive') ? '+' :
