@@ -14,8 +14,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 #[Route('/api/ecg')]
 class EcgMeasurementController extends AbstractController
 {
-    private const BUFFER_DIR = __DIR__ . '/../../var/ecg_buffers';
-
     #[Route('/single', name: 'post_single_waveform', methods: ['POST'])]
     public function postWaveform(
         Request $request,
@@ -37,47 +35,21 @@ class EcgMeasurementController extends AbstractController
             return $this->json(['error' => 'Patient not found'], 404);
         }
 
-        if (!is_dir(self::BUFFER_DIR)) {
-            mkdir(self::BUFFER_DIR, 0777, true);
-        }
+        $ecg = new EcgMeasurement();
+        $ecg->setPatient($patient);
+        $ecg->setWaveforms($waveform);
+        $ecg->setSendAlarm($sendAlarm);
 
-        $bufferFile = self::BUFFER_DIR . "/patient_{$patientId}.json";
+        $em->persist($ecg);
+        $em->flush();
 
-        $buffer = [];
-        if (file_exists($bufferFile)) {
-            $json = file_get_contents($bufferFile);
-            $buffer = json_decode($json, true) ?? [];
-        }
-
-        $buffer[] = $waveform;
-
-        if (count($buffer) >= 5) {
-            $ecg = new EcgMeasurement();
-            $ecg->setPatient($patient);
-            $ecg->setWaveforms($buffer);
-            $ecg->setSendAlarm($sendAlarm);
-
-            $em->persist($ecg);
-            $em->flush();
-
-            unlink($bufferFile);
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Measurement saved',
-                'waveforms' => $buffer,
-                'timestamp' => $ecg->getCreatedAt()->format('Y-m-d H:i:s'),
-                'send_alarm' => $ecg->isSendAlarm()
-            ]);
-        } else {
-            file_put_contents($bufferFile, json_encode($buffer));
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Waveform buffered',
-                'current_count' => count($buffer)
-            ]);
-        }
+        return $this->json([
+            'success' => true,
+            'message' => 'Measurement saved',
+            'waveform' => $waveform,
+            'timestamp' => $ecg->getCreatedAt()->format('Y-m-d H:i:s'),
+            'send_alarm' => $ecg->isSendAlarm()
+        ]);
     }
 
     #[Route('', name: 'get_all_ecg', methods: ['GET'])]
@@ -89,7 +61,7 @@ class EcgMeasurementController extends AbstractController
             return [
                 'id' => $e->getId(),
                 'patient_id' => $e->getPatient()->getId(),
-                'waveforms' => $e->getWaveforms(),
+                'waveform' => $e->getWaveforms(),
                 'created_at' => $e->getCreatedAt()->format('Y-m-d H:i:s'),
                 'send_alarm' => $e->isSendAlarm()
             ];
@@ -104,7 +76,7 @@ class EcgMeasurementController extends AbstractController
         return $this->json([
             'id' => $ecg->getId(),
             'patient_id' => $ecg->getPatient()->getId(),
-            'waveforms' => $ecg->getWaveforms(),
+            'waveform' => $ecg->getWaveforms(),
             'created_at' => $ecg->getCreatedAt()->format('Y-m-d H:i:s'),
             'send_alarm' => $ecg->isSendAlarm()
         ]);
@@ -118,8 +90,8 @@ class EcgMeasurementController extends AbstractController
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
-        if (isset($data['waveforms']) && is_array($data['waveforms'])) {
-            $ecg->setWaveforms($data['waveforms']);
+        if (isset($data['waveform'])) {
+            $ecg->setWaveforms((float)$data['waveform']);
         }
 
         if (isset($data['send_alarm'])) {
