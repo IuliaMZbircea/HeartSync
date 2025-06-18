@@ -92,6 +92,7 @@ const PatientDetailsScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPatientInfo, setShowPatientInfo] = useState(false);
 
   const fetchAllData = async () => {
     try {
@@ -194,87 +195,26 @@ const PatientDetailsScreen = ({ navigation }: any) => {
 
   const PatientInfoCard = () => (
     <View style={styles.card}>
-      <View style={styles.cardHeader}>
+      <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#2196F3', marginBottom: 8 }}>
+        Hello, {patient?.firstName} {patient?.lastName}!
+      </Text>
+      <TouchableOpacity onPress={() => setShowPatientInfo((prev) => !prev)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
         <Icon name="person" size={24} color="#2196F3" />
-        <Text style={styles.cardTitle}>Patient Information</Text>
-      </View>
-      <View style={styles.cardContent}>
-        <Text style={styles.name}>{patient?.firstName} {patient?.lastName}</Text>
-        
-        <View style={styles.infoSection}>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>CNP:</Text>
-            <Text style={styles.value}>{patient?.cnp}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Birth Date:</Text>
-            <Text style={styles.value}>
-              {patient?.birthDate ? new Date(patient.birthDate).toLocaleDateString() : 'N/A'}
-            </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Sex:</Text>
-            <Text style={styles.value}>{patient?.sex || 'N/A'}</Text>
-          </View>
+        <Text style={styles.cardTitle}>Show Details</Text>
+        <Icon name={showPatientInfo ? 'expand-less' : 'expand-more'} size={24} color="#2196F3" style={{ marginLeft: 'auto' }} />
+      </TouchableOpacity>
+      {showPatientInfo && (
+        <View style={styles.cardContent}>
+          <Text style={styles.label}>Email: <Text style={styles.value}>{patient?.email}</Text></Text>
+          <Text style={styles.label}>Phone: <Text style={styles.value}>{patient?.phone}</Text></Text>
+          <Text style={styles.label}>Birth Date: <Text style={styles.value}>{patient?.birthDate ? new Date(patient.birthDate).toLocaleDateString() : 'N/A'}</Text></Text>
+          <Text style={styles.label}>Sex: <Text style={styles.value}>{patient?.sex || 'N/A'}</Text></Text>
+          <Text style={styles.label}>Weight: <Text style={styles.value}>{patient?.weight} kg</Text></Text>
+          <Text style={styles.label}>Height: <Text style={styles.value}>{patient?.height} cm</Text></Text>
+          <Text style={styles.label}>Blood Group: <Text style={styles.value}>{patient?.bloodGroup} {patient?.rh}</Text></Text>
+          <Text style={styles.label}>Address: <Text style={styles.value}>{patient?.locality}, {patient?.street} {patient?.number}</Text></Text>
         </View>
-
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Contact</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{patient?.email}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Phone:</Text>
-            <Text style={styles.value}>{patient?.phone}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Occupation:</Text>
-            <Text style={styles.value}>{patient?.occupation}</Text>
-          </View>
-        </View>
-
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Address</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Locality:</Text>
-            <Text style={styles.value}>{patient?.locality}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Street:</Text>
-            <Text style={styles.value}>{patient?.street} {patient?.number}</Text>
-          </View>
-          {(patient?.block || patient?.staircase || patient?.apartment || patient?.floor) && (
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Details:</Text>
-              <Text style={styles.value}>
-                {[
-                  patient.block && `Block ${patient.block}`,
-                  patient.staircase && `Staircase ${patient.staircase}`,
-                  patient.apartment && `Apt ${patient.apartment}`,
-                  patient.floor && `Floor ${patient.floor}`,
-                ].filter(Boolean).join(', ')}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Medical Info</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Blood Type:</Text>
-            <Text style={styles.value}>{patient?.bloodGroup}{patient?.rh}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Height:</Text>
-            <Text style={styles.value}>{patient?.height} cm</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Weight:</Text>
-            <Text style={styles.value}>{patient?.weight} kg</Text>
-          </View>
-        </View>
-      </View>
+      )}
     </View>
   );
 
@@ -329,7 +269,7 @@ const PatientDetailsScreen = ({ navigation }: any) => {
         </View>
         <View style={[
           styles.statusTag,
-          styles[`status${medication.status as MedicationStatus}`] as any
+          styles[`status${medication.status}`] as any
         ]}>
           <Text style={styles.statusText}>{medication.status}</Text>
         </View>
@@ -369,30 +309,18 @@ const PatientDetailsScreen = ({ navigation }: any) => {
   );
 
   const RecommendationCard = ({ recommendation }: { recommendation: Recommendation }) => (
-    <View style={styles.card}>
-      <View style={styles.recommendationHeader}>
-        <View style={styles.recommendationTitleContainer}>
-          <Icon name="lightbulb" size={20} color="#2196F3" />
-          <Text style={styles.recommendationType}>{recommendation.type}</Text>
-        </View>
-        <View style={[styles.priorityTag, styles[`priority${recommendation.priority}`]]}>
-          <Text style={styles.priorityText}>{recommendation.priority}</Text>
-        </View>
-      </View>
-      <Text style={styles.recommendationDescription}>{recommendation.description}</Text>
-      <View style={styles.recommendationFooter}>
-        <Text style={styles.recommendationDate}>
-          Created: {new Date(recommendation.createdAt).toLocaleDateString()}
-        </Text>
-        {recommendation.followUpDate && (
-          <Text style={styles.recommendationDate}>
-            Follow-up: {new Date(recommendation.followUpDate).toLocaleDateString()}
-          </Text>
-        )}
-        <View style={[styles.statusTag, styles[`status${recommendation.status}`]]}>
-          <Text style={styles.statusText}>{recommendation.status}</Text>
+    <View style={[styles.card, { marginBottom: 16, borderLeftWidth: 5, borderLeftColor: '#2196F3', backgroundColor: '#F8FAFF' }]}> 
+      <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#D32F2F', marginBottom: 6 }}>
+        {recommendation.additionalNotes || 'No notes provided'}
+      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+        <Icon name="category" size={18} color="#2196F3" style={{ marginRight: 4 }} />
+        <Text style={{ fontSize: 15, color: '#2196F3', fontWeight: '600' }}>{recommendation.activityType}</Text>
+        <View style={[styles.priorityTag, recommendation.isActive ? styles.priorityhigh : styles.prioritylow, { marginLeft: 10 }]}>
+          <Text style={styles.priorityText}>{recommendation.isActive ? 'Active' : 'Inactive'}</Text>
         </View>
       </View>
+      <Text style={{ fontSize: 15, color: '#333' }}>Daily Duration: {recommendation.dailyDuration} min</Text>
     </View>
   );
 
@@ -434,6 +362,17 @@ const PatientDetailsScreen = ({ navigation }: any) => {
         <PatientInfoCard />
 
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recommendations ({recommendations.length})</Text>
+          {recommendations.length === 0 ? (
+            <Text style={styles.emptyText}>No recommendations available</Text>
+          ) : (
+            recommendations.map((recommendation) => (
+              <RecommendationCard key={recommendation.id} recommendation={recommendation} />
+            ))
+          )}
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Allergies ({patient?.allergies.length || 0})</Text>
           {patient?.allergies.length === 0 ? (
             <Text style={styles.emptyText}>No known allergies</Text>
@@ -462,17 +401,6 @@ const PatientDetailsScreen = ({ navigation }: any) => {
           ) : (
             medications.map((medication) => (
               <MedicationCard key={medication.id} medication={medication} />
-            ))
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recommendations ({recommendations.length})</Text>
-          {recommendations.length === 0 ? (
-            <Text style={styles.emptyText}>No recommendations available</Text>
-          ) : (
-            recommendations.map((recommendation) => (
-              <RecommendationCard key={recommendation.id} recommendation={recommendation} />
             ))
           )}
         </View>

@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import alarmService, { Alarm } from '../services/alarm.service';
 
-const API_URL = 'http://https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app:8000';
+const API_URL = 'https://d6b6-193-226-8-99.ngrok-free.app';
 
 export default function AlarmsScreen() {
   const [alarms, setAlarms] = useState<Alarm[]>([]);
@@ -20,15 +21,22 @@ export default function AlarmsScreen() {
 
   const fetchAlarms = async () => {
     try {
-      console.log('Fetching alarms from:', `${API_URL}/custom-alarms`);
+      console.log('Fetching alarms from thresholds endpoint');
       const fetchedAlarms = await alarmService.getAllAlarms();
-      console.log('Number of alarms fetched:', fetchedAlarms.length);
-      console.log('Alarm IDs:', fetchedAlarms.map(a => a.id));
-      console.log('Full alarms data:', JSON.stringify(fetchedAlarms, null, 2));
-      setAlarms(fetchedAlarms);
+      console.log('Raw alarms response:', fetchedAlarms);
+      
+      // Filter alarms for patient_id 1
+      const userAlarms = fetchedAlarms.filter(alarm => alarm.patient_id === 1);
+      console.log('Filtered alarms for patient 1:', userAlarms);
+      
+      setAlarms(userAlarms);
     } catch (error: any) {
-      console.error('Failed to fetch alarms:', error.response?.data || error.message);
-      console.error('Full error:', error);
+      console.error('Failed to fetch alarms:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+      }
+      Alert.alert('Error', 'Failed to fetch alarms. Please try again later.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -88,25 +96,18 @@ export default function AlarmsScreen() {
 
       <View style={styles.cardContent}>
         <View style={styles.conditionRow}>
-          <Text style={styles.label}>Condition:</Text>
-          <Text style={styles.value}>
-            {alarm.conditionType || 'Any'} {alarm.threshold}
-          </Text>
+          <Text style={styles.label}>Min Value:</Text>
+          <Text style={styles.value}>{alarm.minValue}</Text>
         </View>
-
+        <View style={styles.conditionRow}>
+          <Text style={styles.label}>Max Value:</Text>
+          <Text style={styles.value}>{alarm.maxValue}</Text>
+        </View>
         <View style={styles.conditionRow}>
           <Text style={styles.label}>Duration:</Text>
-          <Text style={styles.value}>{formatDuration(alarm.duration)}</Text>
+          <Text style={styles.value}>{alarm.durationMinutes} min</Text>
         </View>
-
-        {alarm.afterActivity && (
-          <View style={styles.activityBadge}>
-            <Icon name="directions-run" size={16} color="#FF9800" />
-            <Text style={styles.activityText}>After Activity</Text>
-          </View>
-        )}
-
-        <Text style={styles.message}>{alarm.message}</Text>
+        <Text style={styles.messageHighlight}>{alarm.message}</Text>
       </View>
     </View>
   );
@@ -251,6 +252,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#616161',
     marginTop: 8,
+  },
+  messageHighlight: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#D32F2F',
+    backgroundColor: '#FFF3E0',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 12,
+    marginBottom: 4,
+    textAlign: 'center',
   },
   emptyState: {
     alignItems: 'center',

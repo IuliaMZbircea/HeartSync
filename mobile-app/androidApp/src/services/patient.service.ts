@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app';
+const API_URL = 'https://d6b6-193-226-8-99.ngrok-free.app';
 
 export interface PatientAlarm {
   id: number;

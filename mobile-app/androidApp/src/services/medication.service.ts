@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app';
+const API_URL = 'https://d6b6-193-226-8-99.ngrok-free.app';
 
 export interface MedicationRequest {
   resourceType: 'MedicationRequest';
@@ -38,7 +38,7 @@ class MedicationService {
       
       // Filter medications for patient 1
       const patientMedications = response.data.filter(
-        med => med.subject.reference === '/custom-patients/1'
+        med => med.subject.reference === '/api/patients/1'
       );
       
       console.log('Patient 1 medications:', patientMedications);
@@ -54,7 +54,7 @@ class MedicationService {
       const medicationWithPatient = {
         ...medication,
         subject: {
-          reference: '/custom-patients/1'
+          reference: '/api/patients/1'
         }
       };
       const response = await axios.post(`${API_URL}/custom-medications`, medicationWithPatient);

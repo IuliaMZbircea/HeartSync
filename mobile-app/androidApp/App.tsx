@@ -11,7 +11,6 @@ import BluetoothScreen from './src/screens/BluetoothScreen';
 import PatientDetailsScreen from './src/screens/PatientDetailsScreen';
 import DataHistoryScreen from './src/screens/DataHistoryScreen';
 import AlarmsScreen from './src/screens/AlarmsScreen';
-import { TestAlarmsScreen } from './src/screens/TestAlarmsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -58,15 +57,6 @@ function MainApp() {
         options={{
           tabBarIcon: ({ color, size }) => (
             <Icon name="notifications" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Test Alarms"
-        component={TestAlarmsScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="bug-report" size={size} color={color} />
           ),
         }}
       />

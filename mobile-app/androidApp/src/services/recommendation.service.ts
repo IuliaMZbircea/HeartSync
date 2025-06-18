@@ -1,25 +1,27 @@
 import axios from 'axios';
 
-const API_URL = 'https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app';
+const API_URL = 'https://d6b6-193-226-8-99.ngrok-free.app';
 
 export interface Recommendation {
   id: number;
   patientId: number;
-  type: string;
-  description: string;
-  createdAt: string;
-  priority: 'low' | 'medium' | 'high';
-  status: 'active' | 'completed' | 'cancelled';
-  followUpDate?: string;
+  activityType: string;
+  dailyDuration: number;
+  startDate: string;
+  endDate: string;
+  additionalNotes: string;
+  isActive: boolean;
+  hl7: any;
 }
 
 class RecommendationService {
   async getPatientRecommendations(): Promise<Recommendation[]> {
     try {
-      // Always fetch recommendations for patient ID 1
-      const response = await axios.get<Recommendation[]>(`${API_URL}/custom-recommendations?patient_id=1`);
-      console.log('Patient recommendations:', response.data);
-      return response.data;
+      // Fetch all recommendations and filter for patientId 1
+      const response = await axios.get<Recommendation[]>(`${API_URL}/custom-recommendations`);
+      const recommendations = response.data.filter(r => r.patientId === 1);
+      console.log('Patient recommendations:', recommendations);
+      return recommendations;
     } catch (error: any) {
       console.error('Error fetching recommendations:', error.response?.data || error.message);
       throw error;

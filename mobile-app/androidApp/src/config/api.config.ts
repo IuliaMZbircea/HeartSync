@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 // Base API URL configuration
-const DEV_API_URL = 'https://3cb8-2a02-2f09-3315-ed00-49cd-75b1-83fa-1bcc.ngrok-free.app';
+const DEV_API_URL = 'https://d6b6-193-226-8-99.ngrok-free.app';
 const PROD_API_URL = 'https://your-production-api.com';
 
 export const API_BASE_URL = __DEV__ ? DEV_API_URL : PROD_API_URL;

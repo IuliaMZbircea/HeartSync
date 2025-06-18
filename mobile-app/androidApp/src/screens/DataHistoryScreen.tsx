@@ -1,248 +1,229 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Helper function to generate a more realistic ECG waveform
-const generateECGWaveform = () => {
-  const samples = 200; // Increased sampling for smoother curve
-  const data = [];
-  
-  // Generate baseline
-  for (let i = 0; i < samples; i++) {
-    // Baseline with slight variation
-    let value = 450 + Math.sin(i * 0.1) * 2;
-    
-    // Add P wave
-    if (i > 20 && i < 35) {
-      value += Math.sin((i - 20) * 0.5) * 15;
-    }
-    
-    // Add QRS complex
-    if (i > 40 && i < 60) {
-      if (i === 45) value = 350; // Q wave
-      if (i === 50) value = 50;  // R wave peak
-      if (i === 55) value = 400; // S wave
-    }
-    
-    // Add T wave
-    if (i > 70 && i < 90) {
-      value += Math.sin((i - 70) * 0.3) * 20;
-    }
-    
-    // Add some natural variation
-    value += (Math.random() - 0.5) * 2;
-    
-    data.push(Math.round(value));
-  }
-  
-  return data;
-};
-
-// Mock data for historical records
-const MOCK_HISTORICAL_DATA = {
-  daily: {
-    heartRate: {
-      labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
-      datasets: [{ data: [72, 68, 75, 82, 78, 70] }],
-    },
-    bloodPressure: {
-      labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
-      datasets: [{ data: [120, 118, 122, 125, 121, 119] }],
-    },
-    oxygenSaturation: {
-      labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
-      datasets: [{ data: [98, 97, 99, 98, 98, 97] }],
-    },
-    temperature: {
-      labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
-      datasets: [{ data: [36.5, 36.3, 36.6, 36.8, 36.7, 36.4] }],
-    },
-    ecg: {
-      status: 'Normal',
-      lastRecording: '10:30 AM',
-      details: 'Regular sinus rhythm, no abnormalities detected',
-    },
-  },
-  weekly: {
-    heartRate: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      datasets: [{ data: [75, 72, 78, 74, 76, 73, 70] }],
-    },
-    bloodPressure: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      datasets: [{ data: [122, 120, 123, 121, 119, 118, 120] }],
-    },
-    oxygenSaturation: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      datasets: [{ data: [98, 97, 99, 98, 97, 98, 98] }],
-    },
-    temperature: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      datasets: [{ data: [36.6, 36.5, 36.7, 36.4, 36.3, 36.5, 36.4] }],
-    },
-    ecg: {
-      status: 'Normal',
-      lastRecording: 'Yesterday',
-      details: 'Regular sinus rhythm, no abnormalities detected',
-    },
-  },
-  monthly: {
-    heartRate: {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-      datasets: [{ data: [74, 76, 73, 75] }],
-    },
-    bloodPressure: {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-      datasets: [{ data: [121, 119, 122, 120] }],
-    },
-    oxygenSaturation: {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-      datasets: [{ data: [98, 97, 98, 98] }],
-    },
-    temperature: {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-      datasets: [{ data: [36.5, 36.6, 36.4, 36.5] }],
-    },
-    ecg: {
-      status: 'Normal',
-      lastRecording: 'Last Week',
-      details: 'Regular sinus rhythm, no abnormalities detected',
-    },
-  },
-};
+import measurementService from '../services/measurementService';
 
 const screenWidth = Dimensions.get('window').width;
-const chartWidth = screenWidth - 48; // Accounting for container padding and margins
 
 const chartConfig = {
+  backgroundColor: '#ffffff',
   backgroundGradientFrom: '#ffffff',
   backgroundGradientTo: '#ffffff',
+  decimalPlaces: 1,
   color: (opacity = 1) => `rgba(33, 150, 243, ${opacity})`,
-  strokeWidth: 2,
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false,
-  propsForLabels: {
-    fontSize: 12,
-  },
-  propsForBackgroundLines: {
-    stroke: 'rgba(0, 0, 0, 0.1)',
-    strokeWidth: 1,
+  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  style: {
+    borderRadius: 16,
   },
   propsForDots: {
-    r: '4',
+    r: '6',
     strokeWidth: '2',
+    stroke: '#2196F3',
   },
 };
 
 const DataHistoryScreen = () => {
   const [timeRange, setTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const [alerts, setAlerts] = useState<{ timestamp: string; message: string }[]>([]);
+  const [pulseData, setPulseData] = useState<any>(null);
+  const [temperatureData, setTemperatureData] = useState<any>(null);
+  const [humidityData, setHumidityData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [error, setError] = useState<string | null>(null);
+  const [selectedParameter, setSelectedParameter] = useState<'pulse' | 'temperature' | 'humidity'>('pulse');
+  const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
-    const loadAlerts = async () => {
-      try {
-        const existingAlerts = await AsyncStorage.getItem('health_alerts');
-        if (existingAlerts) {
-          setAlerts(JSON.parse(existingAlerts));
-        }
-      } catch (error) {
-        console.error('Error loading alerts:', error);
+    fetchData();
+  }, [timeRange, selectedDate, selectedParameter]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Fetching data for:', {
+        parameter: selectedParameter,
+        timeRange,
+        selectedDate: selectedDate.toISOString()
+      });
+
+      let processedData;
+      switch (selectedParameter) {
+        case 'pulse':
+          processedData = await measurementService.getPulseHistory(timeRange, selectedDate);
+          break;
+        case 'temperature':
+          processedData = await measurementService.getTemperatureHistory(timeRange, selectedDate);
+          break;
+        case 'humidity':
+          processedData = await measurementService.getHumidityHistory(timeRange, selectedDate);
+          break;
       }
-    };
-    loadAlerts();
-  }, []);
 
-  const renderECGStatus = () => (
-    <View style={styles.chartContainer}>
-      <View style={styles.chartHeader}>
-        <Text style={styles.chartTitle}>ECG Status</Text>
-        <Text style={styles.chartUnit}>Last Recording: {MOCK_HISTORICAL_DATA[timeRange].ecg.lastRecording}</Text>
-      </View>
-      <View style={styles.ecgStatusContainer}>
-        <View style={[styles.statusIndicator, { backgroundColor: '#4CAF50' }]} />
-        <Text style={styles.ecgStatusText}>{MOCK_HISTORICAL_DATA[timeRange].ecg.status}</Text>
-        <Text style={styles.ecgDetailsText}>{MOCK_HISTORICAL_DATA[timeRange].ecg.details}</Text>
-      </View>
-    </View>
-  );
+      console.log('Processed data:', processedData);
+      
+      if (!processedData) {
+        console.log('No processed data available');
+        setChartData(null);
+        return;
+      }
 
-  const renderChart = (title: string, data: any, unit: string) => (
-    <View style={styles.chartContainer}>
-      <View style={styles.chartHeader}>
-        <Text style={styles.chartTitle}>{title}</Text>
-        <Text style={styles.chartUnit}>{unit}</Text>
+      setChartData(processedData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('Failed to load data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const navigateDate = (direction: 'prev' | 'next') => {
+    const newDate = new Date(selectedDate);
+    if (timeRange === 'daily') {
+      newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
+    } else if (timeRange === 'weekly') {
+      newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
+    } else {
+      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
+    }
+    console.log('Navigating to date:', newDate.toISOString());
+    setSelectedDate(newDate);
+  };
+
+  const formatDateRange = () => {
+    if (timeRange === 'daily') {
+      return selectedDate.toLocaleDateString([], { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    } else if (timeRange === 'weekly') {
+      const endDate = new Date(selectedDate);
+      endDate.setDate(endDate.getDate() + 6);
+      return `${selectedDate.toLocaleDateString([], { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString([], { month: 'short', day: 'numeric' })}`;
+    } else {
+      return selectedDate.toLocaleDateString([], { 
+        year: 'numeric', 
+        month: 'long' 
+      });
+    }
+  };
+
+  const renderChart = () => {
+    if (loading) {
+      return (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Loading data...</Text>
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.centerContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      );
+    }
+
+    if (!chartData) {
+      return (
+        <View style={styles.centerContainer}>
+          <Text style={styles.noDataText}>
+            {timeRange === 'daily' 
+              ? 'No data available for today'
+              : timeRange === 'weekly'
+                ? 'Not enough data for weekly view (need at least 3 days)'
+                : 'Not enough data for monthly view (need at least 7 days)'}
+          </Text>
+        </View>
+      );
+    }
+
+    console.log('Rendering chart with data:', chartData);
+
+    return (
+      <View style={styles.chartContainer}>
+        <LineChart
+          data={{
+            labels: chartData.labels,
+            datasets: [{
+              data: chartData.values
+            }]
+          }}
+          width={Dimensions.get('window').width - 40}
+          height={220}
+          chartConfig={{
+            backgroundColor: '#ffffff',
+            backgroundGradientFrom: '#ffffff',
+            backgroundGradientTo: '#ffffff',
+            decimalPlaces: 1,
+            color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
+            style: {
+              borderRadius: 16
+            }
+          }}
+          bezier
+          style={styles.chart}
+        />
+        <Text style={styles.unitLabel}>
+          {timeRange === 'daily' ? chartData.unit : `Average ${chartData.unit}`}
+        </Text>
       </View>
-      <LineChart
-        data={data}
-        width={chartWidth}
-        height={220}
-        chartConfig={chartConfig}
-        bezier
-        style={styles.chart}
-        withDots
-        withInnerLines
-        withOuterLines
-        withVerticalLines
-        withHorizontalLines
-        withVerticalLabels
-        withHorizontalLabels
-        segments={4}
-        fromZero={false}
-        yAxisInterval={1}
-        yAxisSuffix={unit}
-      />
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Health Data History</Text>
-        <View style={styles.timeRangeSelector}>
-          <TouchableOpacity
-            style={[styles.timeButton, timeRange === 'daily' && styles.activeTimeButton]}
-            onPress={() => setTimeRange('daily')}
-          >
-            <Text style={[styles.timeButtonText, timeRange === 'daily' && styles.activeTimeButtonText]}>Daily</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.timeButton, timeRange === 'weekly' && styles.activeTimeButton]}
-            onPress={() => setTimeRange('weekly')}
-          >
-            <Text style={[styles.timeButtonText, timeRange === 'weekly' && styles.activeTimeButtonText]}>Weekly</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.timeButton, timeRange === 'monthly' && styles.activeTimeButton]}
-            onPress={() => setTimeRange('monthly')}
-          >
-            <Text style={[styles.timeButtonText, timeRange === 'monthly' && styles.activeTimeButtonText]}>Monthly</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.timeRangeContainer}>
+        <TouchableOpacity
+          style={[styles.timeButton, timeRange === 'daily' && styles.activeTimeButton]}
+          onPress={() => setTimeRange('daily')}
+        >
+          <Text style={[styles.timeButtonText, timeRange === 'daily' && styles.activeTimeButtonText]}>
+            Daily
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.timeButton, timeRange === 'weekly' && styles.activeTimeButton]}
+          onPress={() => setTimeRange('weekly')}
+        >
+          <Text style={[styles.timeButtonText, timeRange === 'weekly' && styles.activeTimeButtonText]}>
+            Weekly
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.timeButton, timeRange === 'monthly' && styles.activeTimeButton]}
+          onPress={() => setTimeRange('monthly')}
+        >
+          <Text style={[styles.timeButtonText, timeRange === 'monthly' && styles.activeTimeButtonText]}>
+            Monthly
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.dateNavigationContainer}>
+        <TouchableOpacity onPress={() => navigateDate('prev')} style={styles.navButton}>
+          <Icon name="chevron-left" size={24} color="#2196F3" />
+        </TouchableOpacity>
+        <Text style={styles.dateRangeText}>{formatDateRange()}</Text>
+        <TouchableOpacity onPress={() => navigateDate('next')} style={styles.navButton}>
+          <Icon name="chevron-right" size={24} color="#2196F3" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {renderChart('Heart Rate', MOCK_HISTORICAL_DATA[timeRange].heartRate, 'bpm')}
-        {renderChart('Blood Pressure', MOCK_HISTORICAL_DATA[timeRange].bloodPressure, 'mmHg')}
-        {renderChart('Oxygen Saturation', MOCK_HISTORICAL_DATA[timeRange].oxygenSaturation, '% ')}
-        {renderChart('Temperature', MOCK_HISTORICAL_DATA[timeRange].temperature, '°C')}
-
-        {renderECGStatus()}
-
-        <View style={styles.alertsSection}>
-          <Text style={styles.alertsSectionTitle}>Health Alerts</Text>
-          {alerts.length === 0 ? (
-            <Text style={styles.noAlertsText}>No health alerts recorded.</Text>
-          ) : (
-            alerts.map((alert, index) => (
-              <View key={index} style={styles.alertItem}>
-                <Text style={styles.alertTimestamp}>{alert.timestamp}</Text>
-                <Text style={styles.alertMessage}>{alert.message}</Text>
-              </View>
-            ))
-          )}
-        </View>
+        {renderChart()}
       </ScrollView>
     </View>
   );
@@ -251,142 +232,136 @@ const DataHistoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5F5F5',
   },
-  header: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  timeRangeSelector: {
+  timeRangeContainer: {
     flexDirection: 'row',
-    backgroundColor: '#e0e0e0',
-    borderRadius: 8,
-    overflow: 'hidden',
+    justifyContent: 'space-around',
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   timeButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
   },
   activeTimeButton: {
     backgroundColor: '#2196F3',
   },
   timeButtonText: {
-    color: '#666',
-    fontWeight: 'bold',
+    color: '#757575',
+    fontSize: 14,
+    fontWeight: '600',
   },
   activeTimeButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
+  },
+  dateNavigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  navButton: {
+    padding: 8,
+  },
+  dateRangeText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#212121',
   },
   scrollContent: {
     padding: 16,
   },
   chartContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowRadius: 4,
   },
   chartHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
   },
   chartTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    color: '#212121',
   },
   chartUnit: {
     fontSize: 14,
-    color: '#666',
+    color: '#757575',
   },
   chart: {
     marginVertical: 8,
     borderRadius: 16,
   },
-  ecgStatusContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    marginTop: 10,
-    borderLeftWidth: 5,
-    borderLeftColor: '#4CAF50',
+  noDataContainer: {
+    height: 220,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  statusIndicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 8,
-  },
-  ecgStatusText: {
+  noDataText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  ecgDetailsText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  alertsSection: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  alertsSectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  noAlertsText: {
-    fontSize: 14,
-    color: '#666',
+    color: '#757575',
     textAlign: 'center',
-    paddingVertical: 20,
   },
-  alertItem: {
-    backgroundColor: '#ffe0b2', // Light orange for alerts
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: '#D32F2F',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 10,
-    borderLeftWidth: 5,
-    borderLeftColor: '#ff9800', // Darker orange
   },
-  alertTimestamp: {
-    fontSize: 12,
-    color: '#777',
-    marginBottom: 4,
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
-  alertMessage: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#333',
+  unitLabel: {
+    fontSize: 14,
+    color: '#757575',
+    textAlign: 'right',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 16,
   },
 });
 
