@@ -185,44 +185,74 @@ const DataHistoryScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.timeRangeContainer}>
+      {/* Parameter Switcher */}
+      <View style={styles.parameterContainer}>
         <TouchableOpacity
-          style={[styles.timeButton, timeRange === 'daily' && styles.activeTimeButton]}
-          onPress={() => setTimeRange('daily')}
+          style={[styles.parameterButton, selectedParameter === 'pulse' && styles.activeParameterButton]}
+          onPress={() => setSelectedParameter('pulse')}
         >
-          <Text style={[styles.timeButtonText, timeRange === 'daily' && styles.activeTimeButtonText]}>
-            Daily
-          </Text>
+          <Icon name="favorite" size={20} color={selectedParameter === 'pulse' ? '#fff' : '#2196F3'} style={styles.parameterIcon} />
+          <Text style={[styles.parameterButtonText, selectedParameter === 'pulse' && styles.activeParameterButtonText]}>Pulse</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.timeButton, timeRange === 'weekly' && styles.activeTimeButton]}
-          onPress={() => setTimeRange('weekly')}
+          style={[styles.parameterButton, selectedParameter === 'temperature' && styles.activeParameterButton]}
+          onPress={() => setSelectedParameter('temperature')}
         >
-          <Text style={[styles.timeButtonText, timeRange === 'weekly' && styles.activeTimeButtonText]}>
-            Weekly
-          </Text>
+          <Icon name="thermostat" size={20} color={selectedParameter === 'temperature' ? '#fff' : '#2196F3'} style={styles.parameterIcon} />
+          <Text style={[styles.parameterButtonText, selectedParameter === 'temperature' && styles.activeParameterButtonText]}>Temperature</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.timeButton, timeRange === 'monthly' && styles.activeTimeButton]}
-          onPress={() => setTimeRange('monthly')}
+          style={[styles.parameterButton, selectedParameter === 'humidity' && styles.activeParameterButton]}
+          onPress={() => setSelectedParameter('humidity')}
         >
-          <Text style={[styles.timeButtonText, timeRange === 'monthly' && styles.activeTimeButtonText]}>
-            Monthly
-          </Text>
+          <Icon name="water-drop" size={20} color={selectedParameter === 'humidity' ? '#fff' : '#2196F3'} style={styles.parameterIcon} />
+          <Text style={[styles.parameterButtonText, selectedParameter === 'humidity' && styles.activeParameterButtonText]}>Humidity</Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.dateNavigationContainer}>
-        <TouchableOpacity onPress={() => navigateDate('prev')} style={styles.navButton}>
+      {/* Time Range Switcher - Segmented Control Style */}
+      <View style={styles.timeRangeSegmentedContainer}>
+        <TouchableOpacity
+          style={[styles.segmentedButton, timeRange === 'daily' && styles.activeSegmentedButton]}
+          onPress={() => setTimeRange('daily')}
+        >
+          <Text style={[styles.segmentedButtonText, timeRange === 'daily' && styles.activeSegmentedButtonText]}>Daily</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.segmentedButton, timeRange === 'weekly' && styles.activeSegmentedButton]}
+          onPress={() => setTimeRange('weekly')}
+        >
+          <Text style={[styles.segmentedButtonText, timeRange === 'weekly' && styles.activeSegmentedButtonText]}>Weekly</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.segmentedButton, timeRange === 'monthly' && styles.activeSegmentedButton]}
+          onPress={() => setTimeRange('monthly')}
+        >
+          <Text style={[styles.segmentedButtonText, timeRange === 'monthly' && styles.activeSegmentedButtonText]}>Monthly</Text>
+        </TouchableOpacity>
+      </View>
+      {/* Date Navigation Modernized */}
+      <View style={styles.dateNavigationModernContainer}>
+        <TouchableOpacity onPress={() => navigateDate('prev')} style={styles.circleNavButton}>
           <Icon name="chevron-left" size={24} color="#2196F3" />
         </TouchableOpacity>
-        <Text style={styles.dateRangeText}>{formatDateRange()}</Text>
-        <TouchableOpacity onPress={() => navigateDate('next')} style={styles.navButton}>
+        <View style={styles.dateRangeCard}>
+          <Text style={styles.dateRangeTextModern}>{formatDateRange()}</Text>
+        </View>
+        <TouchableOpacity onPress={() => navigateDate('next')} style={styles.circleNavButton}>
           <Icon name="chevron-right" size={24} color="#2196F3" />
         </TouchableOpacity>
       </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Chart Summary and Chart */}
+        {chartData && (
+          <View style={styles.chartSummaryContainer}>
+            <Text style={styles.chartSummaryText}>
+              {`Avg: ${chartData.avg ?? '-'}${chartData.unit ? ' ' + chartData.unit : ''}`}
+              {chartData.max !== undefined ? `   Max: ${chartData.max}${chartData.unit ? ' ' + chartData.unit : ''}` : ''}
+              {chartData.min !== undefined ? `   Min: ${chartData.min}${chartData.unit ? ' ' + chartData.unit : ''}` : ''}
+            </Text>
+          </View>
+        )}
         {renderChart()}
       </ScrollView>
     </View>
@@ -232,52 +262,129 @@ const DataHistoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F0F4F8',
   },
-  timeRangeContainer: {
+  parameterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 16,
+    alignItems: 'center',
+    paddingVertical: 14,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  timeButton: {
+  parameterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingHorizontal: 18,
+    borderRadius: 24,
     backgroundColor: '#F5F5F5',
+    marginHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
   },
-  activeTimeButton: {
+  activeParameterButton: {
+    backgroundColor: '#2196F3',
+    shadowOpacity: 0.12,
+  },
+  parameterButtonText: {
+    color: '#2196F3',
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  activeParameterButtonText: {
+    color: '#FFFFFF',
+  },
+  parameterIcon: {
+    marginRight: 2,
+  },
+  timeRangeSegmentedContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    marginHorizontal: 16,
+    marginTop: 18,
+    borderRadius: 18,
+    padding: 4,
+  },
+  segmentedButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 14,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    marginHorizontal: 2,
+  },
+  activeSegmentedButton: {
     backgroundColor: '#2196F3',
   },
-  timeButtonText: {
-    color: '#757575',
+  segmentedButtonText: {
+    color: '#2196F3',
     fontSize: 14,
     fontWeight: '600',
   },
-  activeTimeButtonText: {
+  activeSegmentedButtonText: {
     color: '#FFFFFF',
   },
-  dateNavigationContainer: {
+  dateNavigationModernContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    marginTop: 18,
+    marginBottom: 6,
   },
-  navButton: {
-    padding: 8,
+  circleNavButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  dateRangeText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#212121',
+  dateRangeCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  dateRangeTextModern: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#2196F3',
+    textAlign: 'center',
   },
   scrollContent: {
     padding: 16,
+  },
+  chartSummaryContainer: {
+    marginBottom: 8,
+    alignItems: 'center',
+  },
+  chartSummaryText: {
+    fontSize: 15,
+    color: '#388E3C',
+    fontWeight: '600',
   },
   chartContainer: {
     backgroundColor: '#FFFFFF',
