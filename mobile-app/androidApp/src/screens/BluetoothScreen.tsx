@@ -39,6 +39,10 @@ const BluetoothScreen = () => {
     humidity: false,
     temperature: false,
   });
+  // ECG measurement state
+  const [ecgActive, setEcgActive] = useState(false);
+  const [ecgTimer, setEcgTimer] = useState(0);
+  const ecgTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const dataTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -123,6 +127,18 @@ const BluetoothScreen = () => {
         console.log('No data for 10 seconds, reconnecting...');
         handleReconnect();
       }, 10000);
+
+      // ECG data handling
+      if (ecgActive) {
+        // Assume ECG value is the 4th value in comma-separated data
+        const parts = data.trim().split(',');
+        if (parts.length >= 4) {
+          const ecgValue = parseFloat(parts[3]);
+          if (!isNaN(ecgValue)) {
+            measurementService.sendEcgData(ecgValue, false);
+          }
+        }
+      }
     });
   };
 
@@ -366,6 +382,34 @@ const BluetoothScreen = () => {
     </View>
   );
 
+  // Start ECG measurement: send 'z', start timer, show message
+  const startEcgMeasurement = async () => {
+    if (!connectedDevice) {
+      Alert.alert('Not connected', 'Please connect to a device first.');
+      return;
+    }
+    try {
+      await connectedDevice.write('z');
+      setEcgActive(true);
+      setEcgTimer(30);
+      Alert.alert('ECG Measurement', 'Please stay still for 30 seconds while ECG is measured.');
+      if (ecgTimerRef.current) clearInterval(ecgTimerRef.current);
+      ecgTimerRef.current = setInterval(() => {
+        setEcgTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(ecgTimerRef.current!);
+            setEcgActive(false);
+            Alert.alert('ECG Complete', 'ECG measurement finished.');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to start ECG measurement.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -405,6 +449,20 @@ const BluetoothScreen = () => {
         ) : null}
 
         <View style={{ marginBottom: 40 }}>
+          <TouchableOpacity
+            style={{ backgroundColor: ecgActive ? '#ccc' : '#4CAF50', padding: 16, borderRadius: 8, alignItems: 'center', margin: 16 }}
+            onPress={startEcgMeasurement}
+            disabled={ecgActive}
+          >
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+              {ecgActive ? `ECG Active (${ecgTimer}s)` : 'Start ECG Measurement'}
+            </Text>
+          </TouchableOpacity>
+          {ecgActive && (
+            <Text style={{ textAlign: 'center', color: '#E53935', fontWeight: 'bold', marginBottom: 8 }}>
+              Please stay still while ECG is being measured...
+            </Text>
+          )}
           <Text style={styles.chartHeader}>Live Charts</Text>
           {chartData.length > 0 ? (
             <>

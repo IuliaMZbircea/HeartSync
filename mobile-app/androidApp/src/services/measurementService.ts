@@ -18,6 +18,15 @@ const outOfRangeCounter = {
   humidity: 0
 };
 
+// Track last alarm timestamps for cooldown
+const lastAlarmTimestamp: { [key: string]: number } = {
+  pulse: 0,
+  temperature: 0,
+  humidity: 0
+};
+
+const ALARM_COOLDOWN_MINUTES = 10;
+
 interface Measurement {
   patient_id: number;
   value: number;
@@ -39,14 +48,31 @@ class MeasurementService {
   private checkRange(value: number, type: 'pulse' | 'temperature' | 'humidity'): boolean {
     const range = NORMAL_RANGES[type];
     const isNormal = value >= range.min && value <= range.max;
-    
+    const now = Date.now();
+    const lastAlarm = lastAlarmTimestamp[type] || 0;
+    const cooldownMs = ALARM_COOLDOWN_MINUTES * 60 * 1000;
+
+    // If still in cooldown, do not trigger alarm
+    if (now - lastAlarm < cooldownMs) {
+      if (!isNormal) {
+        outOfRangeCounter[type]++;
+      } else {
+        outOfRangeCounter[type] = 0;
+      }
+      return false;
+    }
+
     if (!isNormal) {
       outOfRangeCounter[type]++;
     } else {
       outOfRangeCounter[type] = 0;
     }
 
-    return outOfRangeCounter[type] >= 5;
+    if (outOfRangeCounter[type] >= 5) {
+      lastAlarmTimestamp[type] = now;
+      return true;
+    }
+    return false;
   }
 
   async sendPulse(value: number) {
@@ -224,13 +250,14 @@ class MeasurementService {
     }
   }
 
-  async sendEcgData(value: number): Promise<void> {
+  async sendEcgData(waveform: number, send_alarm: boolean = false): Promise<void> {
     try {
-      await axios.post(`${API_URL_LOCAL}/ecg`, {
+      await axios.post(`${API_URL_LOCAL}/ecg/single`, {
         patient_id: 1,
-        ecg: value
+        waveform,
+        send_alarm
       });
-      console.log('ECG data sent successfully:', value);
+      console.log('ECG data sent successfully:', { waveform, send_alarm });
     } catch (error) {
       console.error('Failed to send ECG data:', error);
       throw error;

@@ -7,6 +7,7 @@ declare module 'react-native-bluetooth-classic' {
     disconnect(): Promise<boolean>;
     isConnected(): Promise<boolean>;
     onDataReceived(callback: (data: { data: string }) => void): void;
+    write(data: string): Promise<void>;
   }
 
   export interface BluetoothModule {
