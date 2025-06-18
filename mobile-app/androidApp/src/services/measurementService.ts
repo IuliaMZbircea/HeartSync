@@ -28,6 +28,7 @@ interface ChartData {
   labels: string[];
   values: number[];
   unit: string;
+  alarms?: boolean[];
 }
 
 class MeasurementService {
@@ -514,7 +515,7 @@ class MeasurementService {
       console.log('Selected interval:', intervalMinutes, 'minutes');
 
       // Group data by intervals
-      const groupedData = new Map<string, number[]>();
+      const groupedData = new Map<string, { values: number[]; alarms: boolean[] }>();
       filteredData.forEach(item => {
         try {
           const rawDate = item.timestamp || item.created_at;
@@ -528,15 +529,14 @@ class MeasurementService {
           const key = roundedDate.toISOString();
 
           if (!groupedData.has(key)) {
-            groupedData.set(key, []);
+            groupedData.set(key, { values: [], alarms: [] });
           }
-          groupedData.get(key)?.push(item[valueField]);
+          groupedData.get(key)?.values.push(item[valueField]);
+          groupedData.get(key)?.alarms.push(!!item.send_alarm);
         } catch (e) {
           console.log('Error processing item for grouping:', item);
         }
       });
-
-      console.log('Grouped data:', Object.fromEntries(groupedData));
 
       // Sort by time
       const sortedEntries = Array.from(groupedData.entries())
@@ -546,10 +546,11 @@ class MeasurementService {
         labels: sortedEntries.map(([key]) => 
           new Date(key).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         ),
-        values: sortedEntries.map(([_, values]) => 
-          Number((values.reduce((sum, val) => sum + val, 0) / values.length).toFixed(1))
+        values: sortedEntries.map(([_, group]) => 
+          Number((group.values.reduce((sum, val) => sum + val, 0) / group.values.length).toFixed(1))
         ),
-        unit: this.getUnitForParameter(this.currentParameter)
+        unit: this.getUnitForParameter(this.currentParameter),
+        alarms: sortedEntries.map(([_, group]) => group.alarms.some(Boolean))
       };
 
       console.log('Final chart data:', result);

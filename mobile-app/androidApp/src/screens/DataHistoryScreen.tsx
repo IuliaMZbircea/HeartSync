@@ -175,6 +175,28 @@ const DataHistoryScreen = () => {
           }}
           bezier
           style={styles.chart}
+          renderDotContent={({ x, y, index, indexData }) => {
+            if (chartData.alarms && chartData.alarms[index]) {
+              return (
+                <View
+                  key={index}
+                  style={{
+                    position: 'absolute',
+                    left: x - 6,
+                    top: y - 6,
+                    width: 12,
+                    height: 12,
+                    borderRadius: 6,
+                    backgroundColor: 'red',
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                    zIndex: 10
+                  }}
+                />
+              );
+            }
+            return null;
+          }}
         />
         <Text style={styles.unitLabel}>
           {timeRange === 'daily' ? chartData.unit : `Average ${chartData.unit}`}
