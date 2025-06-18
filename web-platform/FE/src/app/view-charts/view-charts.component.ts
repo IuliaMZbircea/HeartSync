@@ -220,12 +220,16 @@ export class ViewChartsComponent implements OnInit {
       );
 
       this.patientService.getECGById(id).subscribe(
-        ecg => {
-          this.ecgChartData.labels = ecg.waveforms.map((value: number, index: number) => index + 1);
-          this.ecgChartData.datasets[0].data = ecg.waveforms;
+        (ecg: any[]) => {
+          const waveforms = ecg.map(entry => entry.waveform);
+          this.ecgChartData.labels = waveforms.map((_, index) => index + 1);
+          this.ecgChartData.datasets[0].data = waveforms;
+
+          this.ecgChart?.update();
         },
         error => console.error('Eroare la preluarea ECG:', error)
       );
+
 
       this.patientService.getHumidityById(id).subscribe(
         humidityData => {
