@@ -189,7 +189,7 @@ export class ViewChartsComponent implements OnInit {
     if (id !== null) {
       this.patientService.getPulseById(id).subscribe(
         data => {
-          this.pulseData = data.slice(0, 500);
+          this.pulseData = data.slice(-500).reverse();
 
           this.lineChartData.labels = this.pulseData.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -205,7 +205,7 @@ export class ViewChartsComponent implements OnInit {
 
       this.patientService.getTemperatureById(id).subscribe(
         tempData => {
-          this.temperatureData = tempData.slice(0, 100);
+          this.temperatureData = tempData.slice(-100).reverse();
 
           this.temperatureChartData.labels = this.temperatureData.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -229,7 +229,7 @@ export class ViewChartsComponent implements OnInit {
 
       this.patientService.getHumidityById(id).subscribe(
         humidityData => {
-          const sliced = humidityData.slice(0, 100);
+          const sliced = humidityData.slice(-500);
 
           this.humidityChartData.labels = sliced.map((entry: any) => {
             const time = new Date(entry.created_at);
