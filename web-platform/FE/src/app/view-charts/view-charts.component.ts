@@ -37,6 +37,73 @@ Chart.register(
 export class ViewChartsComponent implements OnInit {
   patient!: Patient;
   pulseData: any;
+  temperatureData: any;
+
+  public ecgChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'ECG waveform',
+        fill: false,
+        borderColor: 'green',
+        tension: 0.1,
+      }
+    ]
+  };
+
+  public ecgChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: 'Tensiune (mV)'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Timp (eșantioane)'
+        }
+      }
+    }
+  };
+
+
+  public temperatureChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Temperatură (°C)',
+        fill: false,
+        borderColor: 'blue',
+        tension: 0.3,
+      }
+    ]
+  };
+
+  public temperatureChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    scales: {
+      y: {
+        min: 20,
+        max: 40,
+        title: {
+          display: true,
+          text: 'Temperatură (°C)'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Ora'
+        }
+      }
+    }
+  };
+
 
   public lineChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
@@ -71,7 +138,44 @@ export class ViewChartsComponent implements OnInit {
     }
   };
 
-  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+  public humidityChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Umiditate (%)',
+        fill: false,
+        borderColor: 'purple',
+        tension: 0.3,
+      }
+    ]
+  };
+
+  public humidityChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    scales: {
+      y: {
+        min: 0,
+        max: 100,
+        title: {
+          display: true,
+          text: 'Umiditate (%)'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Ora'
+        }
+      }
+    }
+  };
+
+
+  @ViewChild('pulseChart') pulseChart?: BaseChartDirective;
+  @ViewChild('temperatureChart') temperatureChart?: BaseChartDirective;
+  @ViewChild('ecgChart') ecgChart?: BaseChartDirective;
+  @ViewChild('humidityChart') humidityChart?: BaseChartDirective;
 
   constructor(
     private route: ActivatedRoute,
@@ -83,29 +187,62 @@ export class ViewChartsComponent implements OnInit {
     const id = idParam && !isNaN(+idParam) ? Number(idParam) : null;
 
     if (id !== null) {
-      this.patientService.getPatients().subscribe((patients: Patient[]) => {
-        const found = patients.find(p => p.id === id);
-        if (found) {
-          this.patient = found;
-          this.patientService.getPulseById(id).subscribe(
-            data => {
-              this.pulseData = data.slice(0, 5);
+      this.patientService.getPulseById(id).subscribe(
+        data => {
+          this.pulseData = data.slice(0, 500);
 
-              this.lineChartData.labels = this.pulseData.map((entry: any) => {
-                const time = new Date(entry.created_at);
-                return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
-              });
+          this.lineChartData.labels = this.pulseData.map((entry: any) => {
+            const time = new Date(entry.created_at);
+            return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+          });
 
-              this.lineChartData.datasets[0].data = this.pulseData.map((entry: any) => entry.pulse);
+          this.lineChartData.datasets[0].data = this.pulseData.map((entry: any) => entry.pulse);
 
-              this.chart?.update();
-            },
-            error => console.error('Eroare la preluarea datelor:', error)
-          );
-        } else {
-          console.warn(`Patient with ID ${id} not found.`);
-        }
-      });
+          this.pulseChart?.update(); // 👈 important
+        },
+        error => console.error('Eroare la preluarea datelor:', error)
+      );
+
+      this.patientService.getTemperatureById(id).subscribe(
+        tempData => {
+          this.temperatureData = tempData.slice(0, 100);
+
+          this.temperatureChartData.labels = this.temperatureData.map((entry: any) => {
+            const time = new Date(entry.created_at);
+            return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+          });
+
+          this.temperatureChartData.datasets[0].data = this.temperatureData.map((entry: any) => entry.temperature);
+
+          this.temperatureChart?.update(); // 👈 important
+        },
+        error => console.error('Eroare la preluarea temperaturii:', error)
+      );
+
+      this.patientService.getECGById(id).subscribe(
+        ecg => {
+          this.ecgChartData.labels = ecg.waveforms.map((value: number, index: number) => index + 1);
+          this.ecgChartData.datasets[0].data = ecg.waveforms;
+        },
+        error => console.error('Eroare la preluarea ECG:', error)
+      );
+
+      this.patientService.getHumidityById(id).subscribe(
+        humidityData => {
+          const sliced = humidityData.slice(0, 100);
+
+          this.humidityChartData.labels = sliced.map((entry: any) => {
+            const time = new Date(entry.created_at);
+            return `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+          });
+
+          this.humidityChartData.datasets[0].data = sliced.map((entry: any) => entry.humidity);
+
+          this.humidityChart?.update();
+        },
+        error => console.error('Eroare la preluarea umidității:', error)
+      );
+
     } else {
       console.error('Invalid or missing patient ID in route.');
     }

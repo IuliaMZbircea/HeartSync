@@ -1,12 +1,42 @@
+
 <div class="h-24"></div>
 
-<div class="grafic">
-  <div style="display: block; width: 100%; max-width: 700px; margin: auto;">
-    <canvas baseChart
-            [data]="lineChartData"
-            [options]="lineChartOptions"
-            [type]="'line'">
-    </canvas>
-  </div>
-
+<div class="grafic" style="width: 100%; margin-bottom: 32px;">
+  <canvas baseChart
+          #pulseChart
+          [data]="lineChartData"
+          [options]="lineChartOptions"
+          [type]="'line'">
+  </canvas>
 </div>
+
+<div class="grafic" style="width: 100%;">
+  <canvas baseChart
+          #temperatureChart
+          [data]="temperatureChartData"
+          [options]="temperatureChartOptions"
+          [type]="'line'">
+  </canvas>
+</div>
+
+<!-- Umiditate -->
+<div>
+  <canvas baseChart
+          #humidityChart
+          [data]="humidityChartData"
+          [options]="humidityChartOptions"
+          [type]="'line'">
+  </canvas>
+</div>
+
+<!-- ECG -->
+<div>
+  <canvas baseChart
+          #ecgChart
+          [data]="ecgChartData"
+          [options]="ecgChartOptions"
+          [type]="'line'">
+  </canvas>
+</div>
+
+

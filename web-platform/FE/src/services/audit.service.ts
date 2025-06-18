@@ -9,7 +9,7 @@ import { ErrorService } from './error.service';
   providedIn: 'root'
 })
 export class AuditService {
-  private apiUrl = `${environment.apiUrl}/api/audit/modifications`;
+  private apiUrl = `${environment.apiUrl}/audit/modifications`;
 
   constructor(private http: HttpClient, private errorService: ErrorService) {}
 

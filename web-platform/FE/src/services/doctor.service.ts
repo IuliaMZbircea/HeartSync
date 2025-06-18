@@ -29,7 +29,7 @@ export class DoctorService {
   }
 
   deactivateDoctor(doctorId: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/api/doctors/${doctorId}/deactivate`, {}).pipe(
+    return this.http.patch(`${this.apiUrl}/doctors/${doctorId}/deactivate`, {}).pipe(
       catchError(error => {
         const errorMsg = error?.error?.error || 'Eroare la dezactivarea doctorului.';
         this.errorService.errorSubject.next(errorMsg);
@@ -39,7 +39,7 @@ export class DoctorService {
   }
 
   updateDoctorRoles(doctorId: number, roles: string[]): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/api/doctors/${doctorId}/role`, { roles }).pipe(
+    return this.http.patch(`${this.apiUrl}/doctors/${doctorId}/role`, { roles }).pipe(
       catchError(error => {
         const errorMsg = error?.error?.error || 'Eroare la actualizarea rolurilor doctorului.';
         this.errorService.errorSubject.next(errorMsg);

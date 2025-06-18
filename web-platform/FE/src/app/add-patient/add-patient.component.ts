@@ -15,7 +15,7 @@ import { AlertService } from "../../services/alert.service";
 import {Router} from "@angular/router";
 
 @Component({
-  selector: 'app-add-new-consultation',
+  selector: 'app-add-patient',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -30,6 +30,10 @@ export class AddPatientComponent implements OnInit {
   age: number | null = null;
   sex: string | null = null;
   cnpError: string | null = null;
+  isRecording = false;
+  currentRecordingSection: string | null = null;
+  private mediaRecorder: MediaRecorder | null = null;
+  private audioChunks: Blob[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -66,13 +70,217 @@ export class AddPatientComponent implements OnInit {
     });
   }
 
+  async startSectionRecording(section: string): Promise<void> {
+    if (this.isRecording) {
+      this.stopRecording();
+      return;
+    }
+
+    this.currentRecordingSection = section;
+    this.isRecording = true;
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new MediaRecorder(stream);
+      this.audioChunks = [];
+
+      this.mediaRecorder.ondataavailable = (event) => {
+        this.audioChunks.push(event.data);
+      };
+
+      this.mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        await this.processRecording(audioBlob, section);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      this.askSectionQuestions(section);
+
+      this.mediaRecorder.start();
+      setTimeout(() => {
+        if (this.isRecording) {
+          this.stopRecording();
+        }
+      }, 30000);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      this.alertService.error('Microphone access denied. Please allow microphone access.');
+      this.stopRecording();
+    }
+  }
+
+  async askSectionQuestions(section: string): Promise<void> {
+    const fieldQuestions: { question: string, field: string }[] = [];
+
+    if (section === 'contact') {
+      fieldQuestions.push(
+        { question: "Please say the email address.", field: "email" },
+        { question: "Now please say the phone number.", field: "phone" }
+      );
+    } else if (section === 'personal') {
+      fieldQuestions.push(
+        { question: "Please say the first name.", field: "firstName" },
+        { question: "Now please say the last name.", field: "lastName" },
+        { question: "Please say the CNP number.", field: "cnp" },
+        { question: "Please say the occupation.", field: "occupation" }
+
+      );
+    } else if (section === 'address') {
+      fieldQuestions.push(
+        { question: "Please say the city.", field: "locality" },
+        { question: "Now please say the street name.", field: "street" },
+        { question: "Please say the number.", field: "number" }
+      );
+    } else if (section === 'medical') {
+      fieldQuestions.push(
+        { question: "Please say the blood group.", field: "bloodGroup" },
+        { question: "Now please say the RH factor.", field: "rh" },
+        { question: "Please say the height.", field: "height" },
+        { question: "Please say the weight.", field: "weight" }
+
+    );
+    }
+
+    for (const { question, field } of fieldQuestions) {
+      await this.askAndFillFieldWithPauseDetection(question, field);
+    }
+
+    this.stopRecording();
+  }
+
+  askAndFillFieldWithPauseDetection(question: string, formField: string): Promise<void> {
+    return new Promise((resolve) => {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(question);
+      synth.speak(utterance);
+
+      utterance.onend = () => {
+        const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        let resolved = false;
+
+        const silenceTimeout = setTimeout(() => {
+          if (!resolved) {
+            recognition.abort();
+            this.alertService.info("No response detected. Moving to the next field.");
+            resolved = true;
+            resolve();
+          }
+        }, 8000);
+
+        recognition.onstart = () => {
+          console.log(`🎤 Listening for: ${formField}`);
+        };
+
+        recognition.onspeechend = () => {
+          clearTimeout(silenceTimeout);
+          recognition.stop();
+        };
+
+        recognition.onresult = (event: any) => {
+          if (resolved) return;
+          resolved = true;
+
+          let transcript = event.results[0][0].transcript.toLowerCase().trim();
+
+          switch (formField) {
+            case 'email':
+              transcript = transcript
+                .replace(/ at /g, '@')
+                .replace(/ at$/g, '@')
+                .replace(/^at /g, '@')
+                .replace(/ dot com/g, '.com')
+                .replace(/ dot /g, '.')
+                .replace(/\s/g, '');
+              break;
+            case 'phone':
+            case 'cnp':
+              transcript = transcript.replace(/\s+/g, '').replace(/[^\d]/g, '');
+              break;
+            case 'bloodGroup':
+              transcript = transcript.toUpperCase().trim();
+
+              const validGroups = ['A', 'B', 'O', 'AB'];
+              let matchedGroup = validGroups.find(group =>
+                transcript.includes(group) ||
+                (group === 'AB' && (transcript.includes('a b') || transcript.includes('ay bee')))
+              );
+
+              if (!matchedGroup) {
+                const errorMsg = new SpeechSynthesisUtterance(
+                  'Invalid blood group. Please say A, B, O, or A B.'
+                );
+                synth.speak(errorMsg);
+                errorMsg.onend = () => {
+                  this.askAndFillFieldWithPauseDetection(question, formField);
+                };
+                return;
+              }
+
+              transcript = matchedGroup;
+              break;
+            case 'rh':
+              transcript = transcript.includes('positive') ? '+' :
+                transcript.includes('negative') ? '-' :
+                  transcript;
+              if (!['+', '-'].includes(transcript)) {
+                this.alertService.error('Invalid RH factor. Please say "positive" or "negative".');
+                resolve();
+                return;
+              }
+              break;
+            default:
+              transcript = transcript.trim();
+          }
+
+          const confirmMessage = new SpeechSynthesisUtterance(`You said: ${transcript}.`);
+          synth.speak(confirmMessage);
+
+          confirmMessage.onend = () => {
+            this.patientForm.patchValue({ [formField]: transcript });
+            resolve();
+          };
+        };
+
+        recognition.onerror = (event: any) => {
+          clearTimeout(silenceTimeout);
+          if (!resolved) {
+            resolved = true;
+            this.alertService.info(`Could not recognize speech for ${formField}: ${event.error}`);
+            resolve();
+          }
+        };
+
+        recognition.start();
+      };
+    });
+  }
+
+  stopRecording(): void {
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      this.mediaRecorder.stop();
+    }
+    this.isRecording = false;
+    this.currentRecordingSection = null;
+    window.speechSynthesis.cancel();
+  }
+
+  async processRecording(audioBlob: Blob, section: string): Promise<void> {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+    formData.append('section', section);
+  }
+
   validateAndExtractCNP(cnp: string): void {
     this.age = null;
     this.sex = null;
     this.cnpError = null;
 
     this.patientForm.patchValue({ birthDate: '', sex: '' });
-
 
     const genderCode = parseInt(cnp[0], 10);
     const year = parseInt(cnp.slice(1, 3), 10);

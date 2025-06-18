@@ -11,7 +11,7 @@ import { ErrorService } from './error.service';
 })
 export class MedicationService {
 
-  private apiUrl = `${environment.apiUrl}/api/custom-medications`;
+  private apiUrl = `${environment.apiUrl}/custom-medications`;
 
   constructor(private http: HttpClient, private errorService: ErrorService) {}
   getMedicationsByPatient(patientId: number): Observable<Medication[]> {
