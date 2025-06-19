@@ -48,6 +48,10 @@ const BluetoothScreen = () => {
   const dataTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const averagingIntervalRef = useRef<NodeJS.Timeout | null>(null); // Ref for the averaging interval
 
+  const lastTempRef = useRef<number>(36.0);
+  const lastHumidityRef = useRef<number>(40.0);
+  const lastPulseRef = useRef<number>(60.0);
+
   useEffect(() => {
     scanDevices();
     // Setup the averaging interval
@@ -150,14 +154,32 @@ const BluetoothScreen = () => {
   
       const [tempRaw, humidityRaw, pulseRaw, ecgRaw] = newData.trim().split(',').map(Number);
   
-      const temp = isNaN(tempRaw) ? Math.random() * 5 + 36 : tempRaw;
-      const humidity = isNaN(humidityRaw) ? Math.random() * 20 + 40 : humidityRaw;
-      const pulse = isNaN(pulseRaw) ? Math.floor(Math.random() * 30 + 60) : pulseRaw;
+      let temp = isNaN(tempRaw) ? Math.random() * 5 + 36 : tempRaw;
+      let humidity = isNaN(humidityRaw) ? Math.random() * 20 + 40 : humidityRaw;
+      let pulse = isNaN(pulseRaw) ? Math.floor(Math.random() * 30 + 60) : pulseRaw;
   
-      const t = Date.now() / 100;
-      const ecg = isNaN(ecgRaw)
-        ? Math.sin(t * 0.2) * 0.5 + (Math.random() < 0.03 ? Math.random() * 1.5 + 0.5 : 0)
+      let ecg = isNaN(ecgRaw)
+        ? Math.sin(Date.now() / 1000 * 0.2) * 0.5 + (Math.random() < 0.03 ? Math.random() * 1.5 + 0.5 : 0)
         : ecgRaw;
+
+      if (!ecgActive) {
+        lastTempRef.current = temp;
+        lastHumidityRef.current = humidity;
+        lastPulseRef.current = pulse;
+      } else {
+        // Mode 2: ECG measurement - only process ECG data
+        // Gently drift from last real values for display
+        const drift = (val: number, min: number, max: number, delta: number) => {
+          let newVal = val + (Math.random() * 2 - 1) * delta;
+          newVal = Math.max(min, Math.min(max, newVal));
+          return Math.round(newVal * 100) / 100;
+        };
+        temp = drift(lastTempRef.current, 35.0, 38.0, 0.03);        // ±0.03°C, realistic range
+        humidity = drift(lastHumidityRef.current, 20.0, 80.0, 0.1); // ±0.1%, realistic range
+        pulse = Math.round(drift(lastPulseRef.current, 50, 120, 1)); // ±1 BPM, realistic range
+        // Do NOT update lastTempRef, lastHumidityRef, lastPulseRef here!
+        ecg = isNaN(ecgRaw) ? 0 : ecgRaw;
+      }
   
       // Add to buffers for averaging
       setPulseBuffer(prev => [...prev, pulse]);

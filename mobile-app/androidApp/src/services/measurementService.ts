@@ -2,7 +2,7 @@ import axios from 'axios';
 import authService from './authService';
 import { API_URL } from '../config';
 
-const API_URL_LOCAL = 'https://d6b6-193-226-8-99.ngrok-free.app';
+const API_URL_LOCAL = 'https://052e-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app';
 
 // Thresholds for normal ranges
 const NORMAL_RANGES = {
@@ -38,6 +38,63 @@ interface ChartData {
   values: number[];
   unit: string;
   alarms?: boolean[];
+}
+
+let customThresholds: Record<string, { min: number, max: number }> = {};
+
+export async function fetchCustomAlarms() {
+  try {
+    const res = await axios.get('https://052e-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app/thresholds');
+    customThresholds = {};
+    res.data.forEach((item: any) => {
+      customThresholds[item.parameter] = { min: item.minValue, max: item.maxValue };
+    });
+  } catch (e) {
+    console.error('Failed to fetch custom alarms', e);
+  }
+}
+
+export async function sendThresholdAlarm(parameter: string, patient_id: number) {
+  const now = new Date();
+  const minMax = customThresholds[parameter] || { min: getDefaultMin(parameter), max: getDefaultMax(parameter) };
+  const messages: Record<string, string> = {
+    pulse: 'Pulse out of safe range for over 1 minute',
+    temperature: 'Temperature deviation detected',
+    humidity: 'Humidity levels abnormal',
+    ecg: 'ECG signal outside normal range'
+  };
+  const payload = {
+    patient_id,
+    parameter,
+    minValue: minMax.min,
+    maxValue: minMax.max,
+    durationMinutes: 1,
+    message: messages[parameter] || 'Parameter out of range',
+    isActive: true,
+    createdAt: now.toISOString().slice(0, 19).replace('T', ' ')
+  };
+  try {
+    await axios.post('https://052e-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app/thresholds', payload);
+    console.log('Alarm sent to /thresholds:', payload);
+  } catch (e) {
+    console.error('Failed to send alarm to /thresholds', e);
+  }
+}
+
+function getDefaultMin(parameter: string) {
+  if (parameter === 'pulse') return 60;
+  if (parameter === 'temperature') return 36.0;
+  if (parameter === 'humidity') return 40;
+  if (parameter === 'ecg') return -2;
+  return 0;
+}
+
+function getDefaultMax(parameter: string) {
+  if (parameter === 'pulse') return 100;
+  if (parameter === 'temperature') return 37.5;
+  if (parameter === 'humidity') return 60;
+  if (parameter === 'ecg') return 2;
+  return 100;
 }
 
 class MeasurementService {
@@ -214,6 +271,9 @@ class MeasurementService {
         send_alarm
       });
       console.log('Temperature data sent successfully:', { value, send_alarm });
+      if (send_alarm) {
+        await sendThresholdAlarm('temperature', 1);
+      }
     } catch (error) {
       console.error('Failed to send temperature data:', error);
       throw error;
@@ -229,6 +289,9 @@ class MeasurementService {
         send_alarm
       });
       console.log('Humidity data sent successfully:', { value, send_alarm });
+      if (send_alarm) {
+        await sendThresholdAlarm('humidity', 1);
+      }
     } catch (error) {
       console.error('Failed to send humidity data:', error);
       throw error;
@@ -244,6 +307,9 @@ class MeasurementService {
         send_alarm
       });
       console.log('Pulse data sent successfully:', { value, send_alarm });
+      if (send_alarm) {
+        await sendThresholdAlarm('pulse', 1);
+      }
     } catch (error) {
       console.error('Failed to send pulse data:', error);
       throw error;
@@ -251,15 +317,43 @@ class MeasurementService {
   }
 
   async sendEcgData(waveform: number, send_alarm: boolean = false): Promise<void> {
+    // Validate patient_id and waveform
+    const patient_id = 1; // TODO: Replace with dynamic patient ID if available
+    if (!Number.isInteger(patient_id) || patient_id <= 0) {
+      console.error('Invalid patient_id for ECG:', patient_id);
+      return;
+    }
+    if (waveform === null || waveform === undefined || isNaN(waveform)) {
+      console.error('Invalid ECG waveform value:', waveform);
+      return;
+    }
+    
+    // Use the correct API URL
+    const url = `${API_URL_LOCAL}/ecg/single`;
+    const payload = {
+      patient_id,
+      waveform: parseFloat(waveform.toFixed(4)), // Use the actual waveform value, ensure float, limit precision
+      send_alarm: !!send_alarm
+    };
+    
+    console.log('🫀 Sending ECG to endpoint:', url);
+    console.log('🫀 ECG payload:', payload);
+    console.log('🫀 Raw waveform value:', waveform);
+    console.log('🫀 API_URL_LOCAL:', API_URL_LOCAL);
+    
     try {
-      await axios.post(`${API_URL_LOCAL}/ecg/single`, {
-        patient_id: 1,
-        waveform,
-        send_alarm
-      });
-      console.log('ECG data sent successfully:', { waveform, send_alarm });
-    } catch (error) {
-      console.error('Failed to send ECG data:', error);
+      console.log('🫀 Making POST request to:', url);
+      const response = await axios.post(url, payload);
+      console.log('✅ ECG data sent successfully:', payload, 'Response:', response.data);
+    } catch (error: any) {
+      if (error.response) {
+        console.error('❌ Failed to send ECG data:', error.response.status, error.response.data);
+        console.error('❌ Response headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('❌ No response received:', error.request);
+      } else {
+        console.error('❌ Failed to send ECG data:', error.message);
+      }
       throw error;
     }
   }
@@ -267,12 +361,18 @@ class MeasurementService {
   // Helper method to send all measurements at once
   async sendAllMeasurements(temp: number, humidity: number, pulse: number, ecg: number): Promise<void> {
     try {
-      await Promise.all([
+      const promises = [
         this.sendTemperatureData(temp),
         this.sendHumidityData(humidity),
-        this.sendPulseData(pulse),
-        this.sendEcgData(ecg)
-      ]);
+        this.sendPulseData(pulse)
+      ];
+      
+      // Only send ECG if it's a valid, non-zero value
+      if (ecg && ecg !== 0 && Number.isFinite(ecg)) {
+        promises.push(this.sendEcgData(ecg));
+      }
+      
+      await Promise.all(promises);
       console.log('All measurements sent successfully');
     } catch (error) {
       console.error('Failed to send some measurements:', error);

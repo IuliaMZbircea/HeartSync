@@ -1,7 +1,7 @@
 import BluetoothSerial from 'react-native-bluetooth-serial';
 import axios from 'axios';
 
-const API_URL = 'https://d6b6-193-226-8-99.ngrok-free.app';
+const API_URL = 'https://052e-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app';
 
 // Debug flag - set to true to see detailed logs
 const DEBUG = true;
@@ -103,6 +103,13 @@ class BluetoothService {
   private async processData(data: string): Promise<void> {
     try {
       this.log('Processing data:', data);
+      
+      // Validate input data
+      if (!data || typeof data !== 'string' || data.trim().length === 0) {
+        this.logError('Invalid input data:', data);
+        return;
+      }
+      
       const decodedData = this.decodeData(data);
       
       if (!decodedData) {
@@ -111,39 +118,24 @@ class BluetoothService {
       }
 
       const { type, value, timestamp } = decodedData;
-      const endpoint = `${API_URL}/custom-${type}`;
-      const payload = {
-        patient_id: 1,
-        value,
-        timestamp,
-        source: 'RN42'
-      };
       
-      this.log('Sending to endpoint:', endpoint);
-      this.log('Payload:', payload);
-
-      try {
-        const response = await axios.post(endpoint, payload, {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 5000 // 5 second timeout
-        });
-        
-        this.log(`${type} data sent successfully:`, response.status);
-        this.log('Response:', response.data);
-      } catch (error: any) {
-        this.logError(`Error sending ${type} data:`, error.message);
-        if (error.response) {
-          this.logError('Response error:', {
-            status: error.response.status,
-            data: error.response.data
-          });
-        } else if (error.request) {
-          this.logError('No response received:', error.request);
-        }
-        throw error;
+      // Validate decoded data
+      if (!type || !Number.isFinite(value)) {
+        this.logError('Invalid decoded data:', decodedData);
+        return;
       }
+      
+      // Only process pulse, temperature, and humidity - ignore ECG completely
+      if (type === 'ecg') {
+        this.log('ECG data received but ignored - will be handled by user action only');
+        return;
+      }
+      
+      // Log only pulse, temperature, and humidity data
+      this.log(`Received ${type} data:`, value);
+      
+      // No automatic sending - just logging for now
+      
     } catch (error) {
       this.logError('Error in processData:', error);
     }
@@ -175,7 +167,7 @@ class BluetoothService {
       }
 
       const numericValue = parseFloat(rawValue);
-      if (isNaN(numericValue)) {
+      if (!Number.isFinite(numericValue)) {
         this.logError('Invalid numeric value:', rawValue);
         return null;
       }
@@ -223,6 +215,9 @@ class BluetoothService {
     this.log('Testing data processing with:', testData);
     await this.processData(testData);
   }
+
+  // Method to send one test ECG value to verify endpoint works
+  
 }
 
 export default new BluetoothService(); 
