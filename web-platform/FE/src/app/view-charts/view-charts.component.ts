@@ -58,8 +58,8 @@ export class ViewChartsComponent implements OnInit {
     responsive: true,
     scales: {
       y: {
-        min: -0.7,
-        max: 1,
+        min: -50,
+        max: 700,
         title: {
           display: true,
           text: 'Tensiune (mV)'
@@ -233,18 +233,20 @@ export class ViewChartsComponent implements OnInit {
 
       this.patientService.getECGById(id).subscribe(
         (ecg: any[]) => {
-          const waveforms = ecg.map(entry => entry.waveforms);
-          this.ecgChartData.labels = ecg.map(entry => {
+          const last50 = ecg.slice(-500);
+
+          const waveforms = last50.map(entry => entry.waveforms);
+          this.ecgChartData.labels = last50.map(entry => {
             const t = new Date(entry.created_at);
             return `${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}`;
           });
           this.ecgChartData.datasets[0].data = waveforms;
 
-
           this.ecgChart?.update();
         },
         error => console.error('Error fetching ECG data:', error)
       );
+
 
       this.patientService.getHumidityById(id).subscribe(
         humidityData => {
