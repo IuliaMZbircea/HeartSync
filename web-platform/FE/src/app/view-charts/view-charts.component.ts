@@ -58,7 +58,7 @@ export class ViewChartsComponent implements OnInit {
     responsive: true,
     scales: {
       y: {
-        min: -1,
+        min: -0.7,
         max: 1,
         title: {
           display: true,
@@ -210,7 +210,7 @@ export class ViewChartsComponent implements OnInit {
 
           this.lineChartData.datasets[0].data = this.pulseData.map((entry: any) => entry.pulse);
 
-          this.pulseChart?.update(); // 👈 Important chart update
+          this.pulseChart?.update();
         },
         error => console.error('Error fetching pulse data:', error)
       );
