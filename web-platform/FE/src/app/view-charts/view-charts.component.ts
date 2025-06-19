@@ -189,7 +189,7 @@ export class ViewChartsComponent implements OnInit {
     if (id !== null) {
       this.patientService.getPulseById(id).subscribe(
         data => {
-          this.pulseData = data.slice(0, 500);
+          this.pulseData = data.slice(-500).reverse();
 
           this.lineChartData.labels = this.pulseData.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -205,7 +205,7 @@ export class ViewChartsComponent implements OnInit {
 
       this.patientService.getTemperatureById(id).subscribe(
         tempData => {
-          this.temperatureData = tempData.slice(0, 100);
+          this.temperatureData = tempData.slice(-100).reverse();
 
           this.temperatureChartData.labels = this.temperatureData.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -220,16 +220,20 @@ export class ViewChartsComponent implements OnInit {
       );
 
       this.patientService.getECGById(id).subscribe(
-        ecg => {
-          this.ecgChartData.labels = ecg.waveforms.map((value: number, index: number) => index + 1);
-          this.ecgChartData.datasets[0].data = ecg.waveforms;
+        (ecg: any[]) => {
+          const waveforms = ecg.map(entry => entry.waveform);
+          this.ecgChartData.labels = waveforms.map((_, index) => index + 1);
+          this.ecgChartData.datasets[0].data = waveforms;
+
+          this.ecgChart?.update();
         },
         error => console.error('Eroare la preluarea ECG:', error)
       );
 
+
       this.patientService.getHumidityById(id).subscribe(
         humidityData => {
-          const sliced = humidityData.slice(0, 100);
+          const sliced = humidityData.slice(-500);
 
           this.humidityChartData.labels = sliced.map((entry: any) => {
             const time = new Date(entry.created_at);
