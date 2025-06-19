@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Patient } from "../../shared/interfaces/patient";
 import { ActivatedRoute } from "@angular/router";
 import { PatientService } from "../../services/patient.service";
@@ -46,10 +46,12 @@ export class ViewChartsComponent implements OnInit {
         data: [],
         label: 'ECG waveform',
         fill: false,
-        borderColor: 'green',
-        tension: 0.1,
+        borderColor: 'red',
+        tension: 0,
+        pointRadius: 0,
+        borderWidth: 1,
       }
-    ]
+    ],
   };
 
   public ecgChartOptions: ChartOptions<'line'> = {
@@ -58,25 +60,38 @@ export class ViewChartsComponent implements OnInit {
       y: {
         title: {
           display: true,
-          text: 'Tensiune (mV)'
+          text: 'Voltage (mV)'
+        },
+        grid: {
+          color: 'rgba(0,0,0,0.1)'
         }
       },
       x: {
         title: {
           display: true,
-          text: 'Timp (eșantioane)'
+          text: 'Time'
+        },
+        grid: {
+          display: false
         }
+      }
+    },
+    plugins: {
+      legend: {
+        display: true
+      },
+      tooltip: {
+        enabled: true
       }
     }
   };
-
 
   public temperatureChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: [
       {
         data: [],
-        label: 'Temperatură (°C)',
+        label: 'Temperature (°C)',
         fill: false,
         borderColor: 'blue',
         tension: 0.3,
@@ -88,29 +103,28 @@ export class ViewChartsComponent implements OnInit {
     responsive: true,
     scales: {
       y: {
-        min: 20,
-        max: 40,
+        min: 34,
+        max: 42,
         title: {
           display: true,
-          text: 'Temperatură (°C)'
+          text: 'Temperature (°C)'
         }
       },
       x: {
         title: {
           display: true,
-          text: 'Ora'
+          text: 'Time'
         }
       }
     }
   };
-
 
   public lineChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: [
       {
         data: [],
-        label: 'Puls (bătăi/minut)',
+        label: 'Pulse (beats/min)',
         fill: false,
         borderColor: 'red',
         tension: 0.3,
@@ -126,13 +140,13 @@ export class ViewChartsComponent implements OnInit {
         max: 140,
         title: {
           display: true,
-          text: 'Bătăi pe minut'
+          text: 'Beats per minute'
         }
       },
       x: {
         title: {
           display: true,
-          text: 'Ora'
+          text: 'Time'
         }
       }
     }
@@ -143,7 +157,7 @@ export class ViewChartsComponent implements OnInit {
     datasets: [
       {
         data: [],
-        label: 'Umiditate (%)',
+        label: 'Humidity (%)',
         fill: false,
         borderColor: 'purple',
         tension: 0.3,
@@ -159,18 +173,17 @@ export class ViewChartsComponent implements OnInit {
         max: 100,
         title: {
           display: true,
-          text: 'Umiditate (%)'
+          text: 'Humidity (%)'
         }
       },
       x: {
         title: {
           display: true,
-          text: 'Ora'
+          text: 'Time'
         }
       }
     }
   };
-
 
   @ViewChild('pulseChart') pulseChart?: BaseChartDirective;
   @ViewChild('temperatureChart') temperatureChart?: BaseChartDirective;
@@ -189,7 +202,7 @@ export class ViewChartsComponent implements OnInit {
     if (id !== null) {
       this.patientService.getPulseById(id).subscribe(
         data => {
-          this.pulseData = data.slice(-500).reverse();
+          this.pulseData = data.slice(-1000).reverse();
 
           this.lineChartData.labels = this.pulseData.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -198,14 +211,14 @@ export class ViewChartsComponent implements OnInit {
 
           this.lineChartData.datasets[0].data = this.pulseData.map((entry: any) => entry.pulse);
 
-          this.pulseChart?.update(); // 👈 important
+          this.pulseChart?.update(); // 👈 Important chart update
         },
-        error => console.error('Eroare la preluarea datelor:', error)
+        error => console.error('Error fetching pulse data:', error)
       );
 
       this.patientService.getTemperatureById(id).subscribe(
         tempData => {
-          this.temperatureData = tempData.slice(-100).reverse();
+          this.temperatureData = tempData.slice(-500).reverse();
 
           this.temperatureChartData.labels = this.temperatureData.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -214,26 +227,29 @@ export class ViewChartsComponent implements OnInit {
 
           this.temperatureChartData.datasets[0].data = this.temperatureData.map((entry: any) => entry.temperature);
 
-          this.temperatureChart?.update(); // 👈 important
+          this.temperatureChart?.update();
         },
-        error => console.error('Eroare la preluarea temperaturii:', error)
+        error => console.error('Error fetching temperature data:', error)
       );
 
       this.patientService.getECGById(id).subscribe(
         (ecg: any[]) => {
-          const waveforms = ecg.map(entry => entry.waveform);
-          this.ecgChartData.labels = waveforms.map((_, index) => index + 1);
+          const waveforms = ecg.map(entry => entry.waveforms);
+          this.ecgChartData.labels = ecg.map(entry => {
+            const t = new Date(entry.created_at);
+            return `${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}`;
+          });
           this.ecgChartData.datasets[0].data = waveforms;
+
 
           this.ecgChart?.update();
         },
-        error => console.error('Eroare la preluarea ECG:', error)
+        error => console.error('Error fetching ECG data:', error)
       );
-
 
       this.patientService.getHumidityById(id).subscribe(
         humidityData => {
-          const sliced = humidityData.slice(-500);
+          const sliced = humidityData.slice(-500).reverse();
 
           this.humidityChartData.labels = sliced.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -244,7 +260,7 @@ export class ViewChartsComponent implements OnInit {
 
           this.humidityChart?.update();
         },
-        error => console.error('Eroare la preluarea umidității:', error)
+        error => console.error('Error fetching humidity data:', error)
       );
 
     } else {

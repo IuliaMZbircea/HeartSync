@@ -19,7 +19,6 @@
   </canvas>
 </div>
 
-<!-- Umiditate -->
 <div>
   <canvas baseChart
           #humidityChart
@@ -29,13 +28,13 @@
   </canvas>
 </div>
 
-<!-- ECG -->
-<div>
+<div class="grafic" style="width: 100%; background-color: white;">
   <canvas baseChart
           #ecgChart
           [data]="ecgChartData"
           [options]="ecgChartOptions"
-          [type]="'line'">
+          [type]="'line'"
+          style="background-color: transparent;">
   </canvas>
 </div>
 

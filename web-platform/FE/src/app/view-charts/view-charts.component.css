@@ -3,3 +3,12 @@
   padding: 0 16px;
   box-sizing: border-box;
 }
+canvas {
+  background-color: transparent !important;
+}
+
+.grafic {
+  background-color: white;
+  padding: 8px;
+  border-radius: 8px;
+}
