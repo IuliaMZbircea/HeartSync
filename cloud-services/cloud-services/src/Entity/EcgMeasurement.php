@@ -22,8 +22,8 @@ class EcgMeasurement
     #[ORM\JoinColumn(nullable: false)]
     private ?Patient $patient = null;
 
-    #[ORM\Column(type: Types::JSON)]
-    private array $waveforms = [];
+    #[ORM\Column(type: Types::FLOAT)]
+    private ?float $waveforms = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?\DateTimeImmutable $createdAt = null;
@@ -53,12 +53,12 @@ class EcgMeasurement
         return $this;
     }
 
-    public function getWaveforms(): array
+    public function getWaveforms(): ?float
     {
         return $this->waveforms;
     }
 
-    public function setWaveforms(array $waveforms): static
+    public function setWaveforms(float $waveforms): static
     {
         $this->waveforms = $waveforms;
         return $this;
