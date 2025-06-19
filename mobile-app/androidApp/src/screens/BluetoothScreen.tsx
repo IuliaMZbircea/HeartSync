@@ -15,16 +15,47 @@ const BluetoothScreen = () => {
   const [lastHumidity, setLastHumidity] = useState<number | null>(null);
   const [lastPulse, setLastPulse] = useState<number | null>(null);
   const [ecgReceived, setEcgReceived] = useState(false);
+  const [ecgTimeLeft, setEcgTimeLeft] = useState(30);
   const ecgTimerRef = useRef<NodeJS.Timeout | null>(null);
   const dataListenerRef = useRef<any>(null);
+  const ecgIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const ecgActiveRef = useRef(ecgActive);
 
   useEffect(() => {
     scanDevices();
     return () => {
       if (ecgTimerRef.current) clearTimeout(ecgTimerRef.current);
       if (dataListenerRef.current) dataListenerRef.current.remove();
+      if (ecgIntervalRef.current) clearInterval(ecgIntervalRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    ecgActiveRef.current = ecgActive;
+  }, [ecgActive]);
+
+  // Separate effect for ECG countdown timer
+  useEffect(() => {
+    if (ecgActive) {
+      setEcgTimeLeft(30);
+      if (ecgIntervalRef.current) clearInterval(ecgIntervalRef.current);
+      ecgIntervalRef.current = setInterval(() => {
+        setEcgTimeLeft(prev => {
+          if (prev <= 1) {
+            if (ecgIntervalRef.current) clearInterval(ecgIntervalRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      setEcgTimeLeft(30);
+      if (ecgIntervalRef.current) clearInterval(ecgIntervalRef.current);
+    }
+    return () => {
+      if (ecgIntervalRef.current) clearInterval(ecgIntervalRef.current);
+    };
+  }, [ecgActive]);
 
   const scanDevices = async () => {
     try {
@@ -71,21 +102,19 @@ const BluetoothScreen = () => {
   const setupDataListener = (device: BluetoothDevice) => {
     if (dataListenerRef.current) dataListenerRef.current.remove();
     const listener = device.onDataReceived(async ({ data }: { data: string }) => {
+      console.log('Bluetooth data event:', data, 'ecgActive:', ecgActiveRef.current);
       data.split('\n').forEach(async (line) => {
-        if (ecgActive) {
-          // ECG mode: treat each line as a possible ECG value
+        if (ecgActiveRef.current) {
+          // ECG mode: ONLY process ECG values, ignore other data
           const ecgValue = parseFloat(line.trim());
           if (!isNaN(ecgValue)) {
             setLastEcg(ecgValue);
             setEcgReceived(true);
-            try {
-              await measurementService.sendEcgData(ecgValue);
-            } catch (e) {
-              console.error('Failed to send ECG data:', e);
-            }
+            console.log('Posting ECG value:', ecgValue);
+            measurementService.sendEcgData(ecgValue).catch(e => console.error('Failed to send ECG data:', e));
           }
         } else {
-          // Normal mode: treat each line as temp,humidity,pulse
+          // Normal mode: ONLY process temp,humidity,pulse, ignore other data
           const parts = line.trim().split(',');
           if (parts.length >= 3) {
             const temp = parseFloat(parts[0]);
@@ -94,7 +123,6 @@ const BluetoothScreen = () => {
             setLastTemp(temp);
             setLastHumidity(humidity);
             setLastPulse(pulse);
-            // POST to respective endpoints
             try {
               await measurementService.sendTemperatureData(temp);
               await measurementService.sendHumidityData(humidity);
@@ -175,6 +203,8 @@ const BluetoothScreen = () => {
           </TouchableOpacity>
           {ecgActive ? (
             <>
+              <Text style={styles.ecgMessage}>ECG measurement in progress. Please stay still.</Text>
+              <Text style={styles.ecgTimer}>Time left: {ecgTimeLeft}s</Text>
               <Text style={styles.ecgValueLabel}>ECG Value:</Text>
               <Text style={styles.ecgValue}>{lastEcg !== null ? lastEcg : '--'}</Text>
             </>
@@ -203,6 +233,8 @@ const styles = StyleSheet.create({
   ecgValue: { fontSize: 32, fontWeight: 'bold', marginTop: 10, color: '#333' },
   valueLabel: { fontSize: 18, marginTop: 10 },
   value: { fontSize: 22, fontWeight: 'bold', color: '#333' },
+  ecgMessage: { fontSize: 16, color: '#555', marginTop: 20, textAlign: 'center' },
+  ecgTimer: { fontSize: 20, fontWeight: 'bold', color: '#007AFF', marginTop: 10, textAlign: 'center' },
 });
 
 export default BluetoothScreen; 
