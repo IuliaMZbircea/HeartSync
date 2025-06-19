@@ -70,17 +70,24 @@ class EcgMeasurementController extends AbstractController
         return $this->json($data);
     }
 
-    #[Route('/{id}', name: 'get_ecg_by_id', methods: ['GET'])]
-    public function getById(EcgMeasurement $ecg): JsonResponse
-    {
-        return $this->json([
-            'id' => $ecg->getId(),
-            'patient_id' => $ecg->getPatient()->getId(),
-            'waveform' => $ecg->getWaveforms(),
-            'created_at' => $ecg->getCreatedAt()->format('Y-m-d H:i:s'),
-            'send_alarm' => $ecg->isSendAlarm()
-        ]);
-    }
+  #[Route('/patient/{id}', name: 'get_ecg_by_patient', methods: ['GET'])]
+  public function getByPatientId(int $id, EcgMeasurementRepository $repo): JsonResponse
+  {
+      $ecgs = $repo->findBy(['patient' => $id], ['createdAt' => 'ASC']);
+
+      $data = array_map(function (EcgMeasurement $e) {
+          return [
+              'id' => $e->getId(),
+              'patient_id' => $e->getPatient()->getId(),
+              'waveforms' => $e->getWaveforms(),
+              'created_at' => $e->getCreatedAt()->format('Y-m-d H:i:s'),
+              'send_alarm' => $e->isSendAlarm()
+          ];
+      }, $ecgs);
+
+      return $this->json($data);
+  }
+
 
     #[Route('/{id}', name: 'update_ecg', methods: ['PUT'])]
     public function update(
