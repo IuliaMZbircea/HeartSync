@@ -28,6 +28,10 @@ const BluetoothScreen = () => {
 
   useEffect(() => {
     scanDevices();
+    // If already connected, set up listener
+    if (connectedDevice) {
+      setupDataListener(connectedDevice);
+    }
     return () => {
       if (ecgTimerRef.current) clearTimeout(ecgTimerRef.current);
       if (dataListenerRef.current) dataListenerRef.current.remove();
@@ -40,7 +44,7 @@ const BluetoothScreen = () => {
   }, [ecgActive]);
 
   useEffect(() => {
-    if (ecgActive) {
+      if (ecgActive) {
       setEcgResult(null);
       setEcgTimeLeft(30);
       Animated.timing(progress, {
@@ -48,11 +52,19 @@ const BluetoothScreen = () => {
         duration: 30000,
         useNativeDriver: false,
       }).start();
-    } else {
+      } else {
       setEcgTimeLeft(30);
       progress.setValue(1);
     }
   }, [ecgActive]);
+
+  // Whenever connectedDevice changes, set up the listener
+  useEffect(() => {
+    if (connectedDevice) {
+      console.log('Setting up data listener for device:', connectedDevice.name || connectedDevice.address);
+      setupDataListener(connectedDevice);
+    }
+  }, [connectedDevice]);
 
   const scanDevices = async () => {
     try {
@@ -69,7 +81,6 @@ const BluetoothScreen = () => {
       const connected = await device.connect();
       if (connected) {
         setConnectedDevice(device);
-        setupDataListener(device);
         Alert.alert('Connected', `Connected to ${device.name}`);
       }
     } catch (error) {
@@ -164,7 +175,7 @@ const BluetoothScreen = () => {
 
       if (ecgTimerRef.current) clearTimeout(ecgTimerRef.current);
       ecgTimerRef.current = setTimeout(async () => {
-        setEcgActive(false);
+            setEcgActive(false);
         if (!ecgReceived) {
           await sendMockEcgData();
         }
@@ -179,7 +190,7 @@ const BluetoothScreen = () => {
           Alert.alert('ECG Result', 'Insufficient ECG data.');
         }
         setEcgValues([]);
-        Alert.alert('ECG Complete', 'ECG measurement finished.');
+            Alert.alert('ECG Complete', 'ECG measurement finished.');
       }, 30000);
     } catch (error) {
       Alert.alert('Error', 'Failed to start ECG measurement.');
@@ -209,14 +220,14 @@ const BluetoothScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerBar}>
         <Ionicons name="bluetooth" size={28} color="#007AFF" style={{ marginRight: 8 }} />
-        <Text style={styles.title}>Bluetooth Monitor</Text>
-      </View>
+          <Text style={styles.title}>Bluetooth Monitor</Text>
+        </View>
       {!connectedDevice ? (
         <View style={styles.deviceListCard}>
           <Text style={styles.deviceListTitle}>Available Devices:</Text>
           {isConnecting && <ActivityIndicator />}
           {devices.map(device => (
-            <TouchableOpacity
+        <TouchableOpacity
               key={device.address}
               style={styles.deviceButton}
               onPress={() => connectToDevice(device)}
@@ -224,7 +235,7 @@ const BluetoothScreen = () => {
               <Text style={styles.deviceButtonText}>{device.name || device.address}</Text>
             </TouchableOpacity>
           ))}
-        </View>
+          </View>
       ) : (
         <View style={[styles.dataSectionCard, ecgActive && styles.ecgModeBg]}> 
           <TouchableOpacity style={styles.disconnectButton} onPress={disconnectDevice}>
@@ -250,13 +261,7 @@ const BluetoothScreen = () => {
                 </Text>
               )}
             </>
-          ) : (
-            <>
-              <Text style={styles.valueLabel}>Temperature: <Text style={styles.value}>{lastTemp !== null ? lastTemp : '--'}</Text></Text>
-              <Text style={styles.valueLabel}>Humidity: <Text style={styles.value}>{lastHumidity !== null ? lastHumidity : '--'}</Text></Text>
-              <Text style={styles.valueLabel}>Pulse: <Text style={styles.value}>{lastPulse !== null ? lastPulse : '--'}</Text></Text>
-            </>
-          )}
+          ) : null}
         </View>
       )}
     </SafeAreaView>

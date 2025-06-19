@@ -38,6 +38,7 @@ interface ChartData {
   values: number[];
   unit: string;
   alarms?: boolean[];
+  rawData: any[];
 }
 
 let customThresholds: Record<string, { min: number, max: number }> = {};
@@ -300,7 +301,8 @@ class MeasurementService {
 
   async sendPulseData(value: number): Promise<void> {
     try {
-      const send_alarm = this.checkRange(value, 'pulse');
+      // Only set send_alarm true if value is outside 60-100 BPM
+      const send_alarm = value < 60 || value > 100;
       await axios.post(`${API_URL_LOCAL}/pulse`, {
         patient_id: 1,
         pulse: value,
@@ -452,7 +454,7 @@ class MeasurementService {
 
   private aggregateData(data: { value: number; timestamp: Date }[]): ChartData {
     if (data.length === 0) {
-      return { labels: [], values: [], unit: this.getUnitForParameter(this.currentParameter) };
+      return { labels: [], values: [], unit: this.getUnitForParameter(this.currentParameter), rawData: [] };
     }
 
     const intervalMinutes = this.determineOptimalInterval(data);
@@ -482,7 +484,8 @@ class MeasurementService {
     const result: ChartData = {
       labels: [],
       values: [],
-      unit: this.getUnitForParameter(this.currentParameter)
+      unit: this.getUnitForParameter(this.currentParameter),
+      rawData: data.map(item => ({ ...item }))
     };
 
     sortedIntervals.forEach(([_, { values, timestamp }]) => {
@@ -657,6 +660,7 @@ class MeasurementService {
             groupedData.set(key, { values: [], alarms: [] });
           }
           groupedData.get(key)?.values.push(item[valueField]);
+          // Ensure alarms array is true if any value in the interval has send_alarm=true
           groupedData.get(key)?.alarms.push(!!item.send_alarm);
         } catch (e) {
           console.log('Error processing item for grouping:', item);
@@ -675,16 +679,29 @@ class MeasurementService {
           Number((group.values.reduce((sum, val) => sum + val, 0) / group.values.length).toFixed(1))
         ),
         unit: this.getUnitForParameter(this.currentParameter),
-        alarms: sortedEntries.map(([_, group]) => group.alarms.some(Boolean))
+        // alarms is true for an interval if any value in that interval had send_alarm=true AND the average is out of range
+        alarms: sortedEntries.map(([_, group], idx) => {
+          const avg = group.values.reduce((sum, val) => sum + val, 0) / group.values.length;
+          let isAlarm = group.alarms.some(Boolean);
+          // Check normal range for each parameter
+          if (this.currentParameter === 'pulse') {
+            if (avg >= 60 && avg <= 100) isAlarm = false;
+          } else if (this.currentParameter === 'temperature') {
+            if (avg >= 36.0 && avg <= 37.5) isAlarm = false;
+          } else if (this.currentParameter === 'humidity') {
+            if (avg >= 40 && avg <= 60) isAlarm = false;
+          }
+          return isAlarm;
+        }),
+        rawData: filteredData
       };
 
       console.log('Final chart data:', result);
       return result;
     }
 
-    // For weekly and monthly views, group data
-    const groupedData = new Map<string, number[]>();
-    
+    // For weekly and monthly views, group data and set alarms array
+    const groupedData = new Map<string, { values: number[]; alarms: boolean[] }>();
     filteredData.forEach(item => {
       const rawDate = item.timestamp || item.created_at;
       if (!rawDate) return;
@@ -694,47 +711,54 @@ class MeasurementService {
 
       if (timeRange === 'weekly') {
         // Group by day for weekly view
-        key = date.toISOString().slice(0, 10); // YYYY-MM-DD
+        key = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
       } else {
-        // Group by week for monthly view
-        const weekStart = new Date(date);
-        weekStart.setDate(date.getDate() - date.getDay()); // Start of week
-        key = weekStart.toISOString().slice(0, 10); // YYYY-MM-DD
+        // Group by month for monthly view
+        key = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
       }
 
       if (!groupedData.has(key)) {
-        groupedData.set(key, []);
+        groupedData.set(key, { values: [], alarms: [] });
       }
-      groupedData.get(key)?.push(item[valueField]);
+      groupedData.get(key)?.values.push(item[valueField]);
+      groupedData.get(key)?.alarms.push(!!item.send_alarm);
     });
 
-    // Calculate averages and create labels
-    const labels: string[] = [];
-    const values: number[] = [];
+    // Sort by time
+    const sortedEntries = Array.from(groupedData.entries())
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime());
 
-    groupedData.forEach((valuesArray, key) => {
-      const average = valuesArray.reduce((sum, val) => sum + val, 0) / valuesArray.length;
-      let label: string;
-
-      if (timeRange === 'weekly') {
-        // Format as Day of week
-        label = new Date(key).toLocaleDateString([], { weekday: 'short' });
-      } else {
-        // Format as Week of month
-        const weekDate = new Date(key);
-        const weekNumber = Math.ceil((weekDate.getDate() + weekDate.getDay()) / 7);
-        label = `Week ${weekNumber}`;
-      }
-
-      labels.push(label);
-      values.push(Number(average.toFixed(1)));
-    });
-
-    return {
-      labels,
-      values,
-      unit: this.getUnitForParameter(this.currentParameter)
+    const result = {
+      labels: sortedEntries.map(([key]) => {
+        const date = new Date(key);
+        if (timeRange === 'weekly') {
+          return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        } else {
+          return date.toLocaleDateString([], { year: 'numeric', month: 'short' });
+        }
+      }),
+      values: sortedEntries.map(([_, group]) => 
+        Number((group.values.reduce((sum, val) => sum + val, 0) / group.values.length).toFixed(1))
+      ),
+      unit: this.getUnitForParameter(this.currentParameter),
+      // alarms is true for an interval if any value in that interval had send_alarm=true AND the average is out of range
+      alarms: sortedEntries.map(([_, group], idx) => {
+        const avg = group.values.reduce((sum, val) => sum + val, 0) / group.values.length;
+        let isAlarm = group.alarms.some(Boolean);
+        // Check normal range for each parameter
+        if (this.currentParameter === 'pulse') {
+          if (avg >= 60 && avg <= 100) isAlarm = false;
+        } else if (this.currentParameter === 'temperature') {
+          if (avg >= 36.0 && avg <= 37.5) isAlarm = false;
+        } else if (this.currentParameter === 'humidity') {
+          if (avg >= 40 && avg <= 60) isAlarm = false;
+        }
+        return isAlarm;
+      }),
+      rawData: filteredData
     };
+
+    return result;
   }
 
   async getPulseHistory(timeRange: 'daily' | 'weekly' | 'monthly', selectedDate: Date) {

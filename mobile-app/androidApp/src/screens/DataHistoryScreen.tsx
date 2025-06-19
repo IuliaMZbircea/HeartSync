@@ -41,6 +41,7 @@ const DataHistoryScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedParameter, setSelectedParameter] = useState<'pulse' | 'temperature' | 'humidity'>('pulse');
   const [chartData, setChartData] = useState<any>(null);
+  const [alarmList, setAlarmList] = useState<any[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -78,6 +79,13 @@ const DataHistoryScreen = () => {
       }
 
       setChartData(processedData);
+      // Fetch and filter alarms for the current parameter and time range
+      if (processedData && processedData.rawData) {
+        const alarms = processedData.rawData.filter((item: any) => item.send_alarm);
+        setAlarmList(alarms);
+      } else {
+        setAlarmList([]);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('Failed to load data. Please try again.');
@@ -176,28 +184,30 @@ const DataHistoryScreen = () => {
           bezier
           style={styles.chart}
           renderDotContent={({ x, y, index, indexData }) => {
-            if (chartData.alarms && chartData.alarms[index]) {
-              return (
-                <View
-                  key={index}
-                  style={{
-                    position: 'absolute',
-                    left: x - 6,
-                    top: y - 6,
-                    width: 12,
-                    height: 12,
-                    borderRadius: 6,
-                    backgroundColor: 'red',
-                    borderWidth: 2,
-                    borderColor: '#fff',
-                    zIndex: 10
-                  }}
-                />
-              );
-            }
             return null;
           }}
         />
+        {/* Activated Alarms List */}
+        <View style={styles.alarmsListContainer}>
+          <Text style={styles.alarmsListTitle}>Activated Alarms</Text>
+          {alarmList.length === 0 ? (
+            <Text style={styles.noAlarmsText}>No alarms detected for this period. 🎉</Text>
+          ) : (
+            alarmList.map((alarm, idx) => (
+              <View key={idx} style={styles.alarmCard}>
+                <View style={styles.alarmIconContainer}>
+                  <Icon name="warning" size={24} color="#e53935" />
+                </View>
+                <View style={styles.alarmInfoContainer}>
+                  <Text style={styles.alarmValue}>
+                    {selectedParameter.charAt(0).toUpperCase() + selectedParameter.slice(1)}: <Text style={styles.alarmValueNumber}>{alarm[selectedParameter] ?? alarm.value}</Text> {chartData.unit}
+                  </Text>
+                  <Text style={styles.alarmTimestamp}>{new Date(alarm.timestamp || alarm.created_at).toLocaleString()}</Text>
+                </View>
+              </View>
+            ))
+          )}
+        </View>
         <Text style={styles.unitLabel}>
           {timeRange === 'daily' ? chartData.unit : `Average ${chartData.unit}`}
         </Text>
@@ -492,6 +502,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 16,
   },
+  alarmsListContainer: { marginTop: 18, backgroundColor: '#fff', borderRadius: 12, padding: 14, shadowColor: '#e53935', shadowOpacity: 0.08, shadowRadius: 8, elevation: 2 },
+  alarmsListTitle: { fontSize: 17, fontWeight: 'bold', color: '#e53935', marginBottom: 10, letterSpacing: 0.2 },
+  noAlarmsText: { fontSize: 15, color: '#388e3c', textAlign: 'center', marginVertical: 8 },
+  alarmCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff5f5', borderRadius: 8, marginBottom: 10, padding: 10, borderLeftWidth: 5, borderLeftColor: '#e53935', shadowColor: '#e53935', shadowOpacity: 0.06, shadowRadius: 4, elevation: 1 },
+  alarmIconContainer: { marginRight: 12 },
+  alarmInfoContainer: { flex: 1 },
+  alarmValue: { fontSize: 16, fontWeight: '600', color: '#b71c1c' },
+  alarmValueNumber: { fontSize: 18, fontWeight: 'bold', color: '#e53935' },
+  alarmTimestamp: { fontSize: 13, color: '#888', marginTop: 2 },
 });
 
 export default DataHistoryScreen; 
