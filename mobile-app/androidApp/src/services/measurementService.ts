@@ -2,7 +2,7 @@ import axios from 'axios';
 import authService from './authService';
 import { API_URL } from '../config';
 
-const API_URL_LOCAL = 'https://052e-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app';
+const API_URL_LOCAL = 'https://4c71-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app';
 
 // Thresholds for normal ranges
 const NORMAL_RANGES = {
@@ -44,7 +44,7 @@ let customThresholds: Record<string, { min: number, max: number }> = {};
 
 export async function fetchCustomAlarms() {
   try {
-    const res = await axios.get('https://052e-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app/thresholds');
+    const res = await axios.get('https://4c71-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app/thresholds');
     customThresholds = {};
     res.data.forEach((item: any) => {
       customThresholds[item.parameter] = { min: item.minValue, max: item.maxValue };
@@ -74,7 +74,7 @@ export async function sendThresholdAlarm(parameter: string, patient_id: number) 
     createdAt: now.toISOString().slice(0, 19).replace('T', ' ')
   };
   try {
-    await axios.post('https://052e-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app/thresholds', payload);
+    await axios.post('https://4c71-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app/thresholds', payload);
     console.log('Alarm sent to /thresholds:', payload);
   } catch (e) {
     console.error('Failed to send alarm to /thresholds', e);
@@ -338,8 +338,6 @@ class MeasurementService {
     
     console.log('🫀 Sending ECG to endpoint:', url);
     console.log('🫀 ECG payload:', payload);
-    console.log('🫀 Raw waveform value:', waveform);
-    console.log('🫀 API_URL_LOCAL:', API_URL_LOCAL);
     
     try {
       console.log('🫀 Making POST request to:', url);

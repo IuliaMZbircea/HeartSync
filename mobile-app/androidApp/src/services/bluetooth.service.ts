@@ -1,7 +1,7 @@
 import BluetoothSerial from 'react-native-bluetooth-serial';
 import axios from 'axios';
 
-const API_URL = 'https://052e-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app';
+const API_URL = 'https://4c71-2a02-2f09-3e08-2500-1cde-68c6-f748-ea31.ngrok-free.app';
 
 // Debug flag - set to true to see detailed logs
 const DEBUG = true;
