@@ -10,34 +10,41 @@
   </div>
   <div class="navbar-right">
     <button class="btn-auth" (click)="navigateToHelpSection()">
-      <mat-icon>help</mat-icon> Help
+      <mat-icon>help</mat-icon> {{ 'Help' | translate }}
     </button>
+    <select #langSelect class="language-select" [value]="currentLang" (change)="changeLanguage(langSelect.value)">
+      <option value="ro">Română</option>
+      <option value="en"> English</option>
+    </select>
+
+
     <button class="btn-home" (click)="navigateToHome()">
-      <mat-icon>home</mat-icon> Home
+      <mat-icon>home</mat-icon> {{ 'Home' | translate }}
     </button>
 
     <div *ngIf="isAuthenticated">
       <button class="btn-auth" (click)="navigateToPatientList()">
-        <mat-icon>people</mat-icon>  Patient List
+        <mat-icon>people</mat-icon>  {{ 'Patient List ' | translate }}
       </button>
     </div>
 
     <div *ngIf="role==='ROLE_ADMIN'">
       <button class="btn-auth" (click)="navigateToDashboard()">
-        <mat-icon>people</mat-icon> Dashboard
+        <mat-icon>people</mat-icon> {{ 'Dashboard' | translate }}
       </button>
     </div>
 
     <ng-container *ngIf="!isAuthenticated; else loggedIn">
       <button class="btn-auth" (click)="navigateToAuth()">
-        <mat-icon>login</mat-icon> Authenticate
+        <mat-icon>login</mat-icon> {{ 'Authentificate' | translate }}
       </button>
     </ng-container>
 
     <ng-template #loggedIn>
       <button class="btn-logout" (click)="logout()">
-        <mat-icon>logout</mat-icon> Logout
+        <mat-icon>logout</mat-icon> {{ 'Logout' | translate }}
       </button>
     </ng-template>
+
   </div>
 </nav>
