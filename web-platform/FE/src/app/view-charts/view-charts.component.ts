@@ -58,12 +58,11 @@ export class ViewChartsComponent implements OnInit {
     responsive: true,
     scales: {
       y: {
+        min: -1,
+        max: 1,
         title: {
           display: true,
-          text: 'Voltage (mV)'
-        },
-        grid: {
-          color: 'rgba(0,0,0,0.1)'
+          text: 'Tensiune (mV)'
         }
       },
       x: {
