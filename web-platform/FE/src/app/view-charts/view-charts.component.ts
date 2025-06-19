@@ -102,7 +102,7 @@ export class ViewChartsComponent implements OnInit {
     responsive: true,
     scales: {
       y: {
-        min: 34,
+        min: 28,
         max: 42,
         title: {
           display: true,
@@ -136,7 +136,7 @@ export class ViewChartsComponent implements OnInit {
     scales: {
       y: {
         min: 40,
-        max: 140,
+        max: 100,
         title: {
           display: true,
           text: 'Beats per minute'
@@ -201,7 +201,7 @@ export class ViewChartsComponent implements OnInit {
     if (id !== null) {
       this.patientService.getPulseById(id).subscribe(
         data => {
-          this.pulseData = data.slice(-1000).reverse();
+          this.pulseData = data.slice(-500).reverse();
 
           this.lineChartData.labels = this.pulseData.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -217,7 +217,7 @@ export class ViewChartsComponent implements OnInit {
 
       this.patientService.getTemperatureById(id).subscribe(
         tempData => {
-          this.temperatureData = tempData.slice(-500).reverse();
+          this.temperatureData = tempData.slice(-400).reverse();
 
           this.temperatureChartData.labels = this.temperatureData.map((entry: any) => {
             const time = new Date(entry.created_at);
@@ -233,7 +233,7 @@ export class ViewChartsComponent implements OnInit {
 
       this.patientService.getECGById(id).subscribe(
         (ecg: any[]) => {
-          const last50 = ecg.slice(-500);
+          const last50 = ecg.slice(-300);
 
           const waveforms = last50.map(entry => entry.waveforms);
           this.ecgChartData.labels = last50.map(entry => {
